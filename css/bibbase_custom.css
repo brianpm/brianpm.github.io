@@ -1,15 +1,3 @@
-.link {
-	display: inline-block;
-	padding: 0 0px 0 0px;
-	line-height: 20px;
-	font-size: 1em;
-	font-style: normal;
-	text-decoration: none;
-	color: #71c8ec;
-	text-transform: uppercase;
-	font-weight: 700;
-}
-
 #bibbase_header a {
     text-decoration: none;
 }
@@ -100,8 +88,17 @@ img.bibbase_icon:hover {
 }
 
 .bibbase.link {
-    text-decoration: none;
+	display: inline-block;
+	padding: 0 0px 0 0px;
+	line-height: 20px;
+	font-size: 1em;
+	font-style: normal;
+	text-decoration: none;
+	color: #71c8ec;
+	text-transform: uppercase;
+	font-weight: 700;
 }
+
 
 .bibbase_paper_content {
     font-size: smaller;
@@ -114,8 +111,12 @@ img.bibbase_icon:hover {
 
 
 .bibbase_paper_title {
-    font-weight: bold;
-    color:green;
+        font-size: 1.2em;
+	font-weight: 300;
+	color: gray;
+	width: 50%;
+	line-height: 1.8em;
+	margin: 1em auto;
 }
 
 .bibbase_paper_title a {
@@ -129,8 +130,16 @@ img.bibbase_icon:hover {
 
 .bibbase_paper_author {
     color:gray;
+    font-weight: 500;
 }
+
+/* This is basically controlled by .link */
 .bibbase_paper_author a {
+    color:blue;
+}
+
+/* This works because no over in .link */
+.bibbase_paper_author a:hover {
     color:blue;
 }
 
@@ -160,10 +169,6 @@ span.bibbase_group_count {
 .bibbase.well {
     margin: 20px;
     overflow-wrap: break-word;
-}
-
-.bibbase.link {
-    text-decoration: none;
 }
 
 .bibbase_paper_content {
