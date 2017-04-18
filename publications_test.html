@@ -1,0 +1,55 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>publication.test.brian</title>
+<link href="css/bibbase_custom.css" rel="stylesheet">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Science, Climate, Clouds" />
+<script type="application/x-javascript">
+    addEventListener("load", function() { setTimeout(hideURLbar, 0);
+}, false); function hideURLbar(){ window.scrollTo(0,1); }
+</script>
+<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" href="css/flexslider.css" type="text/css" media="screen" />
+<script src="js/jquery.min.js"></script>
+</head>
+
+<body>
+<!-- header -->
+<div id="nav-placeholder">
+<script>
+$.get("navigation.html", function(data){
+    $("#nav-placeholder").replaceWith(data);
+});
+  </script>
+</div>
+
+<!-- very helpful: -->
+<!-- https://threejs.org/docs/#Manual/Getting_Started/How_to_run_things_locally -->
+
+<div class="clearfix"> </div>
+<div class="initial">
+  <script
+  src="https://bibbase.org/show?bib=http%3A%2F%2Fwww.cgd.ucar.edu%2F%7Ebrianpm%2Fdownload%2Fexport_bib.bib&jsonp=1&css=css/bibbase_custom.css">
+  </script>
+</div>
+<div class="clearfix"> </div>
+
+<!-- footer -->
+<div class="footer">
+<div id="footer-placeholder">
+  <script>
+  $.get("footer.html", function(data){
+  $("#footer-placeholder").replaceWith(data);
+  });
+  </script>
+</div>
+</div>
+<!-- footer -->
+
+
+</body>
+</html>
