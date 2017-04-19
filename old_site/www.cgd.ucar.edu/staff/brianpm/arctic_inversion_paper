@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <title>arctic_inversion_paper.brian</title>
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Josefin+Sans+Std+Light' rel='stylesheet' type='text/css'>
+  <link href="goog.nav.css" rel="stylesheet" type="text/css" media="all" />
+  <!--	<link href="navlist.css" rel="stylesheet" type="text/css" media="all" /> -->
+</head>
+
+		<body>
+				<ul class="googleTab">
+					<li><a href="index.html">home</a></li>
+					<li><a href="vitae.html">vita</a></li>
+					<li><a href="pubs.html">publications</a></li>
+					<li><a href="research.html">research</a></li>
+					<li><a href="downloads.html">downloads</a></li>
+				</ul>
+
+			<!-- InstanceBeginEditable name="content" -->
+				<div style="width:800px;">
+						<p align="right"><font size="+1" color="#990000">Available from <a class="bdy" href="http://dx.doi.org/10.1175/2011JCLI3968.1">AMS</a></font>.</p>
+						
+				</div>
+					
+					
+					<div style="width:800px;">
+						<h1 align="center">Arctic inversion strength in climate models</h1>
+						<p align="center">Brian Medeiros, Clara Deser, Robert A. Tomas, Jennifer E. Kay</p>
+						<p align="center">ABSTRACT</p>
+						<p align="justify">Recent work indicates that climate models have a positive bias in the strength of the winter- time low-level temperature inversion over the high-latitude northern hemisphere. It has been argued this bias leads to underestimates of the Arctic’s surface temperature response to an- thropogenic forcing. Here the bias in inversion strength is revisited. The spatial distribution of low-level stability is found to be bimodal in climate models and observational reanalysis products, with low-level inversions represented by a stable primary mode over the interior Arctic Ocean and adjacent continents, and a secondary unstable mode over the Atlantic Ocean. Averaging over these differing conditions is detrimental to understanding the origins of the inversion strength bias. While nearly all of the 21 models examined overestimate the area-average inversion strength, conditionally sampling the two modes shows about half the models are biased because of the relative partitioning of the modes and half because of biases within the stable mode.</p>
+					</div>
+				</div>

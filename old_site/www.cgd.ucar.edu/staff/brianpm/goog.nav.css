@@ -1,0 +1,356 @@
+html, body, span, applet, object, iframe, h3, h4, h5, p, blockquote, pre, a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, 
+fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td {background: transparent;border: 0;margin: 0; padding: 0; vertical-align: baseline;list-style:none}
+body { color: #393939; font-family: 'woodford_bourneregular'; font-style: normal}
+p    { font-family: 'woodford_bourneregular'; padding: 11px; color: #404040}
+/* h1      { font-family: 'Josefin Sans Std Light'; font-size: 24px; line-height:150%} */
+h1      { font-family: 'latin_modern_sans10_regular','League Gothic'; font-size: 32px; line-height:150%} 
+h2      { font-family: 'latin_modern_sans10_regular','League Gothic'; font-size: 22px; line-height:150%} 
+h3      { font-family: 'latin_modern_sans10_regular','League Gothic'; font-size: 20px; line-height:150%} 
+h4      { font-family: 'latin_modern_sans10_regular','League Gothic'; font-size: 18px; line-height:150%} 
+h5      { font-family: 'latin_modern_sans10_regular','League Gothic'; font-size: 16px; line-height:150%} 
+h6      { font-family: 'latin_modern_sans10_regular'; font-size: 28px; color: #404040;margin: 0; padding: 10px; vertical-align: baseline}
+ul 	{ margin: 5px; vertical-align: top; list-style-type:square; list-style-position:outside;}
+ol 	{ margin: 5px; vertical-align: top; list-style-type:lower-roman; list-style-position:inside;}
+li      {inherit}
+
+
+/* Navigation styles */
+
+/* this is to contain the nav bar and keep it still at the top. */
+#HoldStill {
+    position: fixed;
+    min-width: 400px;
+    max-width: 2048px;
+    margin: 0px auto; 
+    width: 100%;
+    top:0px;
+    padding:0;
+/*    background:-moz-linear-gradient(0% 100% 90deg,#ffffff, #dddddd);
+    background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#dddddd), to(#ffffff));
+*/
+}
+
+ul.googleTab {
+	margin: 0;
+	top:0px;
+	background:black; 
+	padding:0 5px;
+	font-size:15px;
+	overflow:hidden;
+        font-family: 'Droid Sans',Helvetica;
+	list-style-type:none;
+/*	background: #848383; */
+/*	color:#0062EA; */
+/*	background:-moz-linear-gradient(0% 100% 90deg,#ffffff, #dddddd);
+	background:-webkit-gradient(linear, 0% 0%, 0% 100%, from(#dddddd), to(#ffffff));
+*/
+}
+ul.googleTab li	{
+	float:left;
+	padding:7px 8px;
+	border-top:solid 2px #FAAC3E;	
+}
+ul.googleTab li.active{
+	border-top: solid 2px #000000;
+	color:white /* #363636; */
+	font-weight:bold;
+}
+ul.googleTab li.inactive{
+	color:white /* #363636; */
+        font-weight:regular;
+}
+ul.googleTab li:hover	{
+	background:#FAAC3E;
+	cursor:pointer;
+	color:#363636;
+}
+ul.googleTab a:link
+{ 
+color:white;
+background-color:transparent;
+text-decoration: none;
+}
+ul.googleTab a:visited
+{ 
+color:white;
+background-color:transparent;
+text-decoration: none;
+}
+ul.googleTab a:hover
+{
+color:black;
+background-color:transparent;
+text-decoration: none
+}
+
+/* Link styles */
+a:link
+{ 
+color:#393939;
+background-color:transparent;
+text-decoration: none;
+}
+a:visited
+{
+color:#393939;
+background-color:transparent;
+text-decoration: none
+}
+a.bdy:hover
+{
+color:#aaaaaa;
+background-color:transparent;
+text-decoration: none
+}
+
+/* Circular Images */
+/* .img-circle just rounds the corners, works for square images (efficient) */
+.img-circle {
+    border-radius: 50%;
+}
+/* .circular makes a class with a circular shape, with a background image (http://bavotasan.com/2011/circular-images-with-css3/) */
+.circular {
+	width: 300px;
+	height: 300px;
+	border-radius: 150px;
+	-webkit-border-radius: 150px;
+	-moz-border-radius: 150px;
+	background: url(pics/106.jpg) no-repeat;
+	background-size: cover;
+	position:fixed;
+	}
+
+/* Non-navigation styles */
+p.gray  { 
+    padding: 10px;
+    color:#aaaaaa;
+    }
+#wrap {
+    float: left;
+    width:900px;
+    margin: 0 auto;
+}    
+#faux {
+ margin: 10px 0px;
+ overflow: auto;
+ width: 100%
+}
+#left {
+    clear: left;
+    float: left;
+    width: 400px;
+	padding: 20px 0;
+	margin: 0 0 0 30px;
+	display: inline;
+}
+#right {
+    float: right;
+    width: 400px;
+	padding: 20px 0;
+	margin: 0 20px 0 0;
+	display: inline;
+	position: relative;
+}
+#footer { clear: both; }
+
+#wraptwo {
+    float: left;
+    width:1000px;
+    margin: 0 auto;
+    }
+#lefttwo {
+    clear: left;
+    float: left;
+    width: 550px;
+	padding: 20px 0;
+	margin: 0 0 0 30px;
+	display: inline;
+	}
+#righttwo {
+    float: right;
+    width: 400px;
+	padding: 20px 0;
+	margin: 0 20px 0 0;
+	display: inline;
+	position: relative;
+}
+b.sc {
+    font-family:'latin_modern_sans10_regular','League Gothic';
+    font-variant:small-caps;
+    color:#0062EA;
+    font-size: 20px
+}
+
+/* SECTION */
+section#main {
+    margin: auto;
+    position:relative;
+    left: 30%;
+    width:710px;  
+    float:left;
+    padding-left:25px; 
+    padding-right:25px;
+    padding-bottom:20px;
+    padding-top:0px;
+ }
+ 
+/* Styling for image div with caption */
+ .article_img {
+     float:right;
+     width:400px;
+     padding:5px;
+     border:1px solid gray;
+     margin: 5px 20px 5px 0px;
+ } 
+ 
+/* Styling for caption within image div */
+ .article_img p {
+     margin-top:0px;
+     margin-bottom:0px;  
+     font-size:0.6em;
+     font-style:italic;
+     padding-top:5px;
+ }
+
+/* Try a hero image on front page? (http://zurb.com/building-blocks/hero-image-with-text-and-image) */
+.hero {
+  background: url("pics/earth_astronaut_flickr.jpg") no-repeat center center; 
+/*  background: url("pics/ca_sc_modis_flickr.jpg") no-repeat center center; */
+  background-size: cover;
+  height: 100vh;
+}
+    .hero:before {
+    content: '';
+    position: absolute;
+    top: 100px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: linear-gradient(0deg, gray, transparent);
+    opacity: .8; }
+    
+.hero h1 {
+    color: #fff;
+    font-size:32px;
+}
+.hero p {color: #fff;
+	}
+.hero a:link
+{ 
+color:#CEF6F5;
+background-color:transparent;
+text-decoration: none;
+}
+.hero a:visited
+{
+color:#CEF6F5;
+background-color:transparent;
+text-decoration: none
+}
+.hero a.bdy:hover
+{
+color:#FAAC3E;
+background-color:transparent;
+text-decoration: none
+}
+/* ......[end hero]...... */
+ 
+/* parallax code */
+/* ============================================================
+  PRIMARY STRUCTURE
+============================================================ */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+}
+/* ============================================================
+  SECTIONS
+============================================================ */
+section.module:last-child {
+  margin-bottom: 0;
+}
+section.module h2 {
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-family: 'woodford_bourneregular';'latin_modern_sans10_regular';"Roboto Slab", serif;
+    font-size: 48px;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    line-height: 300px;
+    color:#EBF4FA;
+}
+
+section.module p {
+    font-family:'latin_modern_sans10_regular';
+    margin-bottom: 0px;
+    margin-top: 0px;
+    font-size: 16px;
+    font-weight: 300;
+}
+section.module ul {
+    padding:0;
+    font-family:'latin_modern_sans10_regular';
+    list-style-type:square;
+    list-style-position:inside;
+}
+
+section.module b.sc2 {
+    font-family:'latin_modern_sans10_regular','League Gothic';
+    font-variant:small-caps;
+    color:#385970;
+    font-size: 20px
+}
+section.module p:last-child {
+  margin-bottom: 0;
+}
+section.module.content {
+    padding: 0px 0;
+    margin:0;
+}
+section.module.parallax {
+  height: 300px;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+section.module.parallax h1 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 48px;
+  line-height: 300px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+section.module.parallax-1 {
+  background-image: url("pics/343.jpg");
+}
+section.module.parallax-2 {
+  background-image: url("pics/GOES_earth_flickr.jpg");
+}
+section.module.parallax-3 {
+  background-image: url("pics/modis_cellular_peru.jpg");
+}
+
+@media all and (min-width: 600px) {
+  section.module h2 {
+    font-size: 96px;
+  }
+  section.module p {
+    font-size: 20px;
+  }
+  section.module ul {
+      font-size: 18px;
+      color:#6F4E37;
+  }
+  section.module.parallax h1 {
+    font-size: 96px;
+  }
+}
+@media all and (min-width: 960px) {
+  section.module.parallax h1 {
+    font-size: 160px;
+  }
+}

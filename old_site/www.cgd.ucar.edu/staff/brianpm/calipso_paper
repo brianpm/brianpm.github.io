@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <title>calipso_paper.brian</title>
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Josefin+Sans+Std+Light' rel='stylesheet' type='text/css'>
+  <link href="goog.nav.css" rel="stylesheet" type="text/css" media="all" />
+  <!--	<link href="navlist.css" rel="stylesheet" type="text/css" media="all" /> -->
+</head>
+	<body>
+		<ul class="googleTab">
+			<li><a href="index.html">home</a></li>
+			<li><a href="vitae.html">vita</a></li>
+			<li><a href="pubs.html">publications</a></li>
+			<li><a href="research.html">research</a></li>
+			<li><a href="downloads.html">downloads</a></li>
+		</ul>
+		<div style="width:800px;">
+			<p align="right"><font size="+1" color="#990000">JGR-Atmospheres, AGU</font></p>
+			<p align="right">
+			<a class="bdy" href="http://dx.doi.org/10.1029/2010JD014437">LINK</a></p>
+		</div>
+					
+	<div style="width:800px;">
+		<h1 align="center">Low-latitude boundary layer clouds as seen by CALIPSO</h1>
+		<p align="center">Brian Medeiros, Louise Nuijens, Chiara Antoniazzi &amp; Bjorn Stevens</p>
+		<p align="center">ABSTRACT</p>
+		<p align="justify">The distribution of low-level cloud in the tropical belt is investigated using 6
+months of Level 2 retrievals from CALIPSO at 333 m and
+1 km horizontal resolutions. Regional patterns of
+tropical clouds emerge from the data, matching expectations from
+existing observations. The
+advantage of the lidar is highlighted by the
+distribution of cloud-top height, revealing the preponderance of
+low-level clouds over the tropical oceans. Over
+land, cloud-top is more uniformly distributed under the influence of diurnal
+variation. The integrated cloud-top distribution suggests tropical,
+marine low-cloud amount around 25-30%; a merged CALIPSO-CloudSat product has a
+similar cloud-top distribution, and includes a complementary estimate of cloud
+fraction based on the lidar detections. The low-cloud
+distribution is similar to that found in fields of shallow cumulus observed during the RICO field study. The similarity is enhanced by sampling near the RICO site or sampling large-scale conditions similar to those during RICO. This
+finding shows how satellite observations can help to generalize findings
+from detailed field observations. 
+		</p>
+		<p><it><b>Citation:</b></it><BR>
+				Medeiros, B., L. Nuijens, C. Antoniazzi, and B. Stevens (2010), Low-latitude boundary layer clouds as seen by CALIPSO, J. Geophys. Res., 115, D23207, doi:10.1029/2010JD014437.</p>
+	</div>
+
+	<p>Links:
+	<UL>
+		<li><a class="bdy" href="http://www-calipso.larc.nasa.gov/">CALIPSO Project</a></li>
+		<li><a class="bdy" href="http://www.ecmwf.int/research/era/do/get/era-interim">ERA-Interim Reanalysis</a></li>
+		<li><a class="bdy" href="http://www.eol.ucar.edu/projects/rico/">RICO Field Campaign</a></li>
+		<li><a class="bdy" href="http://isccp.giss.nasa.gov/">ISCCP Site</a></li>
+		<li><a class="bdy" href="http://cloudsat.atmos.colostate.edu/">CloudSat Site</a></li>
+	</UL>
+	</p>
+
+	</body>
+</html>

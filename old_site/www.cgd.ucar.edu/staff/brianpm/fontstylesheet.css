@@ -1,0 +1,104 @@
+/* WEB FONTS DOWNLOADED */
+/* Regular */
+@font-face {
+    font-family: 'League Gothic';
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-regular-webfont.eot');
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-regular-webfont.eot?') format('embedded-opentype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-regular-webfont.woff') format('woff'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-regular-webfont.ttf') format('truetype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-regular-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+/* Italic */
+@font-face {
+    font-family: 'League Gothic';
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-italic-webfont.eot');
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-italic-webfont.eot?') format('embedded-opentype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-italic-webfont.woff') format('woff'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-italic-webfont.ttf') format('truetype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-italic-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: italic;
+
+}
+
+/* Condensed */
+@font-face {
+    font-family: 'League Gothic Condensed';
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-regular-webfont.eot');
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-regular-webfont.eot?') format('embedded-opentype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-regular-webfont.woff') format('woff'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-regular-webfont.ttf') format('truetype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-regular-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+/* Condensed Italic */
+@font-face {
+    font-family: 'League Gothic Condensed';
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-italic-webfont.eot');
+    src: url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-italic-webfont.eot?') format('embedded-opentype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-italic-webfont.woff') format('woff'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-italic-webfont.ttf') format('truetype'),
+         url('FONTS/theleagueof-league-gothic-64c3ede/webfonts/leaguegothic-condensed-italic-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
+/* WOODFORD */
+@font-face {
+    font-family: 'woodford_bourneregular';
+    src: url('FONTS/Woodford-Bourne-Regular-Webfont/Webfonts/woodfordbourne_regular_macroman/woodfordbourne-regular-webfont.eot');
+    src: url('FONTS/Woodford-Bourne-Regular-Webfont/Webfonts/woodfordbourne_regular_macroman/woodfordbourne-regular-webfont.eot?') format('embedded-opentype'),
+         url('FONTS/Woodford-Bourne-Regular-Webfont/Webfonts/woodfordbourne_regular_macroman/woodfordbourne-regular-webfont.woff2') format('woff2'),
+         url('FONTS/Woodford-Bourne-Regular-Webfont/Webfonts/woodfordbourne_regular_macroman/woodfordbourne-regular-webfont.woff') format('woff'),
+         url('FONTS/Woodford-Bourne-Regular-Webfont/Webfonts/woodfordbourne_regular_macroman/woodfordbourne-regular-webfont.ttf') format('truetype'),
+         url('FONTS/Woodford-Bourne-Regular-Webfont/Webfonts/woodfordbourne_regular_macroman/woodfordbourne-regular-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+@font-face {
+    font-family: 'woodford_bourneitalic';
+    src: url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Woodford-Bourne-Italic-Webfont/Webfonts/woodfordbourne-italic-webfont.eot');
+    src: url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Woodford-Bourne-Italic-Webfont/Webfonts/woodfordbourne-italic-webfont.eot?') format('embedded-opentype'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Woodford-Bourne-Italic-Webfont/Webfonts/woodfordbourne-italic-webfont.woff2') format('woff2'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Woodford-Bourne-Italic-Webfont/Webfonts/woodfordbourne-italic-webfont.woff') format('woff'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Woodford-Bourne-Italic-Webfont/Webfonts/woodfordbourne-italic-webfont.ttf') format('truetype'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Woodford-Bourne-Italic-Webfont/Webfonts/woodfordbourne-italic-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+/* Latin Modern Sans 10 */
+@font-face {
+    font-family: 'latin_modern_sans10_regular';
+    src: url('FONTS/Latin-Modern-Sans-fontfacekit/webfonts/latinmodernsans_10regular_macroman/lmsans10-regular-webfont.eot');
+    src: url('FONTS/Latin-Modern-Sans-fontfacekit/webfonts/latinmodernsans_10regular_macroman/lmsans10-regular-webfont.eot?') format('embedded-opentype'),
+         url('FONTS/Latin-Modern-Sans-fontfacekit/webfonts/latinmodernsans_10regular_macroman/lmsans10-regular-webfont.woff') format('woff'),
+         url('FONTS/Latin-Modern-Sans-fontfacekit/webfonts/latinmodernsans_10regular_macroman/lmsans10-regular-webfont.ttf') format('truetype'),
+         url('FONTS/Latin-Modern-Sans-fontfacekit/webfonts/latinmodernsans_10regular_macroman/lmsans10-regular-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+/* Sophia Pro Light */
+@font-face {
+    font-family: 'sofia_prolight';
+    src: url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Webfonts/sofiapro_light_macroman/SofiaProLight-webfont.eot');
+    src: url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Webfonts/sofiapro_light_macroman/SofiaProLight-webfont.eot?') format('embedded-opentype'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Webfonts/sofiapro_light_macroman/SofiaProLight-webfont.woff2') format('woff2'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Webfonts/sofiapro_light_macroman/SofiaProLight-webfont.woff') format('woff'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Webfonts/sofiapro_light_macroman/SofiaProLight-webfont.ttf') format('truetype'),
+         url('http://www.cgd.ucar.edu/staff/brianpm/FONTS/Webfonts/sofiapro_light_macroman/SofiaProLight-webfont.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+/* --- END OF FONTS --- */

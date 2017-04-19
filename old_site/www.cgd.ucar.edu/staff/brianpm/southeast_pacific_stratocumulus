@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+  <title>southeast_pacific_stratocumulus.brian</title>
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+  <link href='http://fonts.googleapis.com/css?family=Josefin+Sans+Std+Light' rel='stylesheet' type='text/css'>
+  <link href="goog.nav.css" rel="stylesheet" type="text/css" media="all" />
+  <!--	<link href="navlist.css" rel="stylesheet" type="text/css" media="all" /> -->
+</head>
+
+		<body>
+				<ul class="googleTab">
+					<li><a href="index.html">home</a></li>
+					<li><a href="vitae.html">vita</a></li>
+					<li><a href="pubs.html">publications</a></li>
+					<li><a href="research.html">research</a></li>
+					<li><a href="downloads.html">downloads</a></li>
+				</ul>
+
+			<!-- InstanceBeginEditable name="content" -->
+				<div style="width:800px;">
+				<p align="right"><font size="+1"
+				color="#990000">PrePrint <a class="bdy"
+				href="download/southeast_pacific_stratocumulus_revision_alt_acc.pdf">PDF</a>
+				or <a href="http://dx.doi.org/10.1175/JCLI-D-11-00503.1">AMS</a> </font></p>				  
+						
+				</div>
+					
+					
+					<div style="width:800px;">
+						<h1 align="center">Southeast Pacific stratocumulus in the Community Atmosphere Model</h1>
+						<p align="center">Brian Medeiros, David L. Williamson, Cecile Hannay, and Jerry G. Olson</p>
+						<p align="center">ABSTRACT</p>
+						<p align="justify">Forecasts of October 2006 are used to
+  investigate southeast Pacific stratocumulus in two versions of the
+  Community Atmosphere Model (CAM4 and CAM5). Both models quickly develop biases similar to their climatic
+  biases, suggesting that
+  parameterized physics are the root of the climate errors. An
+  extensive cloud deck is produced in CAM4, but the cloud structure
+  is unrealistic because the boundary layer is too shallow and moist. The 
+  boundary layer structure is improved in CAM5, but during the
+  daytime the boundary layer decouples from the cloud layer, causing
+  the cloud layer to break up and transition toward a more
+  trade-wind cumulus structure in the afternoon. The cloud liquid water budget 
+  shows how different parameterizations contribute to maintaining
+  these different expressions of stratocumulus. Sensitivity experiments help elucidate
+  the origins of the errors. The importance of the diurnal cycle of
+  these clouds for climate simulations is emphasized.</p>
+					</div>
+				</div>

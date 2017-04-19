@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+	<!-- InstanceBegin
+	template="../web-data/Templates/navbar-template.html" -->
+
+		<head>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans'
+rel='stylesheet' type='text/css'>
+<link
+href='http://fonts.googleapis.com/css?family=Josefin+Sans+Std+Light'
+rel='stylesheet' type='text/css'>
+			<meta name="generator" content="Adobe GoLive"
+			/> <meta http-equiv="content-type"
+			content="text/html;charset=utf-8"
+			/> <title>aquaplanet experimental design</title>
+			<!-- #BeginHeadLocked "" -->
+			<link href="http://www.cgd.ucar.edu/staff/brianpm/navlist.css" rel="stylesheet"
+			type="text/css" media="all" />
+			<!-- #EndHeadLocked -->
+		</head>
+
+		<body>
+			<!-- InstanceBeginEditable name="title.brian"
+			--> <h1>Using aquaplanets to
+			understand cloud effects in GCMs</h1>
+			<h2>Overview</h2>
+			<p>Aquaplanets are Earth-like planets with a completely water-covered surface. This
+			configuration has been used for a variety of applications in atmospheric and climate
+			science, with some of its advantages discussed
+			by Hoskins et al. (1999). The attractiveness
+			of this simplified geography was also
+			recognized by Lorenz, who wrote in
+			1967: 
+			  <BLOCKQUOTE><i>Within the collection of
+			possible planetary atmospheres, one which is  
+devoid of irregularities occupies a more central and fundamental position 
+than one with any speciﬁc arrangement of irregularities.</i></BLOCKQUOTE>
+			<img src="figures/ncar_globes.png"
+			alt="progression to an aquaplanet" id="fig1" name="fig1" width="450" border="1" align="right" />
+			Aquaplanets have recently been used to
+			investigate climate sensitivity of atmospheric
+			general circulation models (Miura et al. 2005,
+			Medeiros et al. 2008).   
+                       
+                        Medeiros et al. (2008) use two GCMs to show
+                        that aquaplanets have similar tropical
+                        climate sensitivity as the more Earth-like
+                        configurations of the same models. This is
+                        suggested to be caused by similar low-cloud
+                        response in near-tropical latitudes in the
+                        Earth-like and aquaplanet configurations. This
+                        makes the aquaplanet a useful framework for
+                        model intercomparison of cloud effects. </p>
+			<p>The
+                        advantage of the aquaplanet configuration is
+                        the relative simplicity. Removing zonal
+                        asymmetry makes zonal averages meaningful,
+                        reducing the dimensionality of the
+                        analysis. Similarly, aquaplanets that are
+                        symmetric about the equator double the
+                        sampling for every latitude. The configuration
+                        recommended below removes seasonal variation
+                        and sea-ice as well as land and SST
+                        asymmetries, which also
+                        allows for quite short integrations since all
+                        the slowly varying components of the system
+                        are controlled. Finally, the aquaplanet can be
+                        used to isolate particular regimes. With the
+                        configuration discussed here, for example, the
+                        descending branch of the Hadley circulation is
+                        populated by trade wind cumulus conditions,
+                        without the effects of stratocumulus. This
+                        isolation allows increased sampling of
+                        particular regimes, providing robust
+                        statistics, and an idealized laboratory
+                        for understanding, e.g., tropical cloud effects.
+			</p>
+			<p> Provided below are the requirements and
+			recommendations for designing aquaplanet
+			configurations comparable to those discussed
+			in Medeiros et al. (2008). To simplify the
+			climate perturbation, the recommended approach is to 
+			use a straightforward, global
+			increase in SST. This yields similar
+			results as those discussed in the paper, and
+			retains the baroclinicity of the
+			midlatitudes. <b>The CMIP requirement is for three simulations: (1) a control aquaplanet, (2) a 4x CO2 simulation, and (3) a SST+4K simulation. [<a href="http://cmip-pcmdi.llnl.gov/cmip5/">CMIP5</a>]</b>
+			</p>
+			<h2>Design Requirements</h2>
+			<p> The basic requirements are simply to
+			create an aquaplanet configuration following
+			the <a href="http://www.met.reading.ac.uk/~mike/APE/">Aqua-Planet Intercomparison Project.</a></p>
+                        <ul>
+			  <li> Constant SST, symmetric about equator
+			    and zonally, following the APE "Qobs"
+			    functional form: <img src="http://www.atmos.ucla.edu/~brianpm/download/qobs_eqn.png"
+			    alt="qobs" width="500px"> <br>where Tmax = 27 C.</li>
+			  <li> Constant equinox orbital conditions,
+			  including diurnal variation.</li>
+			  <li> No sea-ice.</li>
+                          <li> Model runs should be at least 60 months (5 years).</li>
+			  <li>Radiatively active gases symmetric
+			  about equator and zonally. See recommended
+			  values below.</li>
+			  <li>Aerosol removed, or made symmetric with
+			  oceanic values.</li>
+			  <li><b>CLIMATE CHANGE:</b> Global SST
+			  increase of 4K. <br> Note this represents a
+                        change from previous experiments using 2K. The
+                       larger perturbation is being recommended to
+                        evoke a larger model response.</li>
+			</ul>
+			<h2>Design Recommendations</h2>
+			<p>These are additional recommendations to
+			make contributions more homogeneous.</p>
+			<ul>
+			  <li>Constituent gas mixing ratios follow
+			  AMIP II: <BR>
+CO2: 348ppmv;<BR> 
+CH4: 1650 ppbv; <BR>
+N2O: 306 ppbv; <BR>
+Halocarbon yield ~0.24 W m-2 radiative forcing.</li>
+			  <li>Ozone following values for APE
+			  (examples:
+			  (<a
+			  href="http://www.met.reading.ac.uk/~mike/APE/ape_ozone.html">A</a>),
+			  (<a href="http://www.atmos.ucla.edu/~brianpm/download/apeozone.nc">B</a>))</li>
+			  <li> No radiatively active aerosol.</li>
+			  <li> Solar constant equal to 1365 W m-2.</li>
+			  <li> Recommended atmospheric mass and
+			  physical constants from APE (<a href="http://www-pcmdi.llnl.gov/pro
+	     jects/amip/ape/">link</a>).</li>
+			</ul>
+			<h2>Output</h2> <p>The model output should
+			follow recommendations for CFMIP-2, including
+			satellite emulator packages
+			(<a href="http://www.cfmip.net/">link</a>)
+			and with high-frequency (30min/timestep) output every 2.5 degrees of latitude along 0 degrees longitude.  Previous studies (e.g., Medeiros et
+			al. 2008) have principally used monthly mean
+			output, but experience suggests daily mean
+			output can provide a deeper look into the
+			various cloud-related distributions. High-frequency output can be used for process-level studies as well as for driving column models, cloud system resolving models, and LES.
+			</p>
+			<h2>Links and References</h2>
+<ul>
+<li><a href="http://www.met.reading.ac.uk/~mike/APE/">Aqua-Planet Intercomparison
+    Project. (APE)</a></li>
+<li><a href="http://www.cfmip.net/">Cloud Feedback Model
+    Intercomparison Project (CFMIP) </a></li>
+<li><a
+       href="http://www-pcmdi.llnl.gov/projects/amip/AMIP2EXPDSN/BCS/bcsintro.php">Atmospheric
+       Model Intercomparison Project (AMIP) II</a></li>
+<li><a href="http://cmip-pcmdi.llnl.gov/cmip5/"> CMIP5 Site </a></li>
+
+<li>Hoskins, B., R. Neale, M. Rodwell, and G.-Y. Yang. Aspects of the
+  large-scale tropical atmospheric circulation. Tellus A, 51(1):33–44,
+  1999.</li> 
+<li>Lorenz, E. N., The nature and theory of the general circulation of atmosphere. World Meteorological Organization. No.218, 1967.</li>
+<li>Medeiros, B., B. Stevens, I.M. Held, M. Zhao, D.L. Williamson,
+  J.G. Olson, C.S. and Bretherton, Aquaplanets, climate
+  sensitivity, and low clouds. Journal of Climate, 2008. DOI:  
+  10.1175/2008JCLI1995.1.</li>
+<li>H. Miura, H. Tomita, T. Nasuno, S. ichi Iga, M. Satoh, and T. Matsuno. A climate sensitivity test using a global cloud resolving model under an aqua planet condition. Geophy. Res. Let., 32(L19717), 2005. doi:10.1029/2005GL023672.</li>
+<li>Neale, R. B. and Hoskins B. J.
+A standard test for AGCMs and their physical parameterizations. I: The proposal 
+Atmos. Sci. Letters, 1, pp. 101-107, 2000a. (<a href="http://www.met.reading.ac.uk/~mike/APE/asl/asl1.pdf">download</a>) </li>
+<li>Neale, R. B. and Hoskins, B. J.
+A standard test for AGCMs and their physical parameterizations. II: Results for The Met. Office Model
+Atmos. Sci. Letters, 1, pp. 108-114, 2000b. (<a href="http://www.met.reading.ac.uk/~mike/APE/asl/asl2.pdf">download</a>)</li>
+</ul>
+<HR>
+<h5 style="font-size:1.em">Brian Medeiros, brianpm@ucla.edu; Last
+  update: 
+<SCRIPT LANGUAGE="JavaScript">
+
+<!-- This script and many more are available free online at -->
+<!-- The JavaScript Source!! http://javascript.internet.com -->
+
+<!-- Begin
+var days = new Array(8);
+days[1] = "Sunday";
+days[2] = "Monday";
+days[3] = "Tuesday";
+days[4] = "Wednesday";
+days[5] = "Thursday";
+days[6] = "Friday";
+days[7] = "Saturday";
+var months = new Array(13);
+months[1] = "January";
+months[2] = "February";
+months[3] = "March";
+months[4] = "April";
+months[5] = "May";
+months[6] = "June";
+months[7] = "July";
+months[8] = "August";
+months[9] = "September";
+months[10] = "October";
+months[11] = "November";
+months[12] = "December";
+var dateObj = new Date(document.lastModified)
+var wday = days[dateObj.getDay() + 1]
+var lmonth = months[dateObj.getMonth() + 1]
+var date = dateObj.getDate()
+var fyear = dateObj.getYear()
+if (fyear < 2000) 
+fyear = fyear + 1900
+document.write(wday + ", " + lmonth + " " + date + ", " + fyear)
+// End -->
+</SCRIPT>
+</h5>
+			<!-- InstanceEndEditable -->
+		</body>
+
+	<!-- InstanceEnd -->
+
+</html>
