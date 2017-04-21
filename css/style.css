@@ -280,7 +280,8 @@ span{
 	text-align:center;
 }
 .why-so {
-	background: url(../images/banner1.jpg) no-repeat ;
+/*	background: url(../images/banner1.jpg) no-repeat ; */
+	background: url(../images/banner_b.png) no-repeat ; 
 	background-size: cover;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
