@@ -1,38 +1,50 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE HTML>
+<html>
+
 <head>
-  <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-  <title>publications.brian</title>
-<link  href="css/fontstylesheet.css" rel="stylesheet" type="text/css" media="all" charset="utf-8" />
-  <link href='http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
-  <link href='http://fonts.googleapis.com/css?family=Josefin+Sans+Std+Light' rel='stylesheet' type='text/css'>
-  <link href="css/goog.nav.css" rel="stylesheet" type="text/css" media="all" />
-<link href="css/bibbase_custom.css" rel="stylesheet" type="text/css" media="all" />
+<title>publication.test.brian</title>
+<link href="css/bibbase_custom.css" rel="stylesheet">
+
+<script type="application/x-javascript">
+    addEventListener("load", function() { setTimeout(hideURLbar, 0);
+}, false); function hideURLbar(){ window.scrollTo(0,1); }
+</script>
+<script src="js/jquery.min.js"></script>
 </head>
 
 <body>
-<!--
-<div id="HoldStill">
-<ul class="googleTab">
-  <li><a href="index.html">home</a></li>
-  <li><a href="vitae.html">vita</a></li>
-  <li class="active"><a href="pubs.html">publications.brian</a></li>
-  <li><a href="research.html">research</a></li>
-  <li><a href="downloads.html">downloads</a></li>
-</ul>
+<!-- header -->
+<div id="nav-placeholder">
+<script>
+$.get("navigation.html", function(data){
+    $("#nav-placeholder").replaceWith(data);
+});
+  </script>
 </div>
--->
-<!--
-<section style="all:initial">
-<div style="margin-top:100px;">
-  -->
-<script
-src="http://bibbase.org/show?bib=http://www.cgd.ucar.edu/~brianpm/download/export_bib.bib&jsonp=1&folding=1&nocache=1"></script>
+<!-- header -->
 
-  <!--
+
+<!-- very helpful: -->
+<!-- https://threejs.org/docs/#Manual/Getting_Started/How_to_run_things_locally -->
+
+<div class="clearfix"> </div>
+<div class="references">
+  <script id="refscr"
+  src="https://bibbase.org/show?bib=http%3A%2F%2Fwww.cgd.ucar.edu%2F%7Ebrianpm%2Fdownload%2Fexport_bib.bib&jsonp=1&css=localhost:8000/css/bibbase_custom.css&nocache=1">
+  </script>
 </div>
-  </section>
--->
+<div class="clearfix"> </div>
+
+<!-- footer -->
+<div class="footer">
+<div id="footer-placeholder">
+  <script>
+  $.get("footer.html", function(data){
+  $("#footer-placeholder").replaceWith(data);
+  });
+  </script>
+</div>
+</div>
+<!-- footer -->
 </body>
 </html>
