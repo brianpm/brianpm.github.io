@@ -1,3 +1,7 @@
+<!-- very helpful: -->
+<!-- https://threejs.org/docs/#Manual/Getting_Started/How_to_run_things_locally -->
+
+
 http://stackoverflow.com/questions/21766880/bootstrap-3-1-1-what-is-the-map-extension-file-used-for
 
 http://stackoverflow.com/questions/21766880/bootstrap-3-1-1-what-is-the-map-extension-file-used-for
@@ -49,3 +53,10 @@ $.get("navigation.html", function(data){
 </div>
 <!-- footer -->
 
+
+
+
+NOTE:
+Originally I had put all the links to css and js in the head of the
+navigation and footer html code. It appears that introduces conflicts
+because of loading multiple copies of js functions. 

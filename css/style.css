@@ -913,7 +913,8 @@ div.register-bottom-grid {
 	top: 13em;
 }
 .why-so {
-	background: url(../images/banner1.jpg) no-repeat -156px 0px;
+/*	background: url(../images/banner1.jpg) no-repeat -156px 0px; */
+	background: url(../images/banner_b.png) no-repeat -156px 0px; 
 	min-height: 540px;
 }
 .tittle {
@@ -1069,7 +1070,8 @@ h3.style1 {
 	font-size: 0.9em;
 }
 .why-so {
-	background: url(../images/banner1.jpg) no-repeat -295px 0px;
+/*	background: url(../images/banner1.jpg) no-repeat -295px 0px; */
+	background: url(../images/banner_b.png) no-repeat -295px 0px;
 	min-height: 520px;
 }
 .bull li {
@@ -1210,7 +1212,8 @@ p.para1 {
 	width: 61%;
 }
 .why-so {
-	background: url(../images/banner1.jpg) no-repeat -358px -44px;
+/*	background: url(../images/banner1.jpg) no-repeat -358px -44px; */
+	background: url(../images/banner_b.png) no-repeat -358px -44px;
 	min-height: 520px;
 }
 .our-ne h3 {
@@ -1336,7 +1339,8 @@ h3.style1 {
 	padding: 2em 0;
 }
 .why-so {
-	background: url(../images/banner1.jpg) no-repeat -400px -74px;
+/*	background: url(../images/banner1.jpg) no-repeat -400px -74px; */
+	background: url(../images/banner_b.png) no-repeat -400px -74px;
 }
 .like {
 	float: left;
@@ -1402,7 +1406,8 @@ p.para1 {
 	margin-left: 6%;
 }
 .why-so {
-	background: url(../images/banner1.jpg) no-repeat -483px -74px;
+/*	background: url(../images/banner1.jpg) no-repeat -483px -74px; */
+	background: url(../images/banner_b.png) no-repeat -483px -74px;
 	min-height: 170px;
 }
 .tittle {
