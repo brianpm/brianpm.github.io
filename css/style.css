@@ -239,6 +239,111 @@ i.bulb {
 	background: url(../images/img-sprite.png)no-repeat -67px -5px ;
 	display: inline-block;
 	vertical-align: middle;
+	position: relative;
+}
+div.fa{
+position: relative;
+}
+div.fa:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f0c1"; 
+}
+div.fa-cld{
+position: relative;
+}
+div.fa-cld:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f0c2"; 
+}
+div.fa-new{
+position: relative;
+}
+div.fa-new:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f1ea"; 
+}
+div.fa-cog{
+position: relative;
+}
+div.fa-cog:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f085"; 
+}
+div.fa-earth{
+position: relative;
+}
+div.fa-earth:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f0ac"; 
+}
+div.fa-fork{
+position: relative;
+}
+div.fa-fork:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f126"; 
+}
+div.fa-paper{
+position: relative;
+}
+div.fa-paper:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f0c6"; 
+}
+div.fa-contact{
+position: relative;
+}
+div.fa-contact:before {
+position:absolute;
+font-family: FontAwesome;
+font-size: 48px;
+color:#6f6f6f;
+top:0;
+left:0;
+margin-right: 5px;
+content: "\f124"; 
 }
 i.bar {
 	width: 44px;
