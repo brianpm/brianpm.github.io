@@ -63,7 +63,7 @@ span{
 	text-decoration: none;
 }
 .head-right p a:hover{
-	background:#474e5d;
+    background:#474e5d;    
 }
 .head-nav ul li a{
 	position: relative;
@@ -77,6 +77,21 @@ span{
 	margin: 1em 0.8em;
 	text-shadow: 0 0 1px rgba(255,255,255,0.3);
 	font-size: 1em;
+}
+.head-center {
+	float:center;
+	padding:1.2em 0;
+}
+.head-center p a {
+	font-size: 1em;
+	color: #fff;
+	background: #55bfea;
+	padding: 0.8em 2.5em;
+	border-radius: 2em;
+	text-decoration: none;
+}
+.head-center p a:hover{
+    background:#474e5d;
 }
 .head-nav a:hover,
 .head-nav a:focus {
