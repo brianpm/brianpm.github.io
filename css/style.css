@@ -79,7 +79,8 @@ span{
 	font-size: 1em;
 }
 .head-center {
-	margin:0 auto;
+    align:center;
+    margin:0 auto;
 }
 .head-center p a {
 	font-size: 1em;
