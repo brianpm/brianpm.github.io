@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <title>Jupyter Lab Setup on CGD Systems</title>
+    <link rel="stylesheet" type="text/css" rel="noopener" target="_blank" href="github-pandoc.css">
 </head>
 
 <body>
@@ -50,17 +51,25 @@ jupyter lab --port=8899 --no-browser</code></pre>
         point, leave those <strong>two terminal sessions open</strong> and
         interact with jupyter through the browser.</p>
     <h2 id="shutting-down">Shutting Down</h2>
-    <p>When you are done, the shutdown procedure is easy. - In the browser,
+    <p>When you are done, the shutdown procedure is easy. 
+        <ul>
+            <li>In the browser,
         in the jupyter interface go to “File” and at the bottom select “Log Out”
-        or “Shut Down” - If you select “Log Out” that does not shut down the
-        server, and you can log back into it. - If you select “Shut Down” that
-        should log you out and also shut down the server. - At any time, you can
+        or “Shut Down”</li> 
+        <li>If you select “Log Out” that does not shut down the
+        server, and you can log back into it. </li>
+        <li>If you select “Shut Down” that
+        should log you out and also shut down the server.</li> 
+        <li>At any time, you can
         shut down the server by going to your first session and pressing
         <code>Ctrl+C</code>, and then enter “y” when asked if you really want to
         shut down the server. You can also hit <code>Ctrl+C</code> again, and I
-        think it’ll shut down. - To close that ssh tunnel, go back to any local
+        think it’ll shut down.</li> 
+        <li>To close that ssh tunnel, go back to any local
         terminal and run <code>ps aux | grep &lt;port number&gt;</code> to
         identify the process ID, and then run <code>kill -9 [PID]</code>
+        </li>
+    </ul>
     </p>
 </body>
 
