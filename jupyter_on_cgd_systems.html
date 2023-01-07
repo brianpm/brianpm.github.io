@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Jupyter Lab Setup on CGD Systems</title>
+</head>
+
+<body>
+    <h1 id="how-i-open-jupyter-on-cgd-machines">How I open jupyter on CGD
+        machines</h1>
+    <h2 id="prerequisite">Prerequisite:</h2>
+    <ul>
+        <li>working conda (or mamba) environment(s) on CGD systems.</li>
+        <li>environment(s) need to have jupyter server libraries installed</li>
+    </ul>
+    <h2 id="set-up">Set up</h2>
+    <p>The steps are simple:
+    <ul>
+        <li>If remote: start VPN - SSH to one of the CGD
+            servers (magnolia, topaz, andre, etc.)</li>
+        <li>activate the environment you
+            want to be using</li>
+        <li>go to your code repository/directory</li>
+        <li>start jupyter server</li>
+        <li>from your computer, open ssh tunnel to the server - open
+            jupyter in your local browser</li>
+    </ul>
+    </p>
+    <h2 id="details">A detailed example:</h2>
+    <pre><code>ssh yourusername@cgdservername.cgd.ucar.edu
+conda activate your_environment
+cd /your/code/repository
+jupyter lab --port=8899 --no-browser</code></pre>
+    <p>Back on your local machine:</p>
+    <pre><code>ssh -N -f -L 8899:localhost:8899 yourusername@cgdservername.cgd.ucar.edu</code></pre>
+    <p><em>Note:</em> the default port that Jupyter wants to use is 8888,
+        but I often found that port was already being used on one machine or the
+        other, so I just arbitrarily changed to 8899.</p>
+    <p>Go to browser and enter into the address bar:</p>
+    <pre><code>localhost:8899</code></pre>
+    <p>You will likely get an authentication page:</p> <img src="./images/jupyter_login_screen.png"
+        alt="jupyter login page" width="500" />
+    <p>In
+        this case, go back to your original ssh session in the first terminal
+        window (where you started the jupyter server). It’ll look something
+        like: <img src="./images/jupyter_server_running.png" alt="terminal running jupyter server" width="500" /></p>
+    <p>Copy the token string and put it into the browser field.</p>
+    <p>That should authenticate you, and jupyter lab will open. At this
+        point, leave those <strong>two terminal sessions open</strong> and
+        interact with jupyter through the browser.</p>
+    <h2 id="shutting-down">Shutting Down</h2>
+    <p>When you are done, the shutdown procedure is easy. - In the browser,
+        in the jupyter interface go to “File” and at the bottom select “Log Out”
+        or “Shut Down” - If you select “Log Out” that does not shut down the
+        server, and you can log back into it. - If you select “Shut Down” that
+        should log you out and also shut down the server. - At any time, you can
+        shut down the server by going to your first session and pressing
+        <code>Ctrl+C</code>, and then enter “y” when asked if you really want to
+        shut down the server. You can also hit <code>Ctrl+C</code> again, and I
+        think it’ll shut down. - To close that ssh tunnel, go back to any local
+        terminal and run <code>ps aux | grep &lt;port number&gt;</code> to
+        identify the process ID, and then run <code>kill -9 [PID]</code>
+    </p>
+</body>
+
+</html>
