@@ -1,3 +1,16 @@
+.references {font-family: sans-serif}
+.references h1 h2 h3 {
+    color : #474e5d;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+.references em {font-style: oblique}
+.references a {color: #71c8ec}
+.references ul li {
+      margin-bottom: 5px;
+      list-style: none;
+  }
+
 #bibbase_header a {
     text-decoration: none;
 }
