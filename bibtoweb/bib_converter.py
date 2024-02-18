@@ -22,8 +22,8 @@ def produce_html_slug(authors, year, title, journal, doi):
     slug += (f" ({year}): ")
     slug += (title)
     slug += (", ")
-    slug += (f"<em>{journal}</em>, ")
-    slug += (f"doi: <a href=http://dx.doi.org/{doi}>{doi}</a>")
+    slug += (f'<em class="references">{journal}</em>, ')
+    slug += (f'doi: <a class="references" href=http://dx.doi.org/{doi}>{doi}</a>')
     return slug
 
 def send_to_html_file(filname, htmlinput):
@@ -67,9 +67,9 @@ def send_to_html_file_by_dict(filname, htmlinput):
     # <h1> Publications </h1>
     # """
     for h in htmlinput:
-        page += f"<h2>{h}</h2><ul>"
+        page += f'<h2 class="references">{h}</h2><ul>'
         for hentry in htmlinput[h]:
-            page += f"<li>{hentry}</li>"
+            page += f'<li class="references">{hentry}</li>'
         page += "</ul>"
     # page += "</body></html>"
     page += get_post_html()
@@ -86,6 +86,17 @@ def check_bib(bibobj):
       f"\n\t{len(bibobj.comments)} comments"
       f"\n\t{len(bibobj.strings)} strings and"
       f"\n\t{len(bibobj.preambles)} preambles")
+    
+def clean_doi(d):
+    if d is None:
+        return "NA"
+    if not isinstance(d, str): 
+        d = d.value
+    else:
+        print(type(d))
+    r = d.removeprefix("https://doi.org/")
+    r = r.removeprefix("doi:")
+    return r
 
 def get_items(bibobj, by_year=None):
     if by_year:
@@ -107,15 +118,16 @@ def get_items(bibobj, by_year=None):
         else:
             jField = jField.value
         yrField = entry.get('year').value
-        doiField = entry.get("doi")
+        doiField = clean_doi(entry.get("doi"))
         if doiField is not None:
-            doiField = doiField.value
+            doiField = doiField
+            print(doiField)
         html = produce_html_slug(auField, yrField, titleField, jField, doiField)
         if by_year:
             if yrField not in pub_list_items.keys():
                 pub_list_items[yrField] = []
             pub_list_items[yrField] += [html,]
-            print(f"{yrField = }, {pub_list_items[yrField]}")
+            # print(f"{yrField = }, {pub_list_items[yrField]}")
         else:
             pub_list_items.append(html)
     return pub_list_items
