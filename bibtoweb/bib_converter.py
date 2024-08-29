@@ -78,7 +78,7 @@ def send_to_html_file_by_dict(filname, htmlinput):
     print(f"COMPLETE: {filname}")
 
 def read_bib(fil): 
-    return bibtexparser.parse_file("mybib.bib")
+    return bibtexparser.parse_file(fil)
 
 def check_bib(bibobj):
     print(f"Parsed {len(bibobj.blocks)} blocks, including:"
