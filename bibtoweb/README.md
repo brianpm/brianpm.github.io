@@ -8,3 +8,9 @@ To create publications.html, I follow this workflow:
 - Then just move publications.html to parent directory.
 
 I am just manually injecting all the html before and after the list of publications.
+
+Dependencies
+- python
+- pylatexenc
+- bibtexparser -- NOTE v2 required
+
