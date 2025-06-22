@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NOAA CO₂ Monthly Averages</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <!-- Main site style -->
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Page-specific tweaks only; main style in style.css */
+    #chart-container { width: 100%; max-width: 900px; margin: 2em auto; }
+    #error-message { color: red; margin-top: 1em; }
+    #site-select label, #site-select select { font-size: 1.1em; }
+    #site-select { margin-bottom: 1em; }
+    .co2-title { margin-top: 1.5em; margin-bottom: 0.5em; }
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+  <div class="container">
+    <h1 class="co2-title">NOAA CO₂ Monthly Averages</h1>
+    <p>Select a site to view monthly mean CO₂ concentrations from NOAA GML.<br>
+      <a href="https://gml.noaa.gov/data/data.php?parameter_name=Carbon%252BDioxide&frequency=Monthly%2BAverages" target="_blank">See all available sites</a>
+    </p>
+    <div id="site-select" class="mb-3">
+      <label for="site">Sites (hold Ctrl/Cmd to select multiple):</label>
+      <select id="site" class="form-select" multiple size="10">
+        <option value="nwr">Niwot Ridge, Colorado (NWR)</option>
+        <option value="mlo">Mauna Loa, Hawaii (MLO)</option>
+        <option value="spo">South Pole, Antarctica (SPO)</option>
+        <option value="brw">Barrow, Alaska (BRW)</option>
+        <option value="asc">Ascension Island, UK (ASC)</option>
+        <option value="abp">Arembepe, Bahia, Brazil (ABP)</option>
+        <option value="alt">Alert, Nunavut, Canada (ALT)</option>
+        <option value="ams">Amsterdam Island, France (AMS)</option>
+        <option value="amy">Anmyeon-do, Republic of Korea (AMY)</option>
+        <option value="ask">Assekrem, Algeria (ASK)</option>
+        <option value="avi">St. Croix, Virgin Islands, United States (AVI)</option>
+        <option value="azr">Terceira Island, Azores, Portugal (AZR)</option>
+        <option value="bal">Baltic Sea, Poland (BAL)</option>
+        <option value="bhd">Baring Head Station, New Zealand (BHD)</option>
+        <option value="bkt">Bukit Kototabang, Indonesia (BKT)</option>
+        <option value="bme">St. Davids Head, Bermuda, United Kingdom (BME)</option>
+        <option value="bmw">Tudor Hill, Bermuda, United Kingdom (BMW)</option>
+        <option value="bsc">Black Sea, Constanta, Romania (BSC)</option>
+        <option value="cba">Cold Bay, Alaska, United States (CBA)</option>
+        <option value="cgo">Cape Grim, Tasmania, Australia (CGO)</option>
+        <option value="chr">Christmas Island, Republic of Kiribati (CHR)</option>
+        <option value="cib">Centro de Investigacion de la Baja Atmosfera (CIBA), Spain (CIB)</option>
+        <option value="cmo">Cape Meares, Oregon, United States (CMO)</option>
+        <option value="cpt">Cape Point, South Africa (CPT)</option>
+        <option value="crz">Crozet Island, France (CRZ)</option>
+        <option value="drp">Drake Passage,  (DRP)</option>
+        <option value="dsi">Dongsha Island, Taiwan (DSI)</option>
+        <option value="eic">Easter Island, Chile (EIC)</option>
+        <option value="gmi">Mariana Islands, Guam (GMI)</option>
+        <option value="goz">Dwejra Point, Gozo, Malta (GOZ)</option>
+        <option value="hba">Halley Station, Antarctica, United Kingdom (HBA)</option>
+        <option value="hpb">Hohenpeissenberg, Germany (HPB)</option>
+        <option value="hun">Hegyhatsal, Hungary (HUN)</option>
+        <option value="ice">Storhofdi, Vestmannaeyjar, Iceland (ICE)</option>
+        <option value="izo">Izana, Tenerife, Canary Islands, Spain (IZO)</option>
+        <option value="key">Key Biscayne, Florida, United States (KEY)</option>
+        <option value="kum">Cape Kumukahi, Hawaii, United States (KUM)</option>
+        <option value="kzd">Sary Taukum, Kazakhstan (KZD)</option>
+        <option value="kzm">Plateau Assy, Kazakhstan (KZM)</option>
+        <option value="llb">Lac La Biche, Alberta, Canada (LLB)</option>
+        <option value="lln">Lulin, Taiwan (LLN)</option>
+        <option value="lmp">Lampedusa, Italy (LMP)</option>
+        <option value="mbc">Mould Bay, Northwest Territories, Canada (MBC)</option>
+        <option value="mex">High Altitude Global Climate Observation Center, Mexico (MEX)</option>
+        <option value="mhd">Mace Head, County Galway, Ireland (MHD)</option>
+        <option value="mid">Sand Island, Midway, United States (MID)</option>
+        <option value="mkn">Mt. Kenya, Kenya (MKN)</option>
+        <option value="nat">Farol De Mae Luiza Lighthouse, Brazil (NAT)</option>
+        <option value="nmb">Gobabeb, Namibia (NMB)</option>
+        <option value="opw">Olympic Peninsula, Washington, United States (OPW)</option>
+        <option value="oxk">Ochsenkopf, Germany (OXK)</option>
+        <option value="pal">Pallas-Sammaltunturi, GAW Station, Finland (PAL)</option>
+        <option value="poc000">Pacific Ocean (0 N),  (POC000)</option>
+        <option value="pocn05">Pacific Ocean (5 N),  (POCN05)</option>
+        <option value="pocn10">Pacific Ocean (10 N),  (POCN10)</option>
+        <option value="pocn15">Pacific Ocean (15 N),  (POCN15)</option>
+        <option value="pocn20">Pacific Ocean (20 N),  (POCN20)</option>
+        <option value="pocn25">Pacific Ocean (25 N),  (POCN25)</option>
+        <option value="pocn30">Pacific Ocean (30 N),  (POCN30)</option>
+        <option value="pocs05">Pacific Ocean (5 S),  (POCS05)</option>
+        <option value="pocs10">Pacific Ocean (10 S),  (POCS10)</option>
+        <option value="pocs15">Pacific Ocean (15 S),  (POCS15)</option>
+        <option value="pocs20">Pacific Ocean (20 S),  (POCS20)</option>
+        <option value="pocs25">Pacific Ocean (25 S),  (POCS25)</option>
+        <option value="pocs30">Pacific Ocean (30 S),  (POCS30)</option>
+        <option value="pocs35">Pacific Ocean (35 S),  (POCS35)</option>
+        <option value="psa">Palmer Station, Antarctica, United States (PSA)</option>
+        <option value="pta">Point Arena, California, United States (PTA)</option>
+        <option value="rpb">Ragged Point, Barbados (RPB)</option>
+        <option value="scsn03">South China Sea (3 N),  (SCSN03)</option>
+        <option value="scsn06">South China Sea (6 N),  (SCSN06)</option>
+        <option value="scsn09">South China Sea (9 N),  (SCSN09)</option>
+        <option value="scsn12">South China Sea (12 N),  (SCSN12)</option>
+        <option value="scsn15">South China Sea (15 N),  (SCSN15)</option>
+        <option value="scsn18">South China Sea (18 N),  (SCSN18)</option>
+        <option value="scsn21">South China Sea (21 N),  (SCSN21)</option>
+        <option value="sdz">Shangdianzi, China (SDZ)</option>
+        <option value="sey">Mahe Island, Seychelles (SEY)</option>
+        <option value="sgp">Southern Great Plains, Oklahoma, United States (SGP)</option>
+        <option value="shm">Shemya Island, Alaska, United States (SHM)</option>
+        <option value="smo">Tutuila, American Samoa (SMO)</option>
+        <option value="stc">Ocean Station Charlie, United States (STC)</option>
+        <option value="stm">Ocean Station M, Norway (STM)</option>
+        <option value="sum">Summit, Greenland (SUM)</option>
+        <option value="syo">Syowa Station, Antarctica, Japan (SYO)</option>
+        <option value="tap">Tae-ahn Peninsula, Republic of Korea (TAP)</option>
+        <option value="thd">Trinidad Head, California, United States (THD)</option>
+        <option value="tik">Hydrometeorological Observatory of Tiksi, Russia (TIK)</option>
+        <option value="tpi">Taiping Island, Taiwan (TPI)</option>      
+        <option value="ush">Ushuaia, Argentina (USH)</option>
+        <option value="uta">Wendover, Utah, United States (UTA)</option>
+        <option value="uum">Ulaan Uul, Mongolia (UUM)</option>
+        <option value="wis">Weizmann Institute of Science at the Arava Institute, Ketura, Israel (WIS)</option>
+        <option value="wlg">Mt. Waliguan, Peoples Republic of China (WLG)</option>
+        <option value="zep">Ny-Alesund, Svalbard, Norway and Sweden (ZEP)</option>
+      </select>
+    </div>
+    <div id="chart-container" class="card p-3">
+      <canvas id="co2Chart"></canvas>
+    </div>
+    <div id="error-message"></div>
+  </div>
+  <div id="footer-placeholder"></div>
+  <script>
+    // Load navigation and footer
+    $(function() {
+      $('#nav-placeholder').load('navigation.html');
+      $('#footer-placeholder').load('footer.html');
+    });
+    // Mapping of site codes to NOAA data URLs
+    const SITE_URLS = {
+      nwr: 'https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_nwr_surface-flask_1_ccgg_month.txt',
+      mlo: 'https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mlo_surface-flask_1_ccgg_month.txt',
+      spo: 'https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_spo_surface-flask_1_ccgg_month.txt',
+      brw: 'https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_brw_surface-flask_1_ccgg_month.txt',
+      asc: 'https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_asc_surface-flask_1_ccgg_month.txt',
+      abp: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_abp_surface-flask_1_ccgg_month.txt",
+      alt: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_alt_surface-flask_1_ccgg_month.txt",
+      ams: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_ams_surface-flask_1_ccgg_month.txt",
+      amy: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_amy_surface-flask_1_ccgg_month.txt",
+      ask: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_ask_surface-flask_1_ccgg_month.txt",
+      avi: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_avi_surface-flask_1_ccgg_month.txt",
+      azr: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_azr_surface-flask_1_ccgg_month.txt",
+      bal: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_bal_surface-flask_1_ccgg_month.txt",
+      bhd: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_bhd_surface-flask_1_ccgg_month.txt",
+      bkt: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_bkt_surface-flask_1_ccgg_month.txt",
+      bme: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_bme_surface-flask_1_ccgg_month.txt",
+      bmw: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_bmw_surface-flask_1_ccgg_month.txt",
+      bsc: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_bsc_surface-flask_1_ccgg_month.txt",
+      cba: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_cba_surface-flask_1_ccgg_month.txt",
+      cgo: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_cgo_surface-flask_1_ccgg_month.txt",
+      chr: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_chr_surface-flask_1_ccgg_month.txt",
+      cib: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_cib_surface-flask_1_ccgg_month.txt",
+      cmo: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_cmo_surface-flask_1_ccgg_month.txt",
+      cpt: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_cpt_surface-flask_1_ccgg_month.txt",
+      crz: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_crz_surface-flask_1_ccgg_month.txt",
+      drp: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_drp_surface-flask_1_ccgg_month.txt",
+      dsi: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_dsi_surface-flask_1_ccgg_month.txt",
+      eic: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_eic_surface-flask_1_ccgg_month.txt",
+      gmi: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_gmi_surface-flask_1_ccgg_month.txt",
+      goz: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_goz_surface-flask_1_ccgg_month.txt",
+      hba: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_hba_surface-flask_1_ccgg_month.txt",
+      hpb: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_hpb_surface-flask_1_ccgg_month.txt",
+      hun: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_hun_surface-flask_1_ccgg_month.txt",
+      ice: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_ice_surface-flask_1_ccgg_month.txt",
+      izo: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_izo_surface-flask_1_ccgg_month.txt",
+      key: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_key_surface-flask_1_ccgg_month.txt",
+      kum: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_kum_surface-flask_1_ccgg_month.txt",
+      kzd: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_kzd_surface-flask_1_ccgg_month.txt",
+      kzm: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_kzm_surface-flask_1_ccgg_month.txt",
+      llb: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_llb_surface-flask_1_ccgg_month.txt",
+      lln: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_lln_surface-flask_1_ccgg_month.txt",
+      lmp: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_lmp_surface-flask_1_ccgg_month.txt",
+      mbc: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mbc_surface-flask_1_ccgg_month.txt",
+      mex: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mex_surface-flask_1_ccgg_month.txt",
+      mhd: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mhd_surface-flask_1_ccgg_month.txt",
+      mid: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mid_surface-flask_1_ccgg_month.txt",
+      mkn: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mkn_surface-flask_1_ccgg_month.txt",
+      mlo: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_mlo_surface-flask_1_ccgg_month.txt",
+      nat: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_nat_surface-flask_1_ccgg_month.txt",
+      nmb: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_nmb_surface-flask_1_ccgg_month.txt",
+      nwr: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_nwr_surface-flask_1_ccgg_month.txt",
+      opw: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_opw_surface-flask_1_ccgg_month.txt",
+      oxk: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_oxk_surface-flask_1_ccgg_month.txt",
+      pal: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pal_surface-flask_1_ccgg_month.txt",
+      poc000: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_poc000_surface-flask_1_ccgg_month.txt",
+      pocn05: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocn05_surface-flask_1_ccgg_month.txt",
+      pocn10: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocn10_surface-flask_1_ccgg_month.txt",
+      pocn15: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocn15_surface-flask_1_ccgg_month.txt",
+      pocn20: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocn20_surface-flask_1_ccgg_month.txt",
+      pocn25: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocn25_surface-flask_1_ccgg_month.txt",
+      pocn30: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocn30_surface-flask_1_ccgg_month.txt",
+      pocs05: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs05_surface-flask_1_ccgg_month.txt",
+      pocs10: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs10_surface-flask_1_ccgg_month.txt",
+      pocs15: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs15_surface-flask_1_ccgg_month.txt",
+      pocs20: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs20_surface-flask_1_ccgg_month.txt",
+      pocs25: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs25_surface-flask_1_ccgg_month.txt",
+      pocs30: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs30_surface-flask_1_ccgg_month.txt",
+      pocs35: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pocs35_surface-flask_1_ccgg_month.txt",
+      psa: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_psa_surface-flask_1_ccgg_month.txt",
+      pta: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_pta_surface-flask_1_ccgg_month.txt",
+      rpb: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_rpb_surface-flask_1_ccgg_month.txt",
+      scsn03: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn03_surface-flask_1_ccgg_month.txt",
+      scsn06: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn06_surface-flask_1_ccgg_month.txt",
+      scsn09: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn09_surface-flask_1_ccgg_month.txt",
+      scsn12: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn12_surface-flask_1_ccgg_month.txt",
+      scsn15: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn15_surface-flask_1_ccgg_month.txt",
+      scsn18: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn18_surface-flask_1_ccgg_month.txt",
+      scsn21: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_scsn21_surface-flask_1_ccgg_month.txt",
+      sdz: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_sdz_surface-flask_1_ccgg_month.txt",
+      sey: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_sey_surface-flask_1_ccgg_month.txt",
+      sgp: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_sgp_surface-flask_1_ccgg_month.txt",
+      shm: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_shm_surface-flask_1_ccgg_month.txt",
+      smo: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_smo_surface-flask_1_ccgg_month.txt",
+      stc: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_stc_surface-flask_1_ccgg_month.txt",
+      stm: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_stm_surface-flask_1_ccgg_month.txt",
+      sum: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_sum_surface-flask_1_ccgg_month.txt",
+      syo: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_syo_surface-flask_1_ccgg_month.txt",
+      tap: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_tap_surface-flask_1_ccgg_month.txt",
+      thd: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_thd_surface-flask_1_ccgg_month.txt",
+      tik: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_tik_surface-flask_1_ccgg_month.txt",
+      tpi: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_tpi_surface-flask_1_ccgg_month.txt",
+      ush: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_ush_surface-flask_1_ccgg_month.txt",
+      uta: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_uta_surface-flask_1_ccgg_month.txt",
+      uum: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_uum_surface-flask_1_ccgg_month.txt",
+      wis: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_wis_surface-flask_1_ccgg_month.txt",
+      wlg: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_wlg_surface-flask_1_ccgg_month.txt",
+      zep: "https://gml.noaa.gov/aftp/data/trace_gases/co2/flask/surface/txt/co2_zep_surface-flask_1_ccgg_month.txt"
+      // Add more sites as needed
+    };
+    let chart = null;
+    const COLORS = [
+      '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+      '#393b79', '#637939', '#8c6d31', '#843c39', '#7b4173', '#5254a3', '#9c9ede', '#6b6ecf', '#b5cf6b', '#cedb9c',
+      '#e7ba52', '#e7969c', '#a55194', '#bd9e39', '#ad494a', '#a55194', '#ce6dbd', '#de9ed6', '#393b79', '#637939'
+    ];
+
+    async function fetchAndPlot(siteCodes) {
+      if (!Array.isArray(siteCodes)) siteCodes = [siteCodes];
+      document.getElementById('error-message').textContent = '';
+      const datasets = [];
+      let allLabels = new Set();
+      const siteDataMaps = [];
+      let siteIndex = 0;
+      for (const siteCode of siteCodes) {
+        const DATA_URL = SITE_URLS[siteCode];
+        try {
+          const response = await fetch(DATA_URL);
+          if (!response.ok) throw new Error('Network response was not ok');
+          const text = await response.text();
+          const lines = text.split('\n');
+          const dataStart = lines.findIndex(line => line.match(/^\w{3}/));
+          const dataLines = lines.slice(dataStart);
+          const dateToValue = {};
+          for (const line of dataLines) {
+            if (!line.trim()) continue;
+            const cols = line.trim().split(/\s+/);
+            if (cols.length < 4) continue;
+            const year = cols[1], month = cols[2], value = cols[3];
+            if (value && value !== '-999.99') {
+              const date = `${year}-${month.padStart(2, '0')}`;
+              dateToValue[date] = parseFloat(value);
+              allLabels.add(date);
+            }
+          }
+          siteDataMaps.push({
+            label: document.querySelector(`#site option[value="${siteCode}"]`).textContent,
+            color: COLORS[siteIndex % COLORS.length],
+            dataMap: dateToValue
+          });
+          siteIndex++;
+        } catch (err) {
+          document.getElementById('error-message').textContent += `\nCould not load data for ${siteCode}.`;
+          console.error(err);
+        }
+      }
+      // Sort allLabels and align data
+      const sortedLabels = Array.from(allLabels).sort();
+      const datasetsAligned = siteDataMaps.map((site, i) => ({
+        label: site.label,
+        data: sortedLabels.map(date => site.dataMap[date] !== undefined ? site.dataMap[date] : null),
+        borderColor: site.color,
+        backgroundColor: site.color + '33',
+        pointRadius: 0,
+        fill: false,
+        tension: 0.1,
+        spanGaps: true
+      }));
+      if (chart) chart.destroy();
+      chart = new Chart(document.getElementById('co2Chart'), {
+        type: 'line',
+        data: {
+          labels: sortedLabels,
+          datasets: datasetsAligned
+        },
+        options: {
+          scales: {
+            x: { title: { display: true, text: 'Year-Month' } },
+            y: { title: { display: true, text: 'CO₂ (ppm)' } }
+          }
+        }
+      });
+    }
+
+    document.getElementById('site').addEventListener('change', (e) => {
+      const selected = Array.from(e.target.selectedOptions).map(opt => opt.value);
+      fetchAndPlot(selected);
+    });
+    // Initial plot (first site)
+    fetchAndPlot([document.getElementById('site').value]);
+  </script>
+</body>
+</html>
