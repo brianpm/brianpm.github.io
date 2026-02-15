@@ -1,4 +1,7 @@
-.references {font-family: sans-serif}
+.references {
+    font-family: sans-serif;
+    margin-top: 40px;  /* Add spacing between CV button and publications */
+}
 .references h1 h2 h3 {
     color : #474e5d;
     margin-bottom: 5px;
@@ -7,9 +10,26 @@
 .references em {font-style: oblique}
 .references a {color: #71c8ec}
 .references ul li {
-      margin-bottom: 5px;
-      list-style: none;
-  }
+    margin-bottom: 12px;  /* More space between entries */
+    padding: 10px 12px;   /* Padding inside each entry */
+    border-left: 3px solid #71c8ec;  /* Left accent bar matching link color */
+    list-style: none;     /* No bullets - accent bar provides visual marker */
+    margin-left: 0;       /* No indent needed without bullets */
+}
+
+/* Alternating background colors for better readability */
+.references ul li:nth-child(odd) {
+    background-color: #f9f9f9;  /* Light gray for odd entries */
+}
+
+.references ul li:nth-child(even) {
+    background-color: #ffffff;  /* White for even entries */
+}
+
+/* Subtle hover effect for better readability */
+.references ul li:hover {
+    background-color: #f0f8ff;  /* Light blue on hover */
+}
 
 #bibbase_header a {
     text-decoration: none;
