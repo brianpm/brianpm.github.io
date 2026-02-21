@@ -13,13 +13,135 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="Source Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template, 
-Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
+<meta name="keywords" content="Brian Medeiros, NCAR, climate science, contact" />
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
-<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="css/flexslider.css" type="text/css" media="screen" />
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
 <script src="js/jquery.min.js"></script>
 <script src="https://use.fontawesome.com/0745a66b38.js"></script>
+<style>
+/* ---- Contact Page Styles ---- */
+.contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em;
+    margin: 1.5em 0 2em;
+    align-items: stretch;
+}
+
+.contact-card {
+    flex: 1 1 260px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.contact-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    border-color: #55bfea;
+}
+
+.contact-card-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #55bfea;
+    border-radius: 10px 10px 0 0;
+    padding: 1.1em 1.4em;
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+}
+
+.contact-card-header > i {
+    font-size: 1.7em;
+    color: #55bfea;
+    flex-shrink: 0;
+}
+
+.contact-card-header h3 {
+    font-size: 1em;
+    font-weight: 700;
+    color: #474e5d;
+    margin: 0 0 0.15em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.contact-card-header p {
+    font-size: 0.72em;
+    color: #8fc74a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.contact-card-body {
+    padding: 1.3em 1.4em;
+    flex: 1;
+}
+
+.address-block {
+    font-size: 0.93em;
+    color: #575859;
+    line-height: 1.85;
+    margin-bottom: 1.1em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.address-block strong {
+    color: #474e5d;
+    font-weight: 700;
+    font-size: 1.05em;
+    display: block;
+    margin-bottom: 0.1em;
+}
+
+.contact-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contact-info-list li {
+    padding: 0.55em 0;
+    font-size: 0.93em;
+    color: #575859;
+    border-bottom: 1px solid #f7f7f7;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7em;
+    line-height: 1.5;
+}
+
+.contact-info-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.contact-info-list .li-icon {
+    color: #55bfea;
+    width: 1.3em;
+    text-align: center;
+    flex-shrink: 0;
+    margin-top: 0.1em;
+}
+
+.contact-info-list a {
+    color: #474e5d;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.contact-info-list a:hover {
+    color: #55bfea;
+    text-decoration: none;
+}
+</style>
 </head>
 <body>
 <!-- header -->
@@ -32,38 +154,107 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 </div>
 <!-- header -->
 
+<div class="about-section">
+  <div class="container">
+    <h2>Contact</h2>
+    <div class="contact-row">
 
-<div class ="row">
-  <div class="col-md-4 col-md-offset-4">
-    <h1>Brian Medeiros</h1>
-    <p>Climate & Global Dynamics Laboratory<br />
-      National Center for Atmospheric Research<br />
-      Boulder, CO
-      <br />
-      <i class="fa fa-phone-square fa-lg" aria-hidden="true"></i> 303.497.1402<br />
-      <i class="fa fa-envelope fa-lg" aria-hidden="true"></i> brianpm [at] skymath.org
-    </p>
+      <!-- NCAR / Official Affiliation -->
+      <div class="contact-card">
+        <div class="contact-card-header">
+          <i class="fa fa-university" aria-hidden="true"></i>
+          <div>
+            <h3>NCAR</h3>
+            <p>Official Affiliation</p>
+          </div>
+        </div>
+        <div class="contact-card-body">
+          <div class="address-block">
+            <strong>Brian Medeiros</strong>
+            Project Scientist<br>
+            Climate &amp; Global Dynamics Laboratory<br>
+            National Center for Atmospheric Research<br>
+            Boulder, CO
+          </div>
+          <ul class="contact-info-list">
+            <li>
+              <span class="li-icon"><i class="fa fa-phone" aria-hidden="true"></i></span>
+              303.497.1402
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-address-card" aria-hidden="true"></i></span>
+              <a href="https://staff.ucar.edu/users/brianpm">UCAR/NCAR Staff Directory</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SkyMath / Personal & Academic -->
+      <div class="contact-card">
+        <div class="contact-card-header">
+          <i class="fa fa-star" aria-hidden="true"></i>
+          <div>
+            <h3>SkyMath</h3>
+            <p>Personal &amp; Academic</p>
+          </div>
+        </div>
+        <div class="contact-card-body">
+          <ul class="contact-info-list">
+            <li>
+              <span class="li-icon"><i class="fa fa-envelope" aria-hidden="true"></i></span>
+              brianpm [at] skymath.org
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-id-badge" aria-hidden="true"></i></span>
+              <a href="http://orcid.org/0000-0003-2188-4784">ORCiD: 0000-0003-2188-4784</a>
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-graduation-cap" aria-hidden="true"></i></span>
+              <a href="http://www.researcherid.com/rid/A-3695-2009">ResearcherID: A-3695-2009</a>
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-superscript" aria-hidden="true"></i></span>
+              Erd&ouml;s Number: <a href="erdos.html">&le;&nbsp;4</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Online / Social -->
+      <div class="contact-card">
+        <div class="contact-card-header">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+          <div>
+            <h3>Online</h3>
+            <p>Social &amp; Scholarly</p>
+          </div>
+        </div>
+        <div class="contact-card-body">
+          <ul class="contact-info-list">
+            <li>
+              <span class="li-icon"><i class="fa fa-linkedin-square" aria-hidden="true"></i></span>
+              <a href="https://www.linkedin.com/in/brian-medeiros-06b02b137">LinkedIn</a>
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-github" aria-hidden="true"></i></span>
+              <a href="https://github.com/brianpm">GitHub: brianpm</a>
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-cloud" aria-hidden="true"></i></span>
+              <a rel="me" href="https://bsky.app/profile/brian-medeiros.bsky.social">BlueSky: @brian-medeiros.bsky.social</a>
+            </li>
+            <li>
+              <span class="li-icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
+              <a rel="me" href="https://qoto.org/@brianpm">Mastodon: @brianpm@qoto.org</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
-<div class="row">
-  <div class="col-md-4 col-md-offset-4">
-    <p>See also: 
-      <ul class="fa-ul">
-	<li><i class="fa fa-angle-right" aria-hidden="true"></i><a class="bdy"
-								   href="https://staff.ucar.edu/users/brianpm">My UCAR/NCAR
-	  directory <i class="fa fa-address-card fa-lg" aria-hidden="true"></i></a></li>
-	<li><i class="fa fa-angle-right" aria-hidden="true"></i>ORCiD <a
-									href="http://orcid.org/0000-0003-2188-4784">0000-0003-2188-4784</a>
-	</li>
-	<li><i class="fa fa-angle-right" aria-hidden="true"></i>ResearcherID <a
-									       href="http://www.researcherid.com/rid/A-3695-2009">A-3695-2009</a></li>
-	<li><i class="fa fa-angle-right" aria-hidden="true"></i>LinkedIn <a href="https://www.linkedin.com/in/brian-medeiros-06b02b137"><i class="fa fa-linkedin-square fa-lg" aria-hidden="true"></i></a>
-	  <li><i class="fa fa-angle-right" aria-hidden="true"></i>GitHub: <a href="https://github.com/brianpm">brianpm <i class="fa fa-github fa-lg" aria-hidden="true"></i></a></li>
-      </ul>					
-      </p>
-      <p>Upper Bound on Erd&ouml;s Number: <a class="bdy" href="erdos.html">4</a></p>
-  </div>
-    </div>
+
 <!-- footer -->
 <div class="footer">
   <div id="footer-placeholder">
