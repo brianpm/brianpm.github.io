@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "nhm_dyamond_2025",
+    "title": "Regionally refined experiments as a testbed for storm-resolving capabilities",
+    "venue": "Non-hydrostatic Meeting &amp; DYAMOND Workshop",
+    "date": "2025",
+    "type": "Poster &amp; Talk",
+    "description": "Poster and talk covering regionally refined CESM experiments and progress toward DYAMOND simulations with EarthWorks-CESM."
+  },
+  {
+    "slug": "lanl_cosim_2024",
+    "title": "Looking for answers in the clouds",
+    "venue": "LANL CoSiM Seminar",
+    "date": "2024",
+    "type": "Seminar",
+    "description": "Assessing clouds in CESM2 to understand its high climate sensitivity, using process-level diagnostics and observations."
+  },
+  {
+    "slug": "agu2023_a14g03",
+    "title": "Tightening the belt",
+    "venue": "AGU 2023",
+    "date": "December 2023",
+    "type": "Conference",
+    "description": "Investigating the impact of high resolution at reduced computational cost using a regionally refined mesh configuration."
+  }
+]

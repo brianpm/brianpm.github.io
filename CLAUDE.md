@@ -89,6 +89,36 @@ The extraction script matches all variations:
 - `bib_converter.py` - Converts BibTeX entries to HTML with formatted authors, titles, journals, and DOI links
 - `update_publications.py` - Complete workflow automation with backups
 
+### Adding a New Presentation Page
+
+Presentations are listed on `ourwork.html` and live in the `presentations/` subdirectory. The page auto-discovers them via `presentations/index.json` — you do **not** need to edit `ourwork.html`.
+
+**Steps to add a new presentation:**
+1. Create `presentations/{slug}.html` — copy an existing file as a template (e.g. `presentations/lanl_cosim_2024.html`)
+2. Add an entry to `presentations/index.json`:
+   ```json
+   {
+     "slug": "my_talk_2025",
+     "title": "Presentation Title",
+     "venue": "Conference or Seminar Name",
+     "date": "2025",
+     "type": "Seminar",
+     "description": "One-sentence summary shown on the ourwork.html card."
+   }
+   ```
+3. If distributing QR codes pointing to the root URL, create a redirect stub at `/{slug}.html`:
+   ```html
+   <!DOCTYPE html><html><head>
+   <meta http-equiv="refresh" content="0; url=presentations/{slug}.html">
+   </head><body><a href="presentations/{slug}.html">Redirect</a></body></html>
+   ```
+
+**Presentation page paths** (from `presentations/` subdirectory):
+- Navigation/footer: `../navigation.html`, `../footer.html`
+- CSS/JS: `../css/bootstrap.css`, `../css/style.css`, `../js/jquery.min.js`
+- PDFs/files: `../provide-files/filename.pdf`
+- Favicons: `../favicon.ico`, etc.
+
 ### Data Visualization Scripts
 
 `get_noaa_monthly_co2_sites.py` - Scrapes NOAA website for CO2 measurement site data and generates visualization HTML pages. Uses BeautifulSoup for parsing and Plotly for interactive charts.
@@ -100,6 +130,9 @@ The extraction script matches all variations:
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)
   - `resources.html` - Curated hub page linking to CO2 data browser, publications, and GitHub
+  - `{slug}.html` at root — instant `<meta refresh>` redirect stubs for QR-code-distributed presentation URLs
+- `presentations/` - Presentation detail pages (site-styled with nav/footer)
+  - `presentations/index.json` - Manifest file; `ourwork.html` loads this to auto-discover and render presentation cards
 - `bibtoweb/` - BibTeX to HTML conversion tools, dated BibTeX archives (`mybib_YYYY_MM_DD.bib`), and Python scripts
   - `bibtoweb/archive/` - Timestamped backups of `publications.html` created by update workflow
 - `css/` - Bootstrap and custom stylesheets
