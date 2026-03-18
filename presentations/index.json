@@ -8,6 +8,14 @@
     "description": "Talk covering CESM experiments toward initialized PPE."
   },
   {
+    "slug": "ldeo_2025",
+    "title": "Toward global kilometer-scale simulations with CESM: Progress and Challenges",
+    "venue": "LDEO CPO Seminar",
+    "date": "2025",
+    "type": "Talk",
+    "description": "Seminar on km-scale modeling with CESM."
+  },  
+  {
     "slug": "nhm_dyamond_2025",
     "title": "Regionally refined experiments as a testbed for storm-resolving capabilities",
     "venue": "Non-hydrostatic Meeting & DYAMOND Workshop",
