@@ -1,80 +1,191 @@
-<!doctype html>
-<html lang="en">
-
+<!DOCTYPE HTML>
+<html>
 <head>
-    <meta charset="utf-8">
-    <title>Jupyter Lab Setup on CGD Systems</title>
+<title>Jupyter on CGD Systems - SkyMath.org</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="stylesheet" type="text/css" rel="noopener" target="_blank" href="github-pandoc.css">
-</head>
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Brian Medeiros, NCAR, CGD, Jupyter, JupyterLab, SSH tunnel, conda" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="js/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+.doc-content {
+    max-width: 780px;
+    color: #575859;
+    font-size: 0.97em;
+    line-height: 1.8;
+}
 
+.doc-content h3 {
+    color: #474e5d;
+    font-weight: 700;
+    margin-top: 1.8em;
+    margin-bottom: 0.5em;
+    font-size: 1.15em;
+    border-bottom: 2px solid #55bfea;
+    padding-bottom: 0.3em;
+    display: inline-block;
+}
+
+.doc-content ul {
+    padding-left: 1.4em;
+    margin-bottom: 1em;
+}
+
+.doc-content ul li {
+    margin-bottom: 0.3em;
+}
+
+.doc-content p {
+    margin-bottom: 1em;
+}
+
+.doc-content pre {
+    background: #f4f7fa;
+    border-left: 3px solid #55bfea;
+    border-radius: 0 4px 4px 0;
+    padding: 1em 1.4em;
+    font-size: 0.88em;
+    overflow-x: auto;
+    margin: 1em 0 1.2em;
+}
+
+.doc-content pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    color: #2d3748;
+}
+
+.doc-content code {
+    background: #f4f7fa;
+    padding: 0.15em 0.45em;
+    border-radius: 3px;
+    font-size: 0.88em;
+    color: #2d3748;
+}
+
+.doc-content .note {
+    background: #f0f9ff;
+    border-left: 3px solid #55bfea;
+    padding: 0.7em 1em;
+    border-radius: 0 4px 4px 0;
+    margin: 1em 0;
+    font-size: 0.93em;
+}
+
+.doc-content img {
+    max-width: 100%;
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    margin: 0.8em 0 1.2em;
+    display: block;
+}
+
+.step-label {
+    display: inline-block;
+    background: #55bfea;
+    color: #fff;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.15em 0.6em;
+    border-radius: 3px;
+    margin-bottom: 0.5em;
+}
+</style>
+</head>
 <body>
-    <h1 id="how-i-open-jupyter-on-cgd-machines">How I open jupyter on CGD
-        machines</h1>
-    <h2 id="prerequisite">Prerequisite:</h2>
-    <ul>
-        <li>working conda (or mamba) environment(s) on CGD systems.</li>
-        <li>environment(s) need to have jupyter server libraries installed</li>
-    </ul>
-    <h2 id="set-up">Set up</h2>
-    <p>The steps are simple:
-    <ul>
-        <li>If remote: start VPN - SSH to one of the CGD
-            servers (magnolia, topaz, andre, etc.)</li>
-        <li>activate the environment you
-            want to be using</li>
-        <li>go to your code repository/directory</li>
-        <li>start jupyter server</li>
-        <li>from your computer, open ssh tunnel to the server - open
-            jupyter in your local browser</li>
-    </ul>
-    </p>
-    <h2 id="details">A detailed example:</h2>
-    <pre><code>ssh yourusername@cgdservername.cgd.ucar.edu
+<!-- header -->
+<div id="nav-placeholder">
+  <script>
+   $.get("navigation.html", function(data){
+     $("#nav-placeholder").replaceWith(data);
+   });
+  </script>
+</div>
+<!-- header -->
+
+<div class="about-section">
+  <div class="container">
+    <h2>Jupyter on CGD Systems</h2>
+    <div class="doc-content">
+
+      <p>How to run JupyterLab on a CGD server and access it from a local browser via an SSH tunnel.</p>
+
+      <h3>Prerequisites</h3>
+      <ul>
+        <li>A working conda (or mamba) environment on the CGD system with <code>jupyterlab</code> installed.</li>
+        <li>VPN access if connecting from outside the UCAR network.</li>
+      </ul>
+
+      <h3>Overview</h3>
+      <ul>
+        <li>If remote: connect to VPN</li>
+        <li>SSH to a CGD server (magnolia, topaz, andre, thorodin, etc.)</li>
+        <li>Activate your conda environment and navigate to your working directory</li>
+        <li>Start the Jupyter server</li>
+        <li>Open an SSH tunnel from your local machine to the server</li>
+        <li>Open JupyterLab in your local browser</li>
+      </ul>
+
+      <h3>Step-by-Step</h3>
+
+      <span class="step-label">Terminal 1 &mdash; on the CGD server</span>
+      <pre><code>ssh yourusername@cgdservername.cgd.ucar.edu
 conda activate your_environment
 cd /your/code/repository
 jupyter lab --port=8899 --no-browser</code></pre>
-    <p>Back on your local machine:</p>
-    <pre><code>ssh -N -f -L 8899:localhost:8899 yourusername@cgdservername.cgd.ucar.edu</code></pre>
-    <p><em>Note:</em> the default port that Jupyter wants to use is 8888,
-        but I often found that port was already being used on one machine or the
-        other, so I just arbitrarily changed to 8899.</p>
-    <p>Go to browser and enter into the address bar:</p>
-    <pre><code>localhost:8899</code></pre>
-    <p>You will likely get an authentication page:</p> <img src="./images/jupyter_login_screen.png"
-        alt="jupyter login page" width="500" />
-    <p>In
-        this case, go back to your original ssh session in the first terminal
-        window (where you started the jupyter server). It’ll look something
-        like: <img src="./images/jupyter_server_running.png" alt="terminal running jupyter server" width="500" /></p>
-    <p>Copy the token string and put it into the browser field.</p>
-    <p>That should authenticate you, and jupyter lab will open. At this
-        point, leave those <strong>two terminal sessions open</strong> and
-        interact with jupyter through the browser.</p>
-    <h2 id="shutting-down">Shutting Down</h2>
-    <p>When you are done, the shutdown procedure is easy. 
-        <ul>
-            <li>In the browser,
-        in the jupyter interface go to “File” and at the bottom select “Log Out”
-        or “Shut Down”</li> 
-        <li>If you select “Log Out” that does not shut down the
-        server, and you can log back into it. </li>
-        <li>If you select “Shut Down” that
-        should log you out and also shut down the server.</li> 
-        <li>At any time, you can
-        shut down the server by going to your first session and pressing
-        <code>Ctrl+C</code>, and then enter “y” when asked if you really want to
-        shut down the server. You can also hit <code>Ctrl+C</code> again, and I
-        think it’ll shut down.</li> 
-        <li>To close that ssh tunnel, go back to any local
-        terminal and run <code>ps aux | grep &lt;port number&gt;</code> to
-        identify the process ID, and then run <code>kill -9 [PID]</code>
-        </li>
-    </ul>
-    </p>
-</body>
 
+      <div class="note">
+        <strong>Port note:</strong> The default Jupyter port is 8888, but it is often already in use. Port 8899 is a convenient alternative &mdash; just pick any unused port and use it consistently in both commands.
+      </div>
+
+      <span class="step-label">Terminal 2 &mdash; on your local machine</span>
+      <pre><code>ssh -N -f -L 8899:localhost:8899 yourusername@cgdservername.cgd.ucar.edu</code></pre>
+
+      <span class="step-label">Browser</span>
+      <p>Navigate to:</p>
+      <pre><code>localhost:8899</code></pre>
+
+      <p>You will likely see an authentication page asking for a token:</p>
+      <img src="./images/jupyter_login_screen.png" alt="Jupyter login page" width="500">
+
+      <p>Go back to Terminal 1 (where the Jupyter server is running) to find the token. The output will look something like this:</p>
+      <img src="./images/jupyter_server_running.png" alt="Terminal showing running Jupyter server" width="500">
+
+      <p>Copy the token and paste it into the browser field. JupyterLab will open. Leave both terminal sessions running while you work.</p>
+
+      <h3>Shutting Down</h3>
+      <p>In JupyterLab, use <strong>File &gt; Shut Down</strong> to stop the server, or press <code>Ctrl+C</code> in Terminal 1 and confirm when prompted.</p>
+      <p>To close the SSH tunnel, run the following in any local terminal:</p>
+      <pre><code>ps aux | grep 8899
+kill -9 [PID]</code></pre>
+
+    </div>
+  </div>
+</div>
+
+<!-- footer -->
+<div class="footer">
+  <div id="footer-placeholder">
+    <script>
+    $.get("footer.html", function(data){
+      $("#footer-placeholder").replaceWith(data);
+    });
+    </script>
+  </div>
+</div>
+<!-- footer -->
+</body>
 </html>

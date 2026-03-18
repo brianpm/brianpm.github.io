@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Fish Shell Tips - SkyMath.org</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="fish shell, PATH, fish_add_path, fish_user_paths, shell tips" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="js/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+.doc-content {
+    max-width: 780px;
+    color: #575859;
+    font-size: 0.97em;
+    line-height: 1.8;
+}
+
+.doc-content h3 {
+    color: #474e5d;
+    font-weight: 700;
+    margin-top: 1.8em;
+    margin-bottom: 0.5em;
+    font-size: 1.15em;
+    border-bottom: 2px solid #55bfea;
+    padding-bottom: 0.3em;
+    display: inline-block;
+}
+
+.doc-content h4 {
+    color: #474e5d;
+    font-weight: 600;
+    margin-top: 1.2em;
+    margin-bottom: 0.3em;
+    font-size: 1em;
+}
+
+.doc-content p {
+    margin-bottom: 1em;
+}
+
+.doc-content pre {
+    background: #f4f7fa;
+    border-left: 3px solid #55bfea;
+    border-radius: 0 4px 4px 0;
+    padding: 1em 1.4em;
+    font-size: 0.88em;
+    overflow-x: auto;
+    margin: 0.8em 0 1.2em;
+}
+
+.doc-content pre code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+    color: #2d3748;
+}
+
+.doc-content code {
+    background: #f4f7fa;
+    padding: 0.15em 0.45em;
+    border-radius: 3px;
+    font-size: 0.88em;
+    color: #2d3748;
+}
+
+.doc-content .note {
+    background: #f0f9ff;
+    border-left: 3px solid #55bfea;
+    padding: 0.7em 1em;
+    border-radius: 0 4px 4px 0;
+    margin: 1em 0;
+    font-size: 0.93em;
+}
+
+.doc-content a {
+    color: #55bfea;
+    text-decoration: none;
+}
+
+.doc-content a:hover {
+    text-decoration: underline;
+}
+</style>
+</head>
+<body>
+<!-- header -->
+<div id="nav-placeholder">
+  <script>
+   $.get("navigation.html", function(data){
+     $("#nav-placeholder").replaceWith(data);
+   });
+  </script>
+</div>
+<!-- header -->
+
+<div class="about-section">
+  <div class="container">
+    <h2>Fish Shell Tips</h2>
+    <div class="doc-content">
+
+      <p>Useful tips for working with the <a href="https://fishshell.com">fish shell</a>. Fish manages user-defined paths through a universal variable called <code>fish_user_paths</code>.</p>
+
+      <h3>PATH Management</h3>
+
+      <h4>Add to PATH</h4>
+      <p>Use <a href="https://fishshell.com/docs/current/cmds/fish_add_path.html"><code>fish_add_path</code></a> to add a directory. It updates <code>fish_user_paths</code> persistently and avoids duplicates:</p>
+      <pre><code>fish_add_path /path/to/add</code></pre>
+      <p>Use <code>-v</code> to print the underlying <code>set</code> command that is executed, and verify the result:</p>
+      <pre><code>fish_add_path -v /path/to/add
+echo $fish_user_paths | tr " " "\n" | nl</code></pre>
+
+      <h4>View current PATH entries</h4>
+      <pre><code>echo $fish_user_paths | tr " " "\n" | nl</code></pre>
+
+      <h4>Remove from PATH</h4>
+      <p>Use <code>contains -i</code> to look up the index of the entry you want to remove and erase it in one step:</p>
+      <pre><code>set --erase --universal fish_user_paths[(contains -i /path/to/remove $fish_user_paths)]</code></pre>
+      <p>This avoids the two-step process of listing entries and manually entering the index number.</p>
+
+      <div class="note">
+        <strong>Note:</strong> <code>fish_user_paths</code> is a universal variable, meaning changes persist across all fish sessions automatically.
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- footer -->
+<div class="footer">
+  <div id="footer-placeholder">
+    <script>
+    $.get("footer.html", function(data){
+      $("#footer-placeholder").replaceWith(data);
+    });
+    </script>
+  </div>
+</div>
+<!-- footer -->
+</body>
+</html>
