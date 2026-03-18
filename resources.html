@@ -1,7 +1,7 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
-<title> :: resources.brian :: </title>
+<title>Resources - SkyMath.org</title>
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -10,40 +10,163 @@
 <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="Science, Climate, Clouds, NCAR" />
-<script type="application/x-javascript">
-    addEventListener("load", function() { setTimeout(hideURLbar, 0);
-}, false); function hideURLbar(){ window.scrollTo(0,1); }
-</script>
-<link href='http://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" href="css/flexslider.css" type="text/css" media="screen" />
+<meta name="keywords" content="Brian Medeiros, NCAR, climate science, resources, CO2, publications, GitHub" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
 <script src="js/jquery.min.js"></script>
-<script src="https://use.fontawesome.com/0745a66b38.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+/* ---- Resources Page Styles ---- */
+.resources-intro {
+    margin: 0.5em 0 2em;
+    color: #575859;
+    font-size: 1.05em;
+    line-height: 1.7;
+    max-width: 700px;
+}
 
+.resource-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em;
+    margin: 1.5em 0 2.5em;
+    align-items: stretch;
+}
+
+.resource-card {
+    flex: 1 1 280px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: inherit;
+}
+
+.resource-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    border-color: #55bfea;
+    text-decoration: none;
+    color: inherit;
+}
+
+.resource-card-header {
+    background: #f8f9fa;
+    border-bottom: 2px solid #55bfea;
+    border-radius: 10px 10px 0 0;
+    padding: 1.1em 1.4em;
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+}
+
+.resource-card-header > i {
+    font-size: 2em;
+    color: #55bfea;
+    flex-shrink: 0;
+    width: 1.2em;
+    text-align: center;
+}
+
+.resource-card-header h3 {
+    font-size: 1em;
+    font-weight: 700;
+    color: #474e5d;
+    margin: 0 0 0.15em;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.resource-card-header p {
+    font-size: 0.72em;
+    color: #8fc74a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.resource-card-body {
+    padding: 1.3em 1.4em;
+    flex: 1;
+    color: #575859;
+    font-size: 0.93em;
+    line-height: 1.7;
+}
+
+.resource-card-body p {
+    margin: 0;
+}
+</style>
 </head>
-
 <body>
 <!-- header -->
 <div id="nav-placeholder">
-<script>
-$.get("navigation.html", function(data){
-    $("#nav-placeholder").replaceWith(data);
-});
-</script>
+  <script>
+   $.get("navigation.html", function(data){
+     $("#nav-placeholder").replaceWith(data);
+   });
+  </script>
 </div>
 <!-- header -->
 
-<!-- bull -->
-	<div class="bull">
-		<div class="container">
-			<li><a href="#"><img src="images/m1_latex.png" class="img-responsive" alt="" /></a></li>
-			<li><a href="#"><img src="images/m2_ncl.png" class="img-responsive" alt="" /></a></li>
-			<li><a href="#"><img src="images/m3_python.png" class="img-responsive" alt="" /></a></li>
-			<li><a href="#"><img src="images/m4.png" class="img-responsive" alt="" /></a></li>
-			<li><a href="#"><img src="images/m5.png" class="img-responsive" alt="" /></a></li>
-		</div>
-	</div>
-<!-- bull -->
+<div class="about-section">
+  <div class="container">
+    <h2>Resources</h2>
+    <p class="resources-intro">A centralized collection of useful links and tools for climate science research.</p>
+
+    <div class="resource-grid">
+
+      <!-- NOAA CO2 Data -->
+      <a href="co2_noaa.html" class="resource-card">
+        <div class="resource-card-header">
+          <i class="fa fa-line-chart" aria-hidden="true"></i>
+          <div>
+            <h3>NOAA CO&#8322; Data</h3>
+            <p>Interactive Browser</p>
+          </div>
+        </div>
+        <div class="resource-card-body">
+          <p>Browse and visualize atmospheric CO&#8322; measurements from NOAA monitoring stations around the world. Interactive charts powered by Plotly.</p>
+        </div>
+      </a>
+
+      <!-- Publications -->
+      <a href="publications.html" class="resource-card">
+        <div class="resource-card-header">
+          <i class="fa fa-file-text" aria-hidden="true"></i>
+          <div>
+            <h3>Publications</h3>
+            <p>Research Output</p>
+          </div>
+        </div>
+        <div class="resource-card-body">
+          <p>Full list of peer-reviewed publications and scientific contributions. Includes journal articles with DOI links for direct access.</p>
+        </div>
+      </a>
+
+      <!-- GitHub -->
+      <a href="https://github.com/brianpm" class="resource-card">
+        <div class="resource-card-header">
+          <i class="fa fa-github" aria-hidden="true"></i>
+          <div>
+            <h3>GitHub</h3>
+            <p>Code &amp; Projects</p>
+          </div>
+        </div>
+        <div class="resource-card-body">
+          <p>Open-source code, analysis scripts, and research tools. Includes climate model diagnostics and data visualization utilities.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</div>
 
 <!-- footer -->
 <div class="footer">
@@ -56,8 +179,5 @@ $.get("navigation.html", function(data){
   </div>
 </div>
 <!-- footer -->
-
-<hr>
-<address></address>
-<!-- hhmts start -->Last modified: Wed Apr 26 22:13:19 MDT 2017 <!-- hhmts end -->
-</body> </html>
+</body>
+</html>

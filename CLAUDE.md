@@ -29,6 +29,13 @@ This is a static GitHub Pages website (brianpm.github.io) for Brian Medeiros' cl
 - Bootstrap 3.x for grid layout and responsive design
 - Custom CSS in `css/style.css` for site-specific theming
 - Font Awesome icons for visual elements
+- Newer pages (e.g. `contact.html`, `resources.html`) use Font Awesome 6.7.2 via CDN and include the v4-shims compatibility shim:
+  ```html
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+  ```
+  Older pages use the legacy kit script (`https://use.fontawesome.com/0745a66b38.js`). Prefer the CDN approach for any new pages.
+- Newer pages use a card-based layout with `about-section` container, flex card grids, hover effects, and `#55bfea` accent color. Use `contact.html` as the style reference.
 
 ## Key Workflows
 
@@ -92,6 +99,7 @@ The extraction script matches all variations:
 ## Directory Structure
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)
+  - `resources.html` - Curated hub page linking to CO2 data browser, publications, and GitHub
 - `bibtoweb/` - BibTeX to HTML conversion tools, dated BibTeX archives (`mybib_YYYY_MM_DD.bib`), and Python scripts
   - `bibtoweb/archive/` - Timestamped backups of `publications.html` created by update workflow
 - `css/` - Bootstrap and custom stylesheets
