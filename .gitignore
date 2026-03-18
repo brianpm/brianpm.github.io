@@ -29,6 +29,9 @@ Thumbs.db
 *.afdesign
 *.af
 
+# ignore old site archive (keep locally, not deployed)
+old_site/
+
 # ignore Editor files
 *.sublime-project
 *.sublime-workspace
