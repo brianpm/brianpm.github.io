@@ -28,14 +28,14 @@ This is a static GitHub Pages website (brianpm.github.io) for Brian Medeiros' cl
 **Styling**
 - Bootstrap 3.x for grid layout and responsive design
 - Custom CSS in `css/style.css` for site-specific theming
-- Font Awesome icons for visual elements
-- Newer pages (e.g. `contact.html`, `resources.html`) use Font Awesome 6.7.2 via CDN and include the v4-shims compatibility shim:
+- Font Awesome 6.7.2 via CDN with the v4-shims compatibility shim on all pages:
   ```html
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
   ```
-  Older pages use the legacy kit script (`https://use.fontawesome.com/0745a66b38.js`). Prefer the CDN approach for any new pages.
-- Newer pages use a card-based layout with `about-section` container, flex card grids, hover effects, and `#55bfea` accent color. Use `contact.html` as the style reference.
+  The v4-shims allow using the older `fa fa-*` class syntax (e.g. `fa fa-cloud`) which the site uses extensively. Always include both lines.
+- jQuery 3.7.1 loaded from CDN on all pages: `<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>`
+- All pages use the card-based layout with `about-section` container, flex card grids, hover effects, and `#55bfea` accent color. Use `contact.html` as the style reference.
 
 ## Key Workflows
 
@@ -115,7 +115,7 @@ Presentations are listed on `ourwork.html` and live in the `presentations/` subd
 
 **Presentation page paths** (from `presentations/` subdirectory):
 - Navigation/footer: `../navigation.html`, `../footer.html`
-- CSS/JS: `../css/bootstrap.css`, `../css/style.css`, `../js/jquery.min.js`
+- CSS/JS: `../css/bootstrap.css`, `../css/style.css`; jQuery from CDN (not local)
 - PDFs/files: `../provide-files/filename.pdf`
 - Favicons: `../favicon.ico`, etc.
 
@@ -129,15 +129,17 @@ Presentations are listed on `ourwork.html` and live in the `presentations/` subd
 ## Directory Structure
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)
-  - `resources.html` - Curated hub page linking to CO2 data browser, publications, and GitHub
+  - `resources.html` - Curated hub page linking to data browsers (CO2, sea ice), publications, and GitHub
+  - `co2_noaa.html`, `nh_seaice.html` - Interactive data visualization pages (linked from resources.html)
   - `{slug}.html` at root — instant `<meta refresh>` redirect stubs for QR-code-distributed presentation URLs
 - `presentations/` - Presentation detail pages (site-styled with nav/footer)
   - `presentations/index.json` - Manifest file; `ourwork.html` loads this to auto-discover and render presentation cards
+  - Note: venue and type fields use plain `&` (not `&amp;`) in the JSON
 - `bibtoweb/` - BibTeX to HTML conversion tools, dated BibTeX archives (`mybib_YYYY_MM_DD.bib`), and Python scripts
   - `bibtoweb/archive/` - Timestamped backups of `publications.html` created by update workflow
-- `css/` - Bootstrap and custom stylesheets
-- `js/` - jQuery and other JavaScript libraries
-- `images/` - Site images, logos, and graphics
+- `css/` - Bootstrap (`bootstrap.css`) and custom styles (`style.css`, `bibbase_custom.css`)
+- `js/` - No longer used (jQuery loaded from CDN on all pages)
+- `images/` - Site images and logos (`.afdesign`/`.af` design source files are gitignored; keep locally)
 - `provide-files/` - Downloadable files (PDFs, NetCDF data, CV, presentation slides)
 - `.nojekyll` - Prevents GitHub Pages from running Jekyll processing
 
@@ -150,10 +152,11 @@ Presentations are listed on `ourwork.html` and live in the `presentations/` subd
 - Changes are live once pushed to the main branch
 
 **Adding New Pages:**
-- Create new HTML file following the structure of existing pages
+- Create new HTML file following the structure of existing pages (use `contact.html` as template)
+- Include jQuery CDN, Font Awesome 6.7.2 CDN + v4-shims, Bootstrap, and style.css in `<head>`
 - Include the jQuery snippets for loading navigation and footer
-- Link to Bootstrap CSS and custom styles in the `<head>`
-- Add FontAwesome if using icons
+- Use the card-based layout (`about-section` > `container` > flex row of cards)
+- Do NOT use the legacy Font Awesome kit script or local `js/jquery.min.js`
 
 **Dependency Installation**
 If dependencies are not found, check `conda` environments.

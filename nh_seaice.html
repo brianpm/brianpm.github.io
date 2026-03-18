@@ -14,7 +14,7 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
 <!-- FontAwesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -59,6 +59,7 @@
 </style>
 </head>
 <body>
+<div id="nav-placeholder"></div>
     <div class="container">
         <h1 class="sea-ice-title">Northern Hemisphere Sea Ice Extent</h1>
         <p class="text-center text-muted">Daily measurements from satellite observations (1978-present)</p>
@@ -259,6 +260,10 @@
         
         // Load data when page loads
         window.addEventListener('load', fetchAndPlotData);
+        // Load nav and footer
+        $('#nav-placeholder').load('navigation.html');
+        $('#footer-placeholder').load('footer.html');
     </script>
+  <div id="footer-placeholder"></div>
 </body>
 </html>

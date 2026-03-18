@@ -25,6 +25,10 @@ node_modules/
 ehthumbs.db
 Thumbs.db
 
+# ignore Affinity Designer source files (keep locally, not in repo)
+*.afdesign
+*.af
+
 # ignore Editor files
 *.sublime-project
 *.sublime-workspace
