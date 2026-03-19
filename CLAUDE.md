@@ -119,6 +119,27 @@ Presentations are listed on `ourwork.html` and live in the `presentations/` subd
 - PDFs/files: `../provide-files/filename.pdf`
 - Favicons: `../favicon.ico`, etc.
 
+### Data Visualization Pages
+
+The site hosts several interactive browser pages that fetch data directly from external APIs/servers at runtime (no local data files except where noted).
+
+| Page | Data source | Chart library | Notes |
+|---|---|---|---|
+| `co2_noaa.html` | NOAA GML AFTP servers (direct `.txt` files per station) | Chart.js | Multi-site selector |
+| `nh_seaice.html` | Local CSV `data/N_seaice_extent_daily_v4.0.csv` | Chart.js + date-fns | Single dataset |
+| `gmst.html` | Met Office Climate Dashboard formatted CSVs | Chart.js | 5 datasets, toggle per dataset, uncertainty bands |
+
+**gmst.html data sources** — all fetched from `https://climate.metoffice.cloud/formatted_data/gmt_{name}.csv`:
+- `gmt_HadCRUT5.csv` (Met Office / CRU)
+- `gmt_GISTEMP.csv` (NASA GISS)
+- `gmt_Berkeley%20Earth.csv` (Berkeley Earth)
+- `gmt_NOAAGlobalTemp.csv` (NOAA NCEI)
+- `gmt_ERA5.csv` (Copernicus/ECMWF)
+
+All MetOffice-formatted files use a common pre-industrial baseline (~1850–1900). Format: `Year, Anomaly (°C), Uncertainty (°C)`, annual means.
+
+**Pattern for new data viz pages:** fetch external CSV/text at runtime, parse in JS, render with Chart.js. Add a card to `resources.html` using the `.resource-card` pattern. See `gmst.html` for the multi-dataset toggle + uncertainty band pattern.
+
 ### Data Visualization Scripts
 
 `get_noaa_monthly_co2_sites.py` - Scrapes NOAA website for CO2 measurement site data and generates visualization HTML pages. Uses BeautifulSoup for parsing and Plotly for interactive charts.
@@ -129,8 +150,8 @@ Presentations are listed on `ourwork.html` and live in the `presentations/` subd
 ## Directory Structure
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)
-  - `resources.html` - Curated hub page linking to data browsers (CO2, sea ice), publications, and GitHub
-  - `co2_noaa.html`, `nh_seaice.html` - Interactive data visualization pages (linked from resources.html)
+  - `resources.html` - Curated hub page linking to data browsers (CO2, sea ice, temperature), publications, and GitHub
+  - `co2_noaa.html`, `nh_seaice.html`, `gmst.html` - Interactive data visualization pages (linked from resources.html)
   - `{slug}.html` at root — instant `<meta refresh>` redirect stubs for QR-code-distributed presentation URLs
 - `presentations/` - Presentation detail pages (site-styled with nav/footer)
   - `presentations/index.json` - Manifest file; `ourwork.html` loads this to auto-discover and render presentation cards

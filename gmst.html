@@ -1,0 +1,605 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Global Surface Temperature - SkyMath.org</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="global mean surface temperature, GMST, climate change, HadCRUT5, GISTEMP, Berkeley Earth, ERA5, NOAA, temperature anomaly" />
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.page-container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+
+.page-intro {
+    color: #575859;
+    font-size: 1.05em;
+    line-height: 1.7;
+    margin-bottom: 1.5em;
+    max-width: 820px;
+}
+
+.page-intro a {
+    color: #55bfea;
+}
+
+/* ---- Dataset toggle controls ---- */
+.dataset-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em 1.4em;
+    margin-bottom: 1.5em;
+    padding: 0.9em 1.2em;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    align-items: center;
+}
+
+.controls-label {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    width: 100%;
+    margin-bottom: 0.1em;
+}
+
+.dataset-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.3em 0.7em 0.3em 0.5em;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dataset-toggle.active {
+    border-color: var(--ds-color);
+    background: color-mix(in srgb, var(--ds-color) 10%, white);
+}
+
+.dataset-toggle:hover {
+    background: color-mix(in srgb, var(--ds-color) 15%, white);
+}
+
+.color-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.dataset-name {
+    font-size: 0.88em;
+    font-weight: 600;
+    color: #474e5d;
+}
+
+/* ---- Stats grid ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.8em;
+    margin-bottom: 1.5em;
+}
+
+.stat-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-left: 4px solid var(--ds-color);
+    border-radius: 8px;
+    padding: 0.75em 1em;
+    text-align: center;
+    transition: opacity 0.3s;
+}
+
+.stat-card.inactive {
+    opacity: 0.25;
+}
+
+.stat-ds-name {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 0.25em;
+}
+
+.stat-value {
+    font-size: 1.45em;
+    font-weight: 700;
+    color: var(--ds-color);
+    line-height: 1.1;
+}
+
+.stat-year {
+    font-size: 0.7em;
+    color: #bbb;
+    margin-top: 0.2em;
+}
+
+/* ---- Chart ---- */
+.chart-container {
+    position: relative;
+    height: 500px;
+    margin-bottom: 1em;
+}
+
+/* ---- Loading spinner ---- */
+#loading {
+    text-align: center;
+    padding: 4em 0;
+    color: #888;
+    font-size: 0.95em;
+}
+
+.spinner {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border: 3px solid #e8e8e8;
+    border-top-color: #55bfea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 0.6em;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#error-message {
+    color: #c0392b;
+    font-size: 0.88em;
+    margin-top: 0.5em;
+    display: none;
+}
+
+/* ---- Credits & notes ---- */
+.page-notes {
+    font-size: 0.83em;
+    color: #888;
+    line-height: 1.8;
+    border-top: 1px solid #eee;
+    padding-top: 1em;
+    margin-top: 0.5em;
+}
+
+.page-notes a {
+    color: #55bfea;
+}
+
+.page-notes strong {
+    color: #666;
+}
+
+.baseline-table {
+    margin: 0.6em 0 0;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 0.9em;
+}
+
+.baseline-table th {
+    text-align: left;
+    font-weight: 700;
+    padding: 0.2em 1.2em 0.2em 0;
+    color: #666;
+    border-bottom: 1px solid #eee;
+}
+
+.baseline-table td {
+    padding: 0.2em 1.2em 0.2em 0;
+    vertical-align: top;
+    color: #888;
+}
+</style>
+</head>
+<body>
+
+<!-- nav -->
+<div id="nav-placeholder">
+  <script>
+    $.get("navigation.html", function(data){
+      $("#nav-placeholder").replaceWith(data);
+    });
+  </script>
+</div>
+
+<div class="about-section">
+  <div class="page-container">
+    <h2>Global Mean Surface Temperature</h2>
+    <p class="page-intro">
+      Annual global surface temperature anomalies from five major observational datasets.
+      All values are expressed relative to an approximate pre-industrial baseline (~1850&ndash;1900),
+      as served by the <a href="https://climate.metoffice.cloud/temperature.html" target="_blank">Met Office Climate Dashboard</a>.
+      Shaded bands show each dataset&rsquo;s uncertainty estimate.
+    </p>
+
+    <!-- Dataset toggles -->
+    <div class="dataset-controls" id="dataset-controls">
+      <div class="controls-label">Datasets</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid"></div>
+
+    <!-- Loading / error -->
+    <div id="loading">
+      <div class="spinner"></div><br>Loading data&hellip;
+      <div id="error-message"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" id="chart-container" style="display:none;">
+      <canvas id="gmstChart"></canvas>
+    </div>
+
+    <!-- Notes & credits -->
+    <div class="page-notes">
+      <strong>Baseline:</strong> All anomalies are expressed relative to an approximate pre-industrial
+      baseline (~1850&ndash;1900), applied uniformly by the Met Office Climate Dashboard. Each
+      dataset&rsquo;s native reference period and methodology differs; see the source links below for details.
+      <br><br>
+      <strong>Data:</strong> Formatted time series served by the
+      <a href="https://climate.metoffice.cloud/temperature.html" target="_blank">Met Office Climate Dashboard</a>
+      (Open Government Licence). Original datasets:
+      <a href="https://www.metoffice.gov.uk/hadobs/hadcrut5/" target="_blank">HadCRUT5</a>
+      (Met Office Hadley Centre &amp; CRU) &middot;
+      <a href="https://data.giss.nasa.gov/gistemp/" target="_blank">GISTEMP v4</a>
+      (NASA GISS) &middot;
+      <a href="https://berkeleyearth.org/data/" target="_blank">Berkeley Earth</a> &middot;
+      <a href="https://www.ncei.noaa.gov/products/land-based-station/noaa-global-temp" target="_blank">NOAAGlobalTemp</a>
+      (NOAA NCEI) &middot;
+      <a href="https://climate.copernicus.eu/" target="_blank">ERA5</a>
+      (Copernicus Climate Change Service / ECMWF).
+    </div>
+  </div>
+</div>
+
+<!-- footer -->
+<div class="footer">
+  <div id="footer-placeholder">
+    <script>
+      $.get("footer.html", function(data){
+        $("#footer-placeholder").replaceWith(data);
+      });
+    </script>
+  </div>
+</div>
+
+<script>
+// ---- Dataset definitions ----
+const DATASETS = [
+  {
+    key: 'HadCRUT5',
+    label: 'HadCRUT5',
+    url: 'https://climate.metoffice.cloud/formatted_data/gmt_HadCRUT5.csv',
+    color: '#e63946',
+    orgName: 'Met Office Hadley Centre / CRU',
+    orgUrl: 'https://www.metoffice.gov.uk/hadobs/hadcrut5/'
+  },
+  {
+    key: 'GISTEMP',
+    label: 'GISTEMP v4',
+    url: 'https://climate.metoffice.cloud/formatted_data/gmt_GISTEMP.csv',
+    color: '#1976D2',
+    orgName: 'NASA GISS',
+    orgUrl: 'https://data.giss.nasa.gov/gistemp/'
+  },
+  {
+    key: 'BerkeleyEarth',
+    label: 'Berkeley Earth',
+    url: 'https://climate.metoffice.cloud/formatted_data/gmt_Berkeley%20Earth.csv',
+    color: '#E65100',
+    orgName: 'Berkeley Earth',
+    orgUrl: 'https://berkeleyearth.org/data/'
+  },
+  {
+    key: 'NOAAGlobalTemp',
+    label: 'NOAAGlobalTemp',
+    url: 'https://climate.metoffice.cloud/formatted_data/gmt_NOAAGlobalTemp.csv',
+    color: '#2E7D32',
+    orgName: 'NOAA NCEI',
+    orgUrl: 'https://www.ncei.noaa.gov/products/land-based-station/noaa-global-temp'
+  },
+  {
+    key: 'ERA5',
+    label: 'ERA5',
+    url: 'https://climate.metoffice.cloud/formatted_data/gmt_ERA5.csv',
+    color: '#6A1B9A',
+    orgName: 'Copernicus/ECMWF',
+    orgUrl: 'https://climate.copernicus.eu/'
+  }
+];
+
+// ---- State ----
+const activeDatasets = new Set(DATASETS.map(d => d.key));
+const cachedData = {};
+let chart = null;
+
+// ---- Helpers ----
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ---- Parse MetOffice CSV (Year, Value, Uncertainty) ----
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const years = [], values = [], uncertainties = [];
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    if (parts.length < 2) continue;
+    const year = parseInt(parts[0].trim());
+    const val  = parseFloat(parts[1].trim());
+    const unc  = parts.length >= 3 ? parseFloat(parts[2].trim()) : NaN;
+    if (isNaN(year) || isNaN(val)) continue;
+    years.push(year);
+    values.push(val);
+    uncertainties.push(isNaN(unc) ? null : unc);
+  }
+  return { years, values, uncertainties };
+}
+
+// ---- Build Chart.js dataset entries for one GMST dataset ----
+// Returns up to 3 entries: [upper_band, lower_band, main_line]
+// The upper band has fill:'+1' to shade between it and the lower band.
+function buildChartEntries(ds, data) {
+  const hasUnc = data.uncertainties.some(u => u !== null);
+  const entries = [];
+
+  if (hasUnc) {
+    const upper = data.years.map((y, i) => ({
+      x: y,
+      y: data.uncertainties[i] !== null ? +(data.values[i] + data.uncertainties[i]).toFixed(4) : null
+    }));
+    const lower = data.years.map((y, i) => ({
+      x: y,
+      y: data.uncertainties[i] !== null ? +(data.values[i] - data.uncertainties[i]).toFixed(4) : null
+    }));
+
+    entries.push({
+      label: '',
+      data: upper,
+      borderWidth: 0,
+      pointRadius: 0,
+      fill: '+1',
+      backgroundColor: hexToRgba(ds.color, 0.18),
+      tension: 0.3,
+      isBand: true,
+      dsKey: ds.key
+    });
+    entries.push({
+      label: '',
+      data: lower,
+      borderWidth: 0,
+      pointRadius: 0,
+      fill: false,
+      backgroundColor: 'transparent',
+      tension: 0.3,
+      isBand: true,
+      dsKey: ds.key
+    });
+  }
+
+  entries.push({
+    label: ds.label,
+    data: data.years.map((y, i) => ({ x: y, y: data.values[i] })),
+    borderColor: ds.color,
+    backgroundColor: ds.color,
+    borderWidth: 2,
+    pointRadius: 0,
+    pointHoverRadius: 5,
+    tension: 0.3,
+    fill: false,
+    isBand: false,
+    dsKey: ds.key
+  });
+
+  return entries;
+}
+
+// ---- Build the full datasets array from active datasets ----
+function buildDatasets() {
+  const datasets = [];
+  for (const ds of DATASETS) {
+    if (!activeDatasets.has(ds.key)) continue;
+    const data = cachedData[ds.key];
+    if (!data) continue;
+    datasets.push(...buildChartEntries(ds, data));
+  }
+  return datasets;
+}
+
+// ---- Render or update chart ----
+function renderChart() {
+  const datasets = buildDatasets();
+
+  if (chart) {
+    chart.data.datasets = datasets;
+    chart.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('gmstChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            filter: (item, chartData) => !chartData.datasets[item.datasetIndex].isBand,
+            color: '#474e5d',
+            font: { size: 12, weight: '600' },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
+        tooltip: {
+          filter: (item) => !chart.data.datasets[item.datasetIndex].isBand,
+          callbacks: {
+            title: (items) => `Year: ${items[0].raw.x}`,
+            label: (item) => {
+              const ds = chart.data.datasets[item.datasetIndex];
+              const val = item.raw.y;
+              return val !== null ? ` ${ds.label}: ${val >= 0 ? '+' : ''}${val.toFixed(2)} °C` : null;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Year',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          ticks: {
+            stepSize: 20,
+            callback: (val) => val
+          },
+          grid: { color: '#f0f0f0' }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Temperature Anomaly (°C)',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          grid: { color: '#f0f0f0' },
+          ticks: {
+            callback: (val) => (val >= 0 ? '+' : '') + val.toFixed(1)
+          }
+        }
+      }
+    }
+  });
+}
+
+// ---- Update stats cards ----
+function updateStats() {
+  for (const ds of DATASETS) {
+    const card = document.getElementById(`stat-${ds.key}`);
+    if (!card) continue;
+    const data = cachedData[ds.key];
+    const active = activeDatasets.has(ds.key);
+    card.classList.toggle('inactive', !active || !data);
+    if (data && active) {
+      const last = data.values.length - 1;
+      const val = data.values[last];
+      card.querySelector('.stat-value').textContent =
+        (val >= 0 ? '+' : '') + val.toFixed(2) + ' °C';
+      card.querySelector('.stat-year').textContent = data.years[last];
+    }
+  }
+}
+
+// ---- Build UI controls ----
+function buildControls() {
+  const controlsDiv = document.getElementById('dataset-controls');
+  const statsDiv    = document.getElementById('stats-grid');
+
+  for (const ds of DATASETS) {
+    // Toggle pill
+    const pill = document.createElement('div');
+    pill.className = 'dataset-toggle active';
+    pill.style.setProperty('--ds-color', ds.color);
+    pill.dataset.key = ds.key;
+    pill.innerHTML = `
+      <span class="color-swatch" style="background:${ds.color};"></span>
+      <span class="dataset-name">${ds.label}</span>
+    `;
+    pill.addEventListener('click', () => {
+      const key = ds.key;
+      if (activeDatasets.has(key)) {
+        activeDatasets.delete(key);
+        pill.classList.remove('active');
+      } else {
+        activeDatasets.add(key);
+        pill.classList.add('active');
+      }
+      renderChart();
+      updateStats();
+    });
+    controlsDiv.appendChild(pill);
+
+    // Stat card
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.id = `stat-${ds.key}`;
+    card.style.setProperty('--ds-color', ds.color);
+    card.innerHTML = `
+      <div class="stat-ds-name">${ds.label}</div>
+      <div class="stat-value">—</div>
+      <div class="stat-year">latest</div>
+    `;
+    statsDiv.appendChild(card);
+  }
+}
+
+// ---- Fetch all datasets in parallel ----
+async function fetchAllData() {
+  buildControls();
+
+  const results = await Promise.allSettled(
+    DATASETS.map(async (ds) => {
+      const res = await fetch(ds.url);
+      if (!res.ok) throw new Error(`HTTP ${res.status} for ${ds.label}`);
+      const text = await res.text();
+      cachedData[ds.key] = parseCSV(text);
+    })
+  );
+
+  const errors = results
+    .map((r, i) => r.status === 'rejected' ? `${DATASETS[i].label}: ${r.reason.message}` : null)
+    .filter(Boolean);
+
+  if (errors.length) {
+    const errDiv = document.getElementById('error-message');
+    errDiv.style.display = 'block';
+    errDiv.textContent = 'Could not load: ' + errors.join('; ');
+  }
+
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('chart-container').style.display = 'block';
+
+  renderChart();
+  updateStats();
+}
+
+fetchAllData();
+</script>
+
+</body>
+</html>
