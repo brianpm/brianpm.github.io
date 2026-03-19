@@ -45,7 +45,7 @@ Publications are automatically extracted from the master bibliography and conver
 
 **Quick Update (Recommended):**
 ```bash
-conda activate py12
+conda activate p12
 cd bibtoweb
 python update_publications.py
 ```
@@ -59,7 +59,7 @@ This automated script (`update_publications.py`):
 
 **Manual Step-by-Step (if needed):**
 ```bash
-conda activate py12
+conda activate p12
 cd bibtoweb
 
 # Step 1: Extract publications from master bibliography
@@ -80,7 +80,7 @@ The extraction script matches all variations:
 - `B. Medeiros`
 
 **Dependencies:**
-- Python 3 (use `py12` conda environment)
+- Python 3 (use `p12` conda environment)
 - `pylatexenc==2.10` - for LaTeX character conversion
 - `bibtexparser==2.0.0b9` (v2 beta) - for parsing BibTeX files
 
@@ -138,7 +138,14 @@ The site hosts several interactive browser pages that fetch data directly from e
 
 All MetOffice-formatted files use a common pre-industrial baseline (~1850–1900). Format: `Year, Anomaly (°C), Uncertainty (°C)`, annual means.
 
-**Pattern for new data viz pages:** fetch external CSV/text at runtime, parse in JS, render with Chart.js. Add a card to `resources.html` using the `.resource-card` pattern. See `gmst.html` for the multi-dataset toggle + uncertainty band pattern.
+**Updating GMST data:** Run the following to refresh the five CSVs in `data/` from the Met Office Climate Dashboard (data is released monthly):
+```bash
+conda activate p12
+python bibtoweb/update_gmst_data.py
+# then commit data/gmt_*.csv
+```
+
+**Pattern for new data viz pages:** host data locally in `data/` (avoids CORS), fetch at runtime, parse in JS, render with Chart.js. Add a card to `resources.html` using the `.resource-card` pattern. See `gmst.html` for the multi-dataset toggle + uncertainty band pattern.
 
 ### Data Visualization Scripts
 
