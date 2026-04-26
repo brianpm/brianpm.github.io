@@ -1,0 +1,263 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Forecast Accuracy - SkyMath.org</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="weather forecast accuracy, RMSE, NBM, GEFS, NDFD, ECMWF, UKMO, temperature" />
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+.period-label {
+    color: #8fc74a;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 0.3em;
+}
+
+.page-intro {
+    color: #575859;
+    font-size: 1.05em;
+    line-height: 1.7;
+    max-width: 720px;
+    margin-bottom: 1.8em;
+}
+
+.accuracy-table-wrap {
+    overflow-x: auto;
+    margin: 0.5em 0 1.5em;
+}
+
+.accuracy-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92em;
+    font-family: 'Lato', sans-serif;
+}
+
+.accuracy-table thead th {
+    background: #474e5d;
+    color: #fff;
+    padding: 0.75em 1.1em;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+}
+
+.accuracy-table thead th:hover { background: #55bfea; }
+.accuracy-table thead th.sorted-asc::after  { content: ' ↑'; opacity: 0.8; }
+.accuracy-table thead th.sorted-desc::after { content: ' ↓'; opacity: 0.8; }
+
+.accuracy-table tbody tr:nth-child(even) { background: #f8f9fa; }
+.accuracy-table tbody tr:hover { background: #eaf7fd; }
+
+.accuracy-table td {
+    padding: 0.6em 1.1em;
+    border-bottom: 1px solid #e8e8e8;
+    color: #474e5d;
+}
+
+.accuracy-table td.city-col {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.rmse-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    border-radius: 4px;
+    min-width: 4.5em;
+}
+
+.rmse-low  { background: #d4edda; color: #155724; }
+.rmse-mid  { background: #fff3cd; color: #856404; }
+.rmse-high { background: #f8d7da; color: #721c24; }
+.rmse-na   { color: #aaa; font-weight: 400; text-align: right; }
+
+.footnote {
+    font-size: 0.82em;
+    color: #888;
+    margin-top: 1em;
+    line-height: 1.7;
+    max-width: 800px;
+}
+
+.swatch {
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div id="nav-placeholder">
+  <script>
+   $.get("navigation.html", function(data){
+     $("#nav-placeholder").replaceWith(data);
+   });
+  </script>
+</div>
+
+<div class="about-section">
+  <div class="container">
+
+    <p class="period-label" id="period-label">&nbsp;</p>
+    <h2>Weather Forecast Accuracy</h2>
+    <p class="page-intro">Rolling 14-day RMSE for next-day high temperature forecasts across 60+ US cities, comparing five operational forecast sources. Lower is better. Data updated automatically each morning.</p>
+
+    <div id="loading-msg" style="color:#888; margin:1.5em 0;">Loading data&hellip;</div>
+    <div id="error-msg"   style="color:#721c24; display:none; margin:1.5em 0;"></div>
+
+    <div class="accuracy-table-wrap" id="table-wrap" style="display:none;">
+      <table class="accuracy-table" id="rmse-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">City</th>
+            <th onclick="sortTable(1)">NBM</th>
+            <th onclick="sortTable(2)">GEFS</th>
+            <th onclick="sortTable(3)">NDFD</th>
+            <th onclick="sortTable(4)">ECMWF</th>
+            <th onclick="sortTable(5)">UKMO</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <p class="footnote" id="footnote" style="display:none;">
+      <strong>RMSE</strong> = root mean square error of next-day high temperature forecasts vs. NWS observed highs (&deg;F).
+      Color scale:
+      <span class="swatch" style="background:#d4edda;color:#155724;">&lt;2.0&deg;F</span>
+      <span class="swatch" style="background:#fff3cd;color:#856404;">2.0&ndash;3.0&deg;F</span>
+      <span class="swatch" style="background:#f8d7da;color:#721c24;">&gt;3.0&deg;F</span>.
+      Click any column header to sort. &ldquo;&mdash;&rdquo; means fewer than 3 paired observations in the 14-day window.
+      Sources: NBM (National Blend of Models), GEFS (GFS Ensemble), NDFD (National Digital Forecast Database),
+      ECMWF (IFS HRES), UKMO (MOGREPS-G via Open-Meteo).
+    </p>
+
+  </div>
+</div>
+
+<div class="footer">
+  <div id="footer-placeholder">
+    <script>
+    $.get("footer.html", function(data){
+      $("#footer-placeholder").replaceWith(data);
+    });
+    </script>
+  </div>
+</div>
+
+<script>
+const SOURCES = [
+  { key: 'NBM_High',       label: 'NBM'   },
+  { key: 'GEFS_TMAX_Mean', label: 'GEFS'  },
+  { key: 'NDFD_Tmax',      label: 'NDFD'  },
+  { key: 'ECMWF_Tmax',     label: 'ECMWF' },
+  { key: 'UKMO_Tmax_Mean', label: 'UKMO'  },
+];
+
+let tableData = [];
+let sortColIdx = 0;
+let sortAsc = true;
+
+function rmseClass(v) {
+  if (v === null || isNaN(v)) return 'rmse-na';
+  if (v < 2.0) return 'rmse-low';
+  if (v <= 3.0) return 'rmse-mid';
+  return 'rmse-high';
+}
+
+function fmtRmse(v) {
+  if (v === null || isNaN(v)) return '&mdash;';
+  return v.toFixed(1) + '&deg;';
+}
+
+function buildRow(record) {
+  let cells = `<td class="city-col">${record.City || ''}</td>`;
+  for (const s of SOURCES) {
+    const raw = record[s.key];
+    const num = (raw !== null && raw !== undefined && raw !== '') ? parseFloat(raw) : NaN;
+    const cls = 'rmse-cell ' + rmseClass(isNaN(num) ? null : num);
+    cells += `<td class="${cls}">${fmtRmse(isNaN(num) ? null : num)}</td>`;
+  }
+  return `<tr>${cells}</tr>`;
+}
+
+function renderTable() {
+  document.getElementById('table-body').innerHTML = tableData.map(buildRow).join('');
+}
+
+function sortTable(colIdx) {
+  const ths = document.querySelectorAll('#rmse-table thead th');
+  ths.forEach(th => th.classList.remove('sorted-asc', 'sorted-desc'));
+
+  if (sortColIdx === colIdx) {
+    sortAsc = !sortAsc;
+  } else {
+    sortColIdx = colIdx;
+    sortAsc = (colIdx === 0);  // city sorts A-Z first; RMSE columns sort low-first
+  }
+
+  tableData.sort((a, b) => {
+    if (colIdx === 0) {
+      const va = a.City || '', vb = b.City || '';
+      return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    const key = SOURCES[colIdx - 1].key;
+    let va = parseFloat(a[key]), vb = parseFloat(b[key]);
+    if (isNaN(va)) va = sortAsc ? Infinity : -Infinity;
+    if (isNaN(vb)) vb = sortAsc ? Infinity : -Infinity;
+    return sortAsc ? va - vb : vb - va;
+  });
+
+  ths[colIdx].classList.add(sortAsc ? 'sorted-asc' : 'sorted-desc');
+  renderTable();
+}
+
+fetch('data/weather_rmse.json')
+  .then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  })
+  .then(data => {
+    tableData = data;
+    document.getElementById('loading-msg').style.display = 'none';
+    document.getElementById('table-wrap').style.display = '';
+    document.getElementById('footnote').style.display = '';
+
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 14);
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById('period-label').textContent =
+      'Past 14 days: ' + fmt(start) + ' – ' + fmt(today);
+
+    sortTable(0);
+  })
+  .catch(err => {
+    document.getElementById('loading-msg').style.display = 'none';
+    const em = document.getElementById('error-msg');
+    em.textContent = 'Could not load RMSE data: ' + err.message;
+    em.style.display = '';
+  });
+</script>
+
+</body>
+</html>
