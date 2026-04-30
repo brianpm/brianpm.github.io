@@ -119,7 +119,7 @@
 
     <p class="period-label" id="period-label">&nbsp;</p>
     <h2>Weather Forecast Accuracy</h2>
-    <p class="page-intro">Rolling 14-day RMSE for next-day high temperature forecasts across 60+ US cities, comparing five operational forecast sources. Lower is better. Data updated automatically each morning.</p>
+    <p class="page-intro">Rolling 14-day RMSE for next-day high temperature forecasts across 60+ US cities, comparing eight operational forecast sources. Lower is better. Data updated automatically each morning.</p>
 
     <div id="loading-msg" style="color:#888; margin:1.5em 0;">Loading data&hellip;</div>
     <div id="error-msg"   style="color:#721c24; display:none; margin:1.5em 0;"></div>
@@ -133,7 +133,10 @@
             <th onclick="sortTable(2)">GEFS</th>
             <th onclick="sortTable(3)">NDFD</th>
             <th onclick="sortTable(4)">ECMWF</th>
-            <th onclick="sortTable(5)">UKMO</th>
+            <th onclick="sortTable(5)">ECMWF 9km</th>
+            <th onclick="sortTable(6)">HRRR</th>
+            <th onclick="sortTable(7)">UKMO</th>
+            <th onclick="sortTable(8)">UKMO Det</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -148,7 +151,8 @@
       <span class="swatch" style="background:#f8d7da;color:#721c24;">&gt;3.0&deg;F</span>.
       Click any column header to sort. &ldquo;&mdash;&rdquo; means fewer than 3 paired observations in the 14-day window.
       Sources: NBM (National Blend of Models), GEFS (GFS Ensemble), NDFD (National Digital Forecast Database),
-      ECMWF (IFS HRES), UKMO (MOGREPS-G via Open-Meteo).
+      ECMWF (IFS HRES), ECMWF 9km (IFS HRES 9km via Open-Meteo), HRRR (NOAA 3km CONUS only; &mdash; for non-CONUS cities),
+      UKMO (MOGREPS-G ensemble via Open-Meteo), UKMO Det (UKMO Global 10km deterministic via Open-Meteo).
     </p>
 
   </div>
@@ -166,11 +170,14 @@
 
 <script>
 const SOURCES = [
-  { key: 'NBM_High',       label: 'NBM'   },
-  { key: 'GEFS_TMAX_Mean', label: 'GEFS'  },
-  { key: 'NDFD_Tmax',      label: 'NDFD'  },
-  { key: 'ECMWF_Tmax',     label: 'ECMWF' },
-  { key: 'UKMO_Tmax_Mean', label: 'UKMO'  },
+  { key: 'NBM_High',       label: 'NBM'       },
+  { key: 'GEFS_TMAX_Mean', label: 'GEFS'      },
+  { key: 'NDFD_Tmax',      label: 'NDFD'      },
+  { key: 'ECMWF_Tmax',     label: 'ECMWF'     },
+  { key: 'ECMWF_OM_Tmax',  label: 'ECMWF 9km' },
+  { key: 'HRRR_Tmax',      label: 'HRRR'      },
+  { key: 'UKMO_Tmax_Mean', label: 'UKMO'      },
+  { key: 'UKMO_Det_Tmax',  label: 'UKMO Det'  },
 ];
 
 let tableData = [];
