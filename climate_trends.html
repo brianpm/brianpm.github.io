@@ -1,0 +1,917 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Climate Trends - SkyMath.org</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="ocean heat content, OHC, climate change, NOAA, NCEI, energy imbalance, climate trends" />
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.page-container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+
+.page-intro {
+    color: #575859;
+    font-size: 1.05em;
+    line-height: 1.7;
+    margin-bottom: 1.5em;
+    max-width: 820px;
+}
+
+.page-intro a {
+    color: #55bfea;
+}
+
+/* ---- Dataset toggle controls ---- */
+.dataset-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em 1.4em;
+    margin-bottom: 1.5em;
+    padding: 0.9em 1.2em;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    align-items: center;
+}
+
+.controls-label {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    width: 100%;
+    margin-bottom: 0.1em;
+}
+
+.dataset-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.3em 0.7em 0.3em 0.5em;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dataset-toggle.active {
+    border-color: var(--ds-color);
+    background: color-mix(in srgb, var(--ds-color) 10%, white);
+}
+
+.dataset-toggle:hover {
+    background: color-mix(in srgb, var(--ds-color) 15%, white);
+}
+
+.color-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.dataset-name {
+    font-size: 0.88em;
+    font-weight: 600;
+    color: #474e5d;
+}
+
+/* ---- Stats grid ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.8em;
+    margin-bottom: 1.5em;
+}
+
+.stat-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-left: 4px solid var(--ds-color);
+    border-radius: 8px;
+    padding: 0.75em 1em;
+    text-align: center;
+    transition: opacity 0.3s;
+}
+
+.stat-card.inactive {
+    opacity: 0.25;
+}
+
+.stat-ds-name {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 0.25em;
+}
+
+.stat-value {
+    font-size: 1.45em;
+    font-weight: 700;
+    color: var(--ds-color);
+    line-height: 1.1;
+}
+
+.stat-units {
+    font-size: 0.62em;
+    font-weight: 400;
+    color: #bbb;
+}
+
+.stat-year {
+    font-size: 0.7em;
+    color: #bbb;
+    margin-top: 0.2em;
+}
+
+/* ---- Chart ---- */
+.chart-container {
+    position: relative;
+    height: 500px;
+    margin-bottom: 1em;
+}
+
+/* ---- Loading spinner ---- */
+#loading {
+    text-align: center;
+    padding: 4em 0;
+    color: #888;
+    font-size: 0.95em;
+}
+
+.spinner {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border: 3px solid #e8e8e8;
+    border-top-color: #55bfea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 0.6em;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#error-message {
+    color: #c0392b;
+    font-size: 0.88em;
+    margin-top: 0.5em;
+    display: none;
+}
+
+/* ---- Credits & notes ---- */
+.page-notes {
+    font-size: 0.83em;
+    color: #888;
+    line-height: 1.8;
+    border-top: 1px solid #eee;
+    padding-top: 1em;
+    margin-top: 0.5em;
+}
+
+.page-notes a {
+    color: #55bfea;
+}
+
+.page-notes strong {
+    color: #666;
+}
+</style>
+</head>
+<body>
+
+<!-- nav -->
+<div id="nav-placeholder">
+  <script>
+    $.get("navigation.html", function(data){
+      $("#nav-placeholder").replaceWith(data);
+    });
+  </script>
+</div>
+
+<div class="about-section">
+  <div class="page-container">
+    <h2>Climate Trends</h2>
+
+    <!-- ===================== OCEAN HEAT CONTENT ===================== -->
+    <h3 style="color:#474e5d; margin-top:0.5em; margin-bottom:0.4em;">Ocean Heat Content</h3>
+    <p class="page-intro">
+      Pentadal (rolling 5-year mean) global ocean heat content anomalies for two depth layers,
+      from the <a href="https://www.ncei.noaa.gov/products/climate-data-records/global-ocean-heat-content"
+      target="_blank">NOAA/NCEI Global Ocean Heat Content Climate Data Record</a>
+      (Levitus et al. 2012; Reagan et al., ongoing). Values are expressed relative to a
+      1955&ndash;2006 climatology. Shaded bands show the standard error of the estimate.
+      Data are served live from the
+      <a href="https://www.ncei.noaa.gov/thredds-ocean/catalog/ncei/archive/data/0164586/derived/catalog.html"
+      target="_blank">NOAA THREDDS server</a> via OPeNDAP.
+    </p>
+
+    <!-- Dataset toggles -->
+    <div class="dataset-controls" id="ohc-dataset-controls">
+      <div class="controls-label">Depth layers</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="ohc-stats-grid"></div>
+
+    <!-- Loading / error -->
+    <div id="ohc-loading">
+      <div class="spinner"></div><br>Fetching OHC data from NOAA&hellip;
+      <div id="ohc-error-message" class="error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" id="ohc-chart-container" style="display:none;">
+      <canvas id="ohcChart"></canvas>
+    </div>
+
+    <!-- Notes & credits -->
+    <div class="page-notes">
+      <strong>Units:</strong> Zettajoules (ZJ; 1&thinsp;ZJ = 10<sup>21</sup>&thinsp;J).
+      Anomalies are relative to the 1955&ndash;2006 mean from the World Ocean Atlas 2009 climatology.<br>
+      <strong>Time axis:</strong> Each point represents the central year of a rolling 5-year (pentadal) mean.
+      The series runs from 1957.5 (pentad centered on the 1955&ndash;1959 period) through the most recent complete pentad.<br>
+      <strong>Data:</strong>
+      <a href="https://www.ncei.noaa.gov/products/climate-data-records/global-ocean-heat-content" target="_blank">NOAA/NCEI Global Ocean Heat Content CDR</a>
+      (doi:<a href="https://doi.org/10.7289/V53F4MVP" target="_blank">10.7289/V53F4MVP</a>).
+      Levitus, S., et al. (2012), <em>Geophys. Res. Lett.</em>, 39, L10603.
+    </div>
+
+    <!-- ===================== EARTH ENERGY IMBALANCE ===================== -->
+    <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
+
+    <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Earth Energy Imbalance</h3>
+    <p class="page-intro">
+      Monthly global mean top-of-atmosphere net radiative flux from the
+      <a href="https://asdc.larc.nasa.gov/project/CERES/CERES_EBAF-TOA_Edition4.2.1"
+      target="_blank">CERES EBAF-TOA Edition&nbsp;4.2.1</a> product (NASA LaRC ASDC).
+      A positive value means the Earth is absorbing more energy than it emits &mdash;
+      the Earth Energy Imbalance (EEI). The bold line is a trailing 12-month running
+      mean, which removes the large seasonal cycle (&#177;10&thinsp;W&thinsp;m<sup>&minus;2</sup>)
+      and reveals the underlying trend.
+    </p>
+
+    <!-- Dataset toggles -->
+    <div class="dataset-controls" id="eei-dataset-controls">
+      <div class="controls-label">Series</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="eei-stats-grid"></div>
+
+    <!-- Loading / error -->
+    <div id="eei-loading">
+      <div class="spinner"></div><br>Loading EEI data&hellip;
+      <div id="eei-error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" id="eei-chart-container" style="display:none;">
+      <canvas id="eeiChart"></canvas>
+    </div>
+
+    <!-- Notes & credits -->
+    <div class="page-notes">
+      <strong>Units:</strong> W&thinsp;m<sup>&minus;2</sup> (watts per square metre of Earth&rsquo;s surface area).<br>
+      <strong>Seasonal cycle:</strong> The raw monthly EEI varies by roughly
+      &#177;10&thinsp;W&thinsp;m<sup>&minus;2</sup> due to hemispheric asymmetry in land/ocean
+      distribution. The 12-month trailing running mean (average of the current and
+      preceding 11&nbsp;months) removes this cycle to expose the multi-year trend.<br>
+      <strong>EBAF constraint:</strong> The CERES EBAF product adjusts the global mean TOA
+      net flux to be consistent with independent estimates of ocean heat uptake, so the
+      annual mean EEI is not a purely radiometric measurement but a constrained estimate.<br>
+      <strong>Data:</strong>
+      <a href="https://asdc.larc.nasa.gov/project/CERES/CERES_EBAF-TOA_Edition4.2.1"
+      target="_blank">CERES EBAF-TOA Ed4.2.1</a>,
+      doi:<a href="https://doi.org/10.5067/TERRA-AQUA-NOAA20/CERES/EBAF-TOA_L3B004.2.1"
+      target="_blank">10.5067/…L3B004.2.1</a>.
+      Loeb, N.&thinsp;G., et al. (2018), <em>J. Climate</em>, 31, 895&ndash;918.
+      Local CSV updated monthly by
+      <a href="https://github.com/brianpm/brianpm.github.io/blob/main/.github/workflows/update_ceres.yml"
+      target="_blank">GitHub&nbsp;Actions</a>.
+    </div>
+
+  </div>
+</div>
+
+<!-- footer -->
+<div class="footer">
+  <div id="footer-placeholder">
+    <script>
+      $.get("footer.html", function(data){
+        $("#footer-placeholder").replaceWith(data);
+      });
+    </script>
+  </div>
+</div>
+
+<script>
+// ============================================================
+//  OHC dataset definitions
+// ============================================================
+const OHC_DATASETS = [
+  {
+    key: 'ohc700',
+    label: '0–700 m',
+    color: '#0077b6',
+    url: 'https://www.ncei.noaa.gov/thredds-ocean/dodsC/ncei/archive/data/0164586/derived/heat_content_anomaly_0-700_pentad.nc.ascii?time,pent_h22_WO,pent_h22_se_WO'
+  },
+  {
+    key: 'ohc2000',
+    label: '0–2000 m',
+    color: '#e07b00',
+    url: 'https://www.ncei.noaa.gov/thredds-ocean/dodsC/ncei/archive/data/0164586/derived/heat_content_anomaly_0-2000_pentad.nc.ascii?time,pent_h22_WO,pent_h22_se_WO'
+  }
+];
+
+// ============================================================
+//  Parse OPeNDAP ASCII response
+//
+//  Format after the '---...' separator:
+//
+//  varname[N]
+//  val1, val2, val3, ...
+//
+//  varname2[N]
+//  val1, val2, ...
+// ============================================================
+function parseOPeNDAPAscii(text) {
+  // Split header from data on the long dashed separator line
+  const sepMatch = text.match(/\n-{10,}\n/);
+  if (!sepMatch) throw new Error('Could not find OPeNDAP data separator');
+  const dataSection = text.slice(sepMatch.index + sepMatch[0].length);
+
+  const result = {};
+
+  // Each variable block starts with "name[N]" on its own line,
+  // followed by one or more lines of comma-separated values,
+  // and ends at the next blank line (or end of string).
+  const blocks = dataSection.trim().split(/\n\s*\n/);
+  for (const block of blocks) {
+    if (!block.trim()) continue;
+    const lines = block.trim().split('\n');
+    const headerMatch = lines[0].trim().match(/^(\w+)\[\d+\]$/);
+    if (!headerMatch) continue;
+    const varName = headerMatch[1];
+    const valueStr = lines.slice(1).join(' ');
+    const values = valueStr.trim().split(/[\s,]+/)
+      .filter(s => s.length > 0)
+      .map(Number)
+      .filter(n => !isNaN(n));
+    result[varName] = values;
+  }
+  return result;
+}
+
+// ============================================================
+//  Convert OPeNDAP time (months since 1955-01-01) → decimal year
+// ============================================================
+function monthsToDecimalYear(months) {
+  return 1955 + months / 12;
+}
+
+// ============================================================
+//  State
+// ============================================================
+const ohcActive = new Set(OHC_DATASETS.map(d => d.key));
+const ohcCache  = {};
+let ohcChart    = null;
+
+// ============================================================
+//  Helpers
+// ============================================================
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+// ============================================================
+//  Build Chart.js dataset entries for one OHC series.
+//  Returns [upper_band, lower_band, main_line] (or just [main_line]).
+// ============================================================
+function buildOhcEntries(ds, data) {
+  const entries = [];
+  const { years, values, errors } = data;
+  const hasErrors = errors.some(e => e !== null);
+
+  if (hasErrors) {
+    const upper = years.map((y, i) => ({
+      x: y,
+      y: errors[i] !== null ? +(values[i] + errors[i]).toFixed(4) : null
+    }));
+    const lower = years.map((y, i) => ({
+      x: y,
+      y: errors[i] !== null ? +(values[i] - errors[i]).toFixed(4) : null
+    }));
+
+    entries.push({
+      label: '',
+      data: upper,
+      borderWidth: 0,
+      pointRadius: 0,
+      fill: '+1',
+      backgroundColor: hexToRgba(ds.color, 0.18),
+      tension: 0.3,
+      isBand: true,
+      dsKey: ds.key
+    });
+    entries.push({
+      label: '',
+      data: lower,
+      borderWidth: 0,
+      pointRadius: 0,
+      fill: false,
+      backgroundColor: 'transparent',
+      tension: 0.3,
+      isBand: true,
+      dsKey: ds.key
+    });
+  }
+
+  entries.push({
+    label: ds.label,
+    data: years.map((y, i) => ({ x: y, y: values[i] })),
+    borderColor: ds.color,
+    backgroundColor: ds.color,
+    borderWidth: 2.5,
+    pointRadius: 0,
+    pointHoverRadius: 5,
+    tension: 0.3,
+    fill: false,
+    isBand: false,
+    dsKey: ds.key
+  });
+
+  return entries;
+}
+
+// ============================================================
+//  Build full datasets array from active series
+// ============================================================
+function buildOhcDatasets() {
+  const datasets = [];
+  for (const ds of OHC_DATASETS) {
+    if (!ohcActive.has(ds.key)) continue;
+    const data = ohcCache[ds.key];
+    if (!data) continue;
+    datasets.push(...buildOhcEntries(ds, data));
+  }
+  return datasets;
+}
+
+// ============================================================
+//  Render or update chart
+// ============================================================
+function renderOhcChart() {
+  const datasets = buildOhcDatasets();
+
+  if (ohcChart) {
+    ohcChart.data.datasets = datasets;
+    ohcChart.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('ohcChart').getContext('2d');
+  ohcChart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            filter: (item, chartData) =>
+              !chartData.datasets[item.datasetIndex].isBand,
+            color: '#474e5d',
+            font: { size: 12, weight: '600' },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
+        tooltip: {
+          filter: (item) => !ohcChart.data.datasets[item.datasetIndex].isBand,
+          callbacks: {
+            title: (items) => {
+              const yr = items[0].raw.x;
+              // Show the pentad window from the center year
+              return `Pentad centered on ${yr.toFixed(1)}`;
+            },
+            label: (item) => {
+              const ds = ohcChart.data.datasets[item.datasetIndex];
+              const val = item.raw.y;
+              if (val === null) return null;
+              const sign = val >= 0 ? '+' : '';
+              return ` ${ds.label}: ${sign}${val.toFixed(1)} ZJ`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Year',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          ticks: {
+            stepSize: 10,
+            callback: (val) => val
+          },
+          grid: { color: '#f0f0f0' }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Heat Content Anomaly (ZJ)',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          grid: { color: '#f0f0f0' },
+          ticks: {
+            callback: (val) => (val >= 0 ? '+' : '') + val.toFixed(0)
+          }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+//  Update stat cards
+// ============================================================
+function updateOhcStats() {
+  for (const ds of OHC_DATASETS) {
+    const card = document.getElementById(`ohc-stat-${ds.key}`);
+    if (!card) continue;
+    const data  = ohcCache[ds.key];
+    const active = ohcActive.has(ds.key);
+    card.classList.toggle('inactive', !active || !data);
+    if (data && active) {
+      const last = data.values.length - 1;
+      const val  = data.values[last];
+      const yr   = data.years[last];
+      const sign = val >= 0 ? '+' : '';
+      card.querySelector('.stat-value').textContent = sign + val.toFixed(1);
+      card.querySelector('.stat-year').textContent  = `pentad ~${yr.toFixed(1)}`;
+    }
+  }
+}
+
+// ============================================================
+//  Build UI controls (toggles + stat cards)
+// ============================================================
+function buildOhcControls() {
+  const controlsDiv = document.getElementById('ohc-dataset-controls');
+  const statsDiv    = document.getElementById('ohc-stats-grid');
+
+  for (const ds of OHC_DATASETS) {
+    // Toggle pill
+    const pill = document.createElement('div');
+    pill.className = 'dataset-toggle active';
+    pill.style.setProperty('--ds-color', ds.color);
+    pill.dataset.key = ds.key;
+    pill.innerHTML = `
+      <span class="color-swatch" style="background:${ds.color};"></span>
+      <span class="dataset-name">${ds.label}</span>
+    `;
+    pill.addEventListener('click', () => {
+      if (ohcActive.has(ds.key)) {
+        ohcActive.delete(ds.key);
+        pill.classList.remove('active');
+      } else {
+        ohcActive.add(ds.key);
+        pill.classList.add('active');
+      }
+      renderOhcChart();
+      updateOhcStats();
+    });
+    controlsDiv.appendChild(pill);
+
+    // Stat card
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.id = `ohc-stat-${ds.key}`;
+    card.style.setProperty('--ds-color', ds.color);
+    card.innerHTML = `
+      <div class="stat-ds-name">${ds.label}</div>
+      <div class="stat-value">—<span class="stat-units"> ZJ</span></div>
+      <div class="stat-year">latest pentad</div>
+    `;
+    statsDiv.appendChild(card);
+  }
+}
+
+// ============================================================
+//  Fetch one OHC dataset from OPeNDAP, parse, cache
+// ============================================================
+async function fetchOhcDataset(ds) {
+  const res = await fetch(ds.url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const text = await res.text();
+  const raw  = parseOPeNDAPAscii(text);
+
+  if (!raw.time || !raw.pent_h22_WO)
+    throw new Error('Expected variables not found in OPeNDAP response');
+
+  const years  = raw.time.map(monthsToDecimalYear);
+  const values = raw.pent_h22_WO;
+  const errors = raw.pent_h22_se_WO || values.map(() => null);
+
+  // Convert from native 10²² J to ZJ (1 ZJ = 10²¹ J → multiply by 10)
+  ohcCache[ds.key] = {
+    years,
+    values: values.map(v => v * 10),
+    errors: errors.map(e => e * 10)
+  };
+}
+
+// ============================================================
+//  Initialise: build controls, fetch all datasets in parallel
+// ============================================================
+async function initOhc() {
+  buildOhcControls();
+
+  const results = await Promise.allSettled(
+    OHC_DATASETS.map(ds => fetchOhcDataset(ds))
+  );
+
+  const errors = results
+    .map((r, i) => r.status === 'rejected'
+      ? `${OHC_DATASETS[i].label}: ${r.reason.message}` : null)
+    .filter(Boolean);
+
+  if (errors.length) {
+    const errDiv = document.getElementById('ohc-error-message');
+    errDiv.style.display = 'block';
+    errDiv.textContent   = 'Could not load: ' + errors.join('; ');
+  }
+
+  document.getElementById('ohc-loading').style.display       = 'none';
+  document.getElementById('ohc-chart-container').style.display = 'block';
+
+  renderOhcChart();
+  updateOhcStats();
+}
+
+initOhc();
+
+// ============================================================
+//  EEI — Earth Energy Imbalance (CERES EBAF-TOA Ed4.2.1)
+//  Data source: local CSV pre-computed by bibtoweb/update_eei_data.py
+// ============================================================
+const EEI_DATASETS = [
+  {
+    key:   'eei_12mo',
+    label: '12-month running mean',
+    color: '#c0392b',
+    bold:  true
+  },
+  {
+    key:   'eei_monthly',
+    label: 'Monthly',
+    color: '#7fb3d3',
+    bold:  false
+  }
+];
+
+const eeiActive = new Set(EEI_DATASETS.map(d => d.key));
+let eeiChart = null;
+let eeiData  = null;   // { yearFrac[], monthly[], running12[] }
+
+// ---- Parse the three-column CSV ----
+function parseEeiCsv(text) {
+  const lines = text.trim().split('\n');
+  const yearFrac = [], monthly = [], running12 = [];
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    if (parts.length < 2) continue;
+    const yf = parseFloat(parts[0]);
+    const em = parseFloat(parts[1]);
+    const e12 = parts[2] && parts[2].trim() !== '' ? parseFloat(parts[2]) : null;
+    if (isNaN(yf) || isNaN(em)) continue;
+    yearFrac.push(yf);
+    monthly.push(em);
+    running12.push(e12);
+  }
+  return { yearFrac, monthly, running12 };
+}
+
+// ---- Build Chart.js dataset list ----
+function buildEeiDatasets() {
+  if (!eeiData) return [];
+  const { yearFrac, monthly, running12 } = eeiData;
+  const out = [];
+
+  for (const ds of EEI_DATASETS) {
+    if (!eeiActive.has(ds.key)) continue;
+    const vals = ds.key === 'eei_monthly' ? monthly : running12;
+    out.push({
+      label:           ds.label,
+      data:            yearFrac.map((y, i) => ({ x: y, y: vals[i] })),
+      borderColor:     ds.color,
+      backgroundColor: ds.color,
+      borderWidth:     ds.bold ? 2.5 : 1,
+      pointRadius:     0,
+      pointHoverRadius: ds.bold ? 5 : 3,
+      tension:         ds.bold ? 0.3 : 0,
+      borderDash:      [],
+      fill:            false,
+      opacity:         ds.bold ? 1 : 0.55,
+      dsKey:           ds.key
+    });
+  }
+  return out;
+}
+
+// ---- Render / update chart ----
+function renderEeiChart() {
+  const datasets = buildEeiDatasets();
+
+  if (eeiChart) {
+    eeiChart.data.datasets = datasets;
+    eeiChart.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('eeiChart').getContext('2d');
+  eeiChart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#474e5d',
+            font: { size: 12, weight: '600' },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title:  (items) => `${items[0].raw.x.toFixed(2)}`,
+            label:  (item) => {
+              const val = item.raw.y;
+              if (val === null) return null;
+              const sign = val >= 0 ? '+' : '';
+              return ` ${item.dataset.label}: ${sign}${val.toFixed(2)} W m⁻²`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Year',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          ticks: { stepSize: 5, callback: (v) => v },
+          grid: { color: '#f0f0f0' }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'EEI (W m⁻²)',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          grid: { color: '#f0f0f0' },
+          ticks: {
+            callback: (v) => (v >= 0 ? '+' : '') + v.toFixed(1)
+          }
+        }
+      }
+    }
+  });
+}
+
+// ---- Stat cards ----
+function updateEeiStats() {
+  for (const ds of EEI_DATASETS) {
+    const card = document.getElementById(`eei-stat-${ds.key}`);
+    if (!card) continue;
+    const active = eeiActive.has(ds.key);
+    card.classList.toggle('inactive', !active || !eeiData);
+    if (eeiData && active) {
+      const vals = ds.key === 'eei_monthly'
+        ? eeiData.monthly
+        : eeiData.running12;
+      // Find last non-null value
+      let lastVal = null, lastYr = null;
+      for (let i = eeiData.yearFrac.length - 1; i >= 0; i--) {
+        if (vals[i] !== null) {
+          lastVal = vals[i];
+          lastYr  = eeiData.yearFrac[i];
+          break;
+        }
+      }
+      if (lastVal !== null) {
+        const sign = lastVal >= 0 ? '+' : '';
+        card.querySelector('.stat-value').textContent = sign + lastVal.toFixed(2);
+        card.querySelector('.stat-year').textContent  = lastYr.toFixed(2);
+      }
+    }
+  }
+}
+
+// ---- Build UI controls ----
+function buildEeiControls() {
+  const controlsDiv = document.getElementById('eei-dataset-controls');
+  const statsDiv    = document.getElementById('eei-stats-grid');
+
+  for (const ds of EEI_DATASETS) {
+    // Toggle pill
+    const pill = document.createElement('div');
+    pill.className = 'dataset-toggle active';
+    pill.style.setProperty('--ds-color', ds.color);
+    pill.innerHTML = `
+      <span class="color-swatch" style="background:${ds.color};"></span>
+      <span class="dataset-name">${ds.label}</span>
+    `;
+    pill.addEventListener('click', () => {
+      if (eeiActive.has(ds.key)) {
+        eeiActive.delete(ds.key);
+        pill.classList.remove('active');
+      } else {
+        eeiActive.add(ds.key);
+        pill.classList.add('active');
+      }
+      renderEeiChart();
+      updateEeiStats();
+    });
+    controlsDiv.appendChild(pill);
+
+    // Stat card
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.id = `eei-stat-${ds.key}`;
+    card.style.setProperty('--ds-color', ds.color);
+    card.innerHTML = `
+      <div class="stat-ds-name">${ds.label}</div>
+      <div class="stat-value">—<span class="stat-units"> W m⁻²</span></div>
+      <div class="stat-year">latest</div>
+    `;
+    statsDiv.appendChild(card);
+  }
+}
+
+// ---- Fetch and initialise ----
+async function initEei() {
+  buildEeiControls();
+  try {
+    const res = await fetch('data/eei_ceres.csv');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    eeiData = parseEeiCsv(text);
+  } catch (err) {
+    const errDiv = document.getElementById('eei-error-message');
+    errDiv.style.display = 'block';
+    errDiv.textContent   = `Could not load EEI data: ${err.message}`;
+  }
+
+  document.getElementById('eei-loading').style.display        = 'none';
+  document.getElementById('eei-chart-container').style.display = 'block';
+
+  renderEeiChart();
+  updateEeiStats();
+}
+
+initEei();
+</script>
+
+</body>
+</html>
