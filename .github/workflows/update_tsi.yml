@@ -1,0 +1,36 @@
+name: Update TSI Data
+
+# Runs quarterly (early in months when preliminary data is typically updated).
+# Can also be triggered manually from the Actions tab.
+on:
+  schedule:
+    - cron: '0 6 5 1,4,7,10 *'   # 06:00 UTC on the 5th of Jan, Apr, Jul, Oct
+  workflow_dispatch:         # manual trigger
+
+jobs:
+  update-tsi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run TSI update script
+        run: python bibtoweb/update_tsi_data.py
+
+      - name: Commit and push if CSVs changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/tsi_yearly.csv data/tsi_monthly.csv
+          if git diff --staged --quiet; then
+            echo "No changes to TSI CSVs — nothing to commit."
+          else
+            git commit -m "chore: update TSI data [$(date -u +%Y-%m-%d)]"
+            git push
+          fi
