@@ -358,6 +358,53 @@
       target="_blank">GitHub&nbsp;Actions</a>.
     </div>
 
+    <!-- ===================== AEROSOL OPTICAL DEPTH ===================== -->
+    <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
+
+    <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Aerosol Optical Depth</h3>
+    <p class="page-intro">
+      Monthly global mean aerosol optical depth (AOD) at 550&thinsp;nm from the
+      <a href="https://cds.climate.copernicus.eu/datasets/satellite-aerosol-properties"
+      target="_blank">Copernicus Climate Data Store Satellite Aerosol Properties</a> record
+      (SLSTR on Sentinel-3A, ensemble algorithm, v2.4). AOD is a dimensionless measure of
+      the total column extinction of sunlight by aerosol particles; higher values indicate
+      more aerosol loading (dust, sea salt, smoke, pollution). The global mean varies
+      seasonally and interannually with wildfire events, dust outbreaks, and pollution.
+      Coverage begins in 2017 when Sentinel-3A became operational.
+    </p>
+
+    <!-- Dataset toggles -->
+    <div class="dataset-controls" id="aod-dataset-controls">
+      <div class="controls-label">Series</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="aod-stats-grid"></div>
+
+    <!-- Loading / error -->
+    <div id="aod-loading">
+      <div class="spinner"></div><br>Loading AOD data&hellip;
+      <div id="aod-error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" id="aod-chart-container" style="display:none;">
+      <canvas id="aodChart"></canvas>
+    </div>
+
+    <!-- Notes & credits -->
+    <div class="page-notes">
+      <strong>Units:</strong> Dimensionless (aerosol optical depth at 550&thinsp;nm).<br>
+      <strong>Global mean:</strong> Area-weighted (cosine-latitude) mean over all ocean pixels
+      retrieved by the SLSTR dual-view ensemble algorithm; land retrievals are excluded by
+      the algorithm mask.<br>
+      <strong>Data:</strong>
+      <a href="https://cds.climate.copernicus.eu/datasets/satellite-aerosol-properties"
+      target="_blank">CDS Satellite Aerosol Properties</a> &mdash; SLSTR/Sentinel-3A, ENS algorithm,
+      monthly average, v2.4.
+      Local CSV updated manually via <code>bibtoweb/update_aod_data.py</code>.
+    </div>
+
   </div>
 </div>
 
@@ -1218,6 +1265,214 @@ async function initTsi() {
 }
 
 initTsi();
+
+// ============================================================
+//  AOD — Aerosol Optical Depth (CDS / SLSTR Sentinel-3A)
+//  Data source: local CSV pre-computed by bibtoweb/update_aod_data.py
+// ============================================================
+const AOD_DATASETS = [
+  { key: 'aod_global', label: 'Global mean',            color: '#8e44ad', bold: true  },
+  { key: 'aod_nh',     label: 'Northern Hemisphere',    color: '#2980b9', bold: false },
+  { key: 'aod_sh',     label: 'Southern Hemisphere',    color: '#27ae60', bold: false }
+];
+
+const aodActive = new Set(AOD_DATASETS.map(d => d.key));
+let aodChart = null;
+let aodData  = null;   // { yearFrac[], aod_global[], aod_nh[], aod_sh[] }
+
+// ---- Parse four-column CSV ----
+function parseAodCsv(text) {
+  const lines = text.trim().split('\n');
+  const yearFrac = [], aod_global = [], aod_nh = [], aod_sh = [];
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    if (parts.length < 4) continue;
+    const yf = parseFloat(parts[0]);
+    const g  = parseFloat(parts[1]);
+    const n  = parseFloat(parts[2]);
+    const s  = parseFloat(parts[3]);
+    if (isNaN(yf) || isNaN(g)) continue;
+    yearFrac.push(yf);
+    aod_global.push(g);
+    aod_nh.push(isNaN(n) ? null : n);
+    aod_sh.push(isNaN(s) ? null : s);
+  }
+  return { yearFrac, aod_global, aod_nh, aod_sh };
+}
+
+// ---- Build Chart.js dataset list ----
+function buildAodDatasets() {
+  if (!aodData) return [];
+  const out = [];
+  for (const ds of AOD_DATASETS) {
+    if (!aodActive.has(ds.key)) continue;
+    const vals = aodData[ds.key];
+    out.push({
+      label:            ds.label,
+      data:             aodData.yearFrac.map((y, i) => ({ x: y, y: vals[i] })),
+      borderColor:      ds.color,
+      backgroundColor:  ds.color,
+      borderWidth:      ds.bold ? 2.5 : 1.5,
+      pointRadius:      0,
+      pointHoverRadius: ds.bold ? 5 : 3,
+      tension:          0.3,
+      fill:             false,
+      dsKey:            ds.key
+    });
+  }
+  return out;
+}
+
+// ---- Render / update chart ----
+function renderAodChart() {
+  const datasets = buildAodDatasets();
+
+  if (aodChart) {
+    aodChart.data.datasets = datasets;
+    aodChart.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('aodChart').getContext('2d');
+  aodChart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#474e5d',
+            font: { size: 12, weight: '600' },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title: (items) => `${items[0].raw.x.toFixed(2)}`,
+            label: (item) => {
+              const val = item.raw.y;
+              if (val === null) return null;
+              return ` ${item.dataset.label}: ${val.toFixed(3)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: {
+            display: true,
+            text: 'Year',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          ticks: { stepSize: 1, callback: (v) => v },
+          grid: { color: '#f0f0f0' }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'AOD (550 nm)',
+            color: '#474e5d',
+            font: { size: 13, weight: '600' }
+          },
+          min: 0,
+          grid: { color: '#f0f0f0' },
+          ticks: { callback: (v) => v.toFixed(2) }
+        }
+      }
+    }
+  });
+}
+
+// ---- Stat cards ----
+function updateAodStats() {
+  for (const ds of AOD_DATASETS) {
+    const card = document.getElementById(`aod-stat-${ds.key}`);
+    if (!card) continue;
+    const active = aodActive.has(ds.key);
+    card.classList.toggle('inactive', !active || !aodData);
+    if (aodData && active) {
+      const vals = aodData[ds.key];
+      let lastVal = null, lastYr = null;
+      for (let i = vals.length - 1; i >= 0; i--) {
+        if (vals[i] !== null) { lastVal = vals[i]; lastYr = aodData.yearFrac[i]; break; }
+      }
+      if (lastVal !== null) {
+        card.querySelector('.stat-value').textContent = lastVal.toFixed(3);
+        card.querySelector('.stat-year').textContent  = lastYr.toFixed(2);
+      }
+    }
+  }
+}
+
+// ---- Build UI controls ----
+function buildAodControls() {
+  const controlsDiv = document.getElementById('aod-dataset-controls');
+  const statsDiv    = document.getElementById('aod-stats-grid');
+
+  for (const ds of AOD_DATASETS) {
+    const pill = document.createElement('div');
+    pill.className = 'dataset-toggle active';
+    pill.style.setProperty('--ds-color', ds.color);
+    pill.innerHTML = `
+      <span class="color-swatch" style="background:${ds.color};"></span>
+      <span class="dataset-name">${ds.label}</span>
+    `;
+    pill.addEventListener('click', () => {
+      if (aodActive.has(ds.key)) {
+        aodActive.delete(ds.key);
+        pill.classList.remove('active');
+      } else {
+        aodActive.add(ds.key);
+        pill.classList.add('active');
+      }
+      renderAodChart();
+      updateAodStats();
+    });
+    controlsDiv.appendChild(pill);
+
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.id = `aod-stat-${ds.key}`;
+    card.style.setProperty('--ds-color', ds.color);
+    card.innerHTML = `
+      <div class="stat-ds-name">${ds.label}</div>
+      <div class="stat-value">—<span class="stat-units"></span></div>
+      <div class="stat-year">latest</div>
+    `;
+    statsDiv.appendChild(card);
+  }
+}
+
+// ---- Fetch and initialise ----
+async function initAod() {
+  buildAodControls();
+  try {
+    const res = await fetch('data/aod_sentinel3a.csv');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    aodData = parseAodCsv(text);
+  } catch (err) {
+    const errDiv = document.getElementById('aod-error-message');
+    errDiv.style.display = 'block';
+    errDiv.textContent   = `Could not load AOD data: ${err.message}`;
+  }
+
+  document.getElementById('aod-loading').style.display        = 'none';
+  document.getElementById('aod-chart-container').style.display = 'block';
+
+  renderAodChart();
+  updateAodStats();
+}
+
+initAod();
 </script>
 
 </body>
