@@ -32,6 +32,9 @@ Thumbs.db
 # ignore old site archive (keep locally, not deployed)
 old_site/
 
+# ignore MODIS HDF4 cache (large files, ~3.4 GB, kept locally only)
+bibtoweb/modis_hdf_cache/
+
 # ignore Editor files
 *.sublime-project
 *.sublime-workspace

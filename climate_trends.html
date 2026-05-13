@@ -363,14 +363,11 @@
 
     <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Aerosol Optical Depth</h3>
     <p class="page-intro">
-      Monthly global mean aerosol optical depth (AOD) at 550&thinsp;nm from the
-      <a href="https://cds.climate.copernicus.eu/datasets/satellite-aerosol-properties"
-      target="_blank">Copernicus Climate Data Store Satellite Aerosol Properties</a> record
-      (SLSTR on Sentinel-3A, ensemble algorithm, v2.4). AOD is a dimensionless measure of
-      the total column extinction of sunlight by aerosol particles; higher values indicate
-      more aerosol loading (dust, sea salt, smoke, pollution). The global mean varies
-      seasonally and interannually with wildfire events, dust outbreaks, and pollution.
-      Coverage begins in 2017 when Sentinel-3A became operational.
+      Monthly aerosol optical depth (AOD) at 550&thinsp;nm from two satellite records.
+      AOD is a dimensionless measure of the total column extinction of sunlight by aerosol
+      particles; higher values indicate more aerosol loading (dust, sea salt, smoke,
+      pollution). The global mean varies seasonally and interannually with wildfire events,
+      dust outbreaks, and pollution. Toggle sources and regions using the controls below.
     </p>
 
     <!-- Dataset toggles -->
@@ -395,14 +392,17 @@
     <!-- Notes & credits -->
     <div class="page-notes">
       <strong>Units:</strong> Dimensionless (aerosol optical depth at 550&thinsp;nm).<br>
-      <strong>Global mean:</strong> Area-weighted (cosine-latitude) mean over all ocean pixels
-      retrieved by the SLSTR dual-view ensemble algorithm; land retrievals are excluded by
-      the algorithm mask.<br>
-      <strong>Data:</strong>
+      <strong>Means:</strong> Area-weighted (cosine-latitude) means over all retrieved pixels.<br>
+      <strong>Sentinel-3A</strong> (2017&ndash;present):
       <a href="https://cds.climate.copernicus.eu/datasets/satellite-aerosol-properties"
       target="_blank">CDS Satellite Aerosol Properties</a> &mdash; SLSTR/Sentinel-3A, ENS algorithm,
-      monthly average, v2.4.
-      Local CSV updated manually via <code>bibtoweb/update_aod_data.py</code>.
+      monthly average, v2.4. Ocean pixels only (land excluded by algorithm mask).
+      CSV updated via <code>bibtoweb/update_aod_data.py</code>.<br>
+      <strong>MODIS/Aqua</strong> (2002&ndash;present):
+      <a href="https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3/"
+      target="_blank">MYD08_M3 v6.1</a> &mdash; Level-3 monthly atmosphere product,
+      <code>Aerosol_Optical_Depth_Land_Ocean_Mean_Mean</code>, 1&deg;&times;1&deg; global grid.
+      CSV updated via <code>bibtoweb/update_modis_aod_data.py</code>.
     </div>
 
   </div>
@@ -1267,23 +1267,29 @@ async function initTsi() {
 initTsi();
 
 // ============================================================
-//  AOD — Aerosol Optical Depth (CDS / SLSTR Sentinel-3A)
-//  Data source: local CSV pre-computed by bibtoweb/update_aod_data.py
+//  AOD — Aerosol Optical Depth (two satellite sources)
+//  Sentinel-3A: local CSV from bibtoweb/update_aod_data.py
+//  MODIS/Aqua:  local CSV from bibtoweb/update_modis_aod_data.py
 // ============================================================
 const AOD_DATASETS = [
-  { key: 'aod_global', label: 'Global mean',            color: '#8e44ad', bold: true  },
-  { key: 'aod_nh',     label: 'Northern Hemisphere',    color: '#2980b9', bold: false },
-  { key: 'aod_sh',     label: 'Southern Hemisphere',    color: '#27ae60', bold: false }
+  // Sentinel-3A / SLSTR (2017–present) — shades of red
+  { key: 's3a_global',   label: 'Sentinel-3A Global',   color: '#c0392b', bold: true,  source: 'Sentinel-3A' },
+  { key: 's3a_nh',       label: 'Sentinel-3A N. Hem.',  color: '#e74c3c', bold: false, source: 'Sentinel-3A' },
+  { key: 's3a_sh',       label: 'Sentinel-3A S. Hem.',  color: '#f1948a', bold: false, source: 'Sentinel-3A' },
+  // MODIS/Aqua MYD08_M3 (2002–present) — shades of blue
+  { key: 'modis_global', label: 'MODIS Global',         color: '#1a5276', bold: true,  source: 'MODIS/Aqua'  },
+  { key: 'modis_nh',     label: 'MODIS N. Hemisphere',  color: '#2980b9', bold: false, source: 'MODIS/Aqua'  },
+  { key: 'modis_sh',     label: 'MODIS S. Hemisphere',  color: '#7fb3d3', bold: false, source: 'MODIS/Aqua'  },
 ];
 
 const aodActive = new Set(AOD_DATASETS.map(d => d.key));
 let aodChart = null;
-let aodData  = null;   // { yearFrac[], aod_global[], aod_nh[], aod_sh[] }
+let aodData  = null;  // merged: { yearFrac[], s3a_global[], …, modis_global[], … }
 
-// ---- Parse four-column CSV ----
-function parseAodCsv(text) {
+// ---- Parse four-column CSV, prefixing the three value columns ----
+function parseAodCsv(text, prefix) {
   const lines = text.trim().split('\n');
-  const yearFrac = [], aod_global = [], aod_nh = [], aod_sh = [];
+  const yearFrac = [], global_ = [], nh_ = [], sh_ = [];
   for (let i = 1; i < lines.length; i++) {
     const parts = lines[i].split(',');
     if (parts.length < 4) continue;
@@ -1293,11 +1299,44 @@ function parseAodCsv(text) {
     const s  = parseFloat(parts[3]);
     if (isNaN(yf) || isNaN(g)) continue;
     yearFrac.push(yf);
-    aod_global.push(g);
-    aod_nh.push(isNaN(n) ? null : n);
-    aod_sh.push(isNaN(s) ? null : s);
+    global_.push(g);
+    nh_.push(isNaN(n) ? null : n);
+    sh_.push(isNaN(s) ? null : s);
   }
-  return { yearFrac, aod_global, aod_nh, aod_sh };
+  return {
+    yearFrac,
+    [`${prefix}_global`]: global_,
+    [`${prefix}_nh`]:     nh_,
+    [`${prefix}_sh`]:     sh_,
+  };
+}
+
+// ---- Merge two parsed CSVs into a single object with a unified time axis ----
+function mergeAodSources(s3a, modis) {
+  // Build a sorted union of both yearFrac arrays (keyed to 4 dp for lookup)
+  const fmt = yf => yf.toFixed(4);
+  const s3aMap    = new Map(s3a.yearFrac.map((y, i) => [fmt(y), i]));
+  const modisMap  = new Map(modis.yearFrac.map((y, i) => [fmt(y), i]));
+  const allKeys   = [...new Set([...s3a.yearFrac.map(fmt), ...modis.yearFrac.map(fmt)])].sort();
+
+  const merged = {
+    yearFrac:      [],
+    s3a_global:    [], s3a_nh:    [], s3a_sh:    [],
+    modis_global:  [], modis_nh:  [], modis_sh:  [],
+  };
+
+  for (const k of allKeys) {
+    merged.yearFrac.push(parseFloat(k));
+    const si = s3aMap.get(k);
+    merged.s3a_global.push(si !== undefined ? s3a.s3a_global[si] : null);
+    merged.s3a_nh.push    (si !== undefined ? s3a.s3a_nh[si]     : null);
+    merged.s3a_sh.push    (si !== undefined ? s3a.s3a_sh[si]     : null);
+    const mi = modisMap.get(k);
+    merged.modis_global.push(mi !== undefined ? modis.modis_global[mi] : null);
+    merged.modis_nh.push    (mi !== undefined ? modis.modis_nh[mi]     : null);
+    merged.modis_sh.push    (mi !== undefined ? modis.modis_sh[mi]     : null);
+  }
+  return merged;
 }
 
 // ---- Build Chart.js dataset list ----
@@ -1317,6 +1356,7 @@ function buildAodDatasets() {
       pointHoverRadius: ds.bold ? 5 : 3,
       tension:          0.3,
       fill:             false,
+      spanGaps:         false,
       dsKey:            ds.key
     });
   }
@@ -1412,12 +1452,22 @@ function updateAodStats() {
   }
 }
 
-// ---- Build UI controls ----
+// ---- Build UI controls (pills grouped by source) ----
 function buildAodControls() {
   const controlsDiv = document.getElementById('aod-dataset-controls');
   const statsDiv    = document.getElementById('aod-stats-grid');
 
+  let lastSource = null;
   for (const ds of AOD_DATASETS) {
+    // Insert a source-group label when the source changes
+    if (ds.source !== lastSource) {
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:0.78em;color:#888;align-self:center;margin-left:0.4em;margin-right:0.2em;white-space:nowrap;';
+      lbl.textContent = ds.source;
+      controlsDiv.appendChild(lbl);
+      lastSource = ds.source;
+    }
+
     const pill = document.createElement('div');
     pill.className = 'dataset-toggle active';
     pill.style.setProperty('--ds-color', ds.color);
@@ -1451,14 +1501,32 @@ function buildAodControls() {
   }
 }
 
-// ---- Fetch and initialise ----
+// ---- Fetch both CSVs, merge, and initialise ----
 async function initAod() {
   buildAodControls();
   try {
-    const res = await fetch('data/aod_sentinel3a.csv');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    aodData = parseAodCsv(text);
+    const [s3aRes, modisRes] = await Promise.all([
+      fetch('data/aod_sentinel3a.csv'),
+      fetch('data/aod_modis.csv'),
+    ]);
+    if (!s3aRes.ok) throw new Error(`Sentinel-3A CSV: HTTP ${s3aRes.status}`);
+    const s3a = parseAodCsv(await s3aRes.text(), 's3a');
+
+    // MODIS CSV is optional — gracefully absent until the download script has been run
+    let modis = null;
+    if (modisRes.ok) {
+      modis = parseAodCsv(await modisRes.text(), 'modis');
+    } else {
+      // Disable MODIS toggles visually
+      for (const ds of AOD_DATASETS.filter(d => d.source === 'MODIS/Aqua')) {
+        aodActive.delete(ds.key);
+        const pill = [...document.querySelectorAll('#aod-dataset-controls .dataset-toggle')]
+          .find(p => p.querySelector('.dataset-name')?.textContent === ds.label);
+        if (pill) { pill.classList.remove('active'); pill.title = 'Data not yet available — run update_modis_aod_data.py'; }
+      }
+    }
+
+    aodData = modis ? mergeAodSources(s3a, modis) : mergeAodSources(s3a, { yearFrac: [], modis_global: [], modis_nh: [], modis_sh: [] });
   } catch (err) {
     const errDiv = document.getElementById('aod-error-message');
     errDiv.style.display = 'block';
