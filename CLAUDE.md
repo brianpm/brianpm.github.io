@@ -141,18 +141,31 @@ All MetOffice-formatted files use a common pre-industrial baseline (~1850–1900
 **Updating GMST data:** Run the following to refresh the five CSVs in `data/` from the Met Office Climate Dashboard (data is released monthly):
 ```bash
 conda activate p12
-python bibtoweb/update_gmst_data.py
+python scripts/update_gmst_data.py
 # then commit data/gmt_*.csv
 ```
 
 **Pattern for new data viz pages:** host data locally in `data/` (avoids CORS), fetch at runtime, parse in JS, render with Chart.js. Add a card to `resources.html` using the `.resource-card` pattern. See `gmst.html` for the multi-dataset toggle + uncertainty band pattern.
 
-### Data Visualization Scripts
+### Data Update Scripts
 
-`get_noaa_monthly_co2_sites.py` - Scrapes NOAA website for CO2 measurement site data and generates visualization HTML pages. Uses BeautifulSoup for parsing and Plotly for interactive charts.
+Climate data scripts live in `scripts/` at the repo root. All write their output to `data/` and can be run from the repo root:
+
+```bash
+conda activate p12
+python scripts/update_gmst_data.py        # 5 GMST CSVs from Met Office
+python scripts/update_eei_data.py         # EEI from CERES EBAF (also runs via GitHub Actions monthly)
+python scripts/update_tsi_data.py         # TSI from NOAA NCEI (also runs via GitHub Actions quarterly)
+python scripts/update_aod_data.py         # AOD from Sentinel-3A via Copernicus CDS
+python scripts/update_modis_aod_data.py   # AOD from MODIS/Aqua via NASA Earthdata (caches HDF4 in scripts/modis_hdf_cache/)
+```
+
+`scripts/get_noaa_monthly_co2_sites.py` - Scrapes NOAA website for CO2 measurement site codes and prints HTML `<option>` tags + JS URL mapping to stdout (used when refreshing `co2_noaa.html` site list). Uses BeautifulSoup.
 
 **Dependencies:**
-- `requests`, `beautifulsoup4`, `plotly`, `pandas`
+- `requests`, `beautifulsoup4` (CO2 helper)
+- `cdsapi`, `numpy`, `xarray` (AOD Sentinel)
+- `earthaccess`, `pyhdf`, `numpy` (AOD MODIS)
 
 ## Directory Structure
 
@@ -163,8 +176,10 @@ python bibtoweb/update_gmst_data.py
 - `presentations/` - Presentation detail pages (site-styled with nav/footer)
   - `presentations/index.json` - Manifest file; `ourwork.html` loads this to auto-discover and render presentation cards
   - Note: venue and type fields use plain `&` (not `&amp;`) in the JSON
-- `bibtoweb/` - BibTeX to HTML conversion tools, dated BibTeX archives (`mybib_YYYY_MM_DD.bib`), and Python scripts
+- `bibtoweb/` - BibTeX to HTML conversion tools, dated BibTeX archives (`mybib_YYYY_MM_DD.bib`), and publications Python scripts
   - `bibtoweb/archive/` - Timestamped backups of `publications.html` created by update workflow
+- `scripts/` - Climate data update scripts (write outputs to `data/`); see "Data Update Scripts" section
+  - `scripts/modis_hdf_cache/` - Local-only MODIS HDF4 cache (~103 GB, gitignored)
 - `css/` - Bootstrap (`bootstrap.css`) and custom styles (`style.css`, `bibbase_custom.css`)
 - `js/` - No longer used (jQuery loaded from CDN on all pages)
 - `images/` - Site images and logos (`.afdesign`/`.af` design source files are gitignored; keep locally)

@@ -397,12 +397,12 @@
       <a href="https://cds.climate.copernicus.eu/datasets/satellite-aerosol-properties"
       target="_blank">CDS Satellite Aerosol Properties</a> &mdash; SLSTR/Sentinel-3A, ENS algorithm,
       monthly average, v2.4. Ocean pixels only (land excluded by algorithm mask).
-      CSV updated via <code>bibtoweb/update_aod_data.py</code>.<br>
+      CSV updated automatically using a Python script.<br>
       <strong>MODIS/Aqua</strong> (2002&ndash;present):
       <a href="https://ladsweb.modaps.eosdis.nasa.gov/missions-and-measurements/products/MYD08_M3/"
       target="_blank">MYD08_M3 v6.1</a> &mdash; Level-3 monthly atmosphere product,
       <code>Aerosol_Optical_Depth_Land_Ocean_Mean_Mean</code>, 1&deg;&times;1&deg; global grid.
-      CSV updated via <code>bibtoweb/update_modis_aod_data.py</code>.
+      CSV updated automatically using a Python script.
     </div>
 
   </div>
@@ -779,7 +779,7 @@ initOhc();
 
 // ============================================================
 //  EEI — Earth Energy Imbalance (CERES EBAF-TOA Ed4.2.1)
-//  Data source: local CSV pre-computed by bibtoweb/update_eei_data.py
+//  Data source: local CSV pre-computed by scripts/update_eei_data.py
 // ============================================================
 const EEI_DATASETS = [
   {
@@ -1010,7 +1010,7 @@ initEei();
 
 // ============================================================
 //  TSI — Total Solar Irradiance (NOAA NCEI CDR)
-//  Data source: local CSVs pre-computed by bibtoweb/update_tsi_data.py
+//  Data source: local CSVs pre-computed by scripts/update_tsi_data.py
 // ============================================================
 const TSI_DATASETS = [
   {
@@ -1268,8 +1268,8 @@ initTsi();
 
 // ============================================================
 //  AOD — Aerosol Optical Depth (two satellite sources)
-//  Sentinel-3A: local CSV from bibtoweb/update_aod_data.py
-//  MODIS/Aqua:  local CSV from bibtoweb/update_modis_aod_data.py
+//  Sentinel-3A: local CSV from scripts/update_aod_data.py
+//  MODIS/Aqua:  local CSV from scripts/update_modis_aod_data.py
 // ============================================================
 const AOD_DATASETS = [
   // Sentinel-3A / SLSTR (2017–present) — shades of red

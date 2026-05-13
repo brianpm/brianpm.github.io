@@ -21,7 +21,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run TSI update script
-        run: python bibtoweb/update_tsi_data.py
+        run: python scripts/update_tsi_data.py
 
       - name: Commit and push if CSVs changed
         run: |

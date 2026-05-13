@@ -22,7 +22,7 @@ jobs:
           python-version: '3.11'
 
       - name: Run EEI update script
-        run: python bibtoweb/update_eei_data.py
+        run: python scripts/update_eei_data.py
 
       - name: Commit and push if CSV changed
         run: |
