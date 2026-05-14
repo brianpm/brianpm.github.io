@@ -158,14 +158,20 @@ python scripts/update_eei_data.py         # EEI from CERES EBAF (also runs via G
 python scripts/update_tsi_data.py         # TSI from NOAA NCEI (also runs via GitHub Actions quarterly)
 python scripts/update_aod_data.py         # AOD from Sentinel-3A via Copernicus CDS
 python scripts/update_modis_aod_data.py   # AOD from MODIS/Aqua via NASA Earthdata (caches HDF4 in scripts/modis_hdf_cache/)
+python scripts/update_albedo_c3s.py       # Land surface albedo from C3S/AVHRR via Copernicus CDS
+python scripts/update_albedo_modis.py     # Land surface albedo from MODIS MCD43C3 via NASA Earthdata (caches HDF4 in scripts/modis_albedo_hdf_cache/)
 ```
 
 `scripts/get_noaa_monthly_co2_sites.py` - Scrapes NOAA website for CO2 measurement site codes and prints HTML `<option>` tags + JS URL mapping to stdout (used when refreshing `co2_noaa.html` site list). Uses BeautifulSoup.
+
+The two `update_albedo_*` scripts feed the **Earth's Surface Albedo** section of `climate_trends.html`. Each writes a monthly land-mean time-series CSV (`data/albedo_c3s.csv`, `data/albedo_modis.csv`; columns `year_frac,wsa_global,wsa_nh,wsa_sh,bsa_global,bsa_nh,bsa_sh`) plus two pre-rendered figures committed to `images/` (a mean-albedo map and a zonal-average plot). Both products are land-only. The CDS albedo dataset requires a one-time licence acceptance at the dataset's "Download data" tab; the year range is set by the `YEARS`/`YEAR` constant near the top of each script.
 
 **Dependencies:**
 - `requests`, `beautifulsoup4` (CO2 helper)
 - `cdsapi`, `numpy`, `xarray` (AOD Sentinel)
 - `earthaccess`, `pyhdf`, `numpy` (AOD MODIS)
+- `cdsapi`, `numpy`, `xarray`, `matplotlib`, `cartopy` (albedo C3S)
+- `earthaccess`, `pyhdf`, `numpy`, `matplotlib`, `cartopy` (albedo MODIS)
 
 ## Directory Structure
 
@@ -180,6 +186,7 @@ python scripts/update_modis_aod_data.py   # AOD from MODIS/Aqua via NASA Earthda
   - `bibtoweb/archive/` - Timestamped backups of `publications.html` created by update workflow
 - `scripts/` - Climate data update scripts (write outputs to `data/`); see "Data Update Scripts" section
   - `scripts/modis_hdf_cache/` - Local-only MODIS HDF4 cache (~103 GB, gitignored)
+  - `scripts/modis_albedo_hdf_cache/` - Local-only MCD43C3 HDF4 cache (gitignored)
 - `css/` - Bootstrap (`bootstrap.css`) and custom styles (`style.css`, `bibbase_custom.css`)
 - `js/` - No longer used (jQuery loaded from CDN on all pages)
 - `images/` - Site images and logos (`.afdesign`/`.af` design source files are gitignored; keep locally)

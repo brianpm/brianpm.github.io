@@ -34,6 +34,7 @@ old_site/
 
 # ignore MODIS HDF4 cache (large files, ~3.4 GB, kept locally only)
 scripts/modis_hdf_cache/
+scripts/modis_albedo_hdf_cache/
 
 # ignore Editor files
 *.sublime-project
