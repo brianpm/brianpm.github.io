@@ -186,6 +186,40 @@ end</code></pre>
         <strong>Note:</strong> Fish does not use <code>[[ ]]</code> or <code>[ ]</code> for tests — use the <a href="https://fishshell.com/docs/current/cmds/test.html"><code>test</code></a> builtin or <a href="https://fishshell.com/docs/current/cmds/string.html"><code>string</code></a> for string operations.
       </div>
 
+      <h3>Customizing the Prompt</h3>
+
+      <p>The easiest way to pick a prompt theme is the built-in web UI:</p>
+      <pre><code>fish_config</code></pre>
+      <p>This opens a browser tab where you can preview and select prompt themes, colors, and more — no config editing required.</p>
+
+      <p>For full control, define a <code>fish_prompt</code> function. Fish looks for it in <code>~/.config/fish/functions/fish_prompt.fish</code>:</p>
+      <pre><code># ~/.config/fish/functions/fish_prompt.fish
+function fish_prompt
+    set_color cyan
+    echo -n (prompt_pwd)   # abbreviated current directory
+    set_color normal
+    echo -n ' > '
+end</code></pre>
+
+      <p>Useful builtins for prompt building:</p>
+      <ul>
+        <li><code>prompt_pwd</code> — current directory, shortened (respects <code>fish_prompt_pwd_dir_length</code>)</li>
+        <li><code>set_color</code> — set foreground/background color; <code>set_color normal</code> resets</li>
+        <li><code>fish_git_prompt</code> — git branch and status string (enable with <code>set -g __fish_git_prompt_showdirtystate 1</code>)</li>
+      </ul>
+
+      <div class="note">
+        <strong>Tip:</strong> A separate <code>fish_right_prompt</code> function populates the right side of the prompt line — handy for git status or timestamps without cluttering the left.
+      </div>
+
+      <h3>Oh My Fish</h3>
+
+      <div class="note" style="background:#f0f9ff; border-color: #55bfea;">
+        <strong><a href="https://github.com/oh-my-fish/oh-my-fish">Oh My Fish</a> (omf)</strong> is a package manager for fish that makes it easy to install prompt themes and plugins. Install it with:
+        <pre style="margin: 0.6em 0 0.3em;"><code>curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish</code></pre>
+        Then browse and install themes (<code>omf install bobthefish</code> is a popular choice) or plugins (<code>omf install z</code> for directory jumping). Run <code>omf help</code> to see available commands, or visit the <a href="https://github.com/oh-my-fish/oh-my-fish">omf repository</a> for a full list of packages.
+      </div>
+
     </div>
   </div>
 </div>
