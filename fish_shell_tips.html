@@ -10,7 +10,7 @@
 <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="fish shell, PATH, fish_add_path, fish_user_paths, shell tips" />
+<meta name="keywords" content="fish shell, PATH, fish_add_path, fish_user_paths, environment variables, loops, conditionals, shell tips" />
 <link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
@@ -106,7 +106,7 @@
     <h2>Fish Shell Tips</h2>
     <div class="doc-content">
 
-      <p>Useful tips for working with the <a href="https://fishshell.com">fish shell</a>. Fish manages user-defined paths through a universal variable called <code>fish_user_paths</code>.</p>
+      <p>Useful tips for working with the <a href="https://fishshell.com">fish shell</a>. Fish syntax differs from bash/zsh in several key ways — no <code>export</code>, different variable scoping, and cleaner loop/conditional syntax. For the full reference, see the <a href="https://fishshell.com/docs/current/">official fish documentation</a>.</p>
 
       <h3>PATH Management</h3>
 
@@ -127,6 +127,63 @@ echo $fish_user_paths | tr " " "\n" | nl</code></pre>
 
       <div class="note">
         <strong>Note:</strong> <code>fish_user_paths</code> is a universal variable, meaning changes persist across all fish sessions automatically.
+      </div>
+
+      <h3>Environment Variables</h3>
+
+      <p>Fish uses <code>set</code> instead of <code>export</code>. The scope flag controls persistence:</p>
+      <pre><code># Session-only (lost when shell exits) — equivalent to bash's plain assignment
+set MY_VAR value
+
+# Export to child processes (equivalent to bash's export)
+set -x MY_VAR value
+
+# Persist across sessions and all fish windows (universal)
+set -Ux MY_VAR value</code></pre>
+
+      <h4>Unset a variable</h4>
+      <pre><code>set -e MY_VAR</code></pre>
+
+      <div class="note">
+        <strong>Tip:</strong> Universal variables (<code>-U</code>) are stored in <code>~/.config/fish/fish_variables</code> and shared across all fish sessions — no need to put them in <code>config.fish</code>.
+      </div>
+
+      <h3>Loops</h3>
+
+      <p>Fish uses <code>for … in … end</code> instead of bash's <code>do … done</code>:</p>
+      <pre><code>for f in *.txt
+    echo $f
+end</code></pre>
+
+      <p>Loop over a sequence of numbers with <code>seq</code>:</p>
+      <pre><code>for i in (seq 1 5)
+    echo $i
+end</code></pre>
+
+      <p><code>while</code> loops follow the same <code>end</code> pattern:</p>
+      <pre><code>while test -f lockfile
+    sleep 1
+end</code></pre>
+
+      <h3>Conditionals</h3>
+
+      <p>Fish uses <code>if … else … end</code> — no brackets required, just a command whose exit status is tested:</p>
+      <pre><code>if test -d ~/projects
+    echo "projects dir exists"
+else
+    echo "missing"
+end</code></pre>
+
+      <p>String comparison uses <code>= </code> (one equals sign) inside <code>test</code>, or the <code>string</code> builtin:</p>
+      <pre><code>if test "$STATUS" = "ok"
+    echo "all good"
+end</code></pre>
+
+      <p><code>and</code> / <code>or</code> replace <code>&amp;&amp;</code> / <code>||</code> as statement combiners:</p>
+      <pre><code>test -f config.yaml; and echo "found" ; or echo "not found"</code></pre>
+
+      <div class="note">
+        <strong>Note:</strong> Fish does not use <code>[[ ]]</code> or <code>[ ]</code> for tests — use the <a href="https://fishshell.com/docs/current/cmds/test.html"><code>test</code></a> builtin or <a href="https://fishshell.com/docs/current/cmds/string.html"><code>string</code></a> for string operations.
       </div>
 
     </div>
