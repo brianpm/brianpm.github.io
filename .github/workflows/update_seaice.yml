@@ -1,0 +1,35 @@
+name: Update NH Sea Ice Extent Data
+
+# Runs every Monday at 06:00 UTC. NSIDC updates the daily extent file
+# continuously, so weekly pulls keep the local copy reasonably current.
+# Can also be triggered manually from the Actions tab.
+on:
+  schedule:
+    - cron: '0 6 * * 1'   # 06:00 UTC every Monday
+  workflow_dispatch:        # manual trigger
+
+jobs:
+  update-seaice:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Download NSIDC sea ice extent CSV
+        run: |
+          curl -fsSL \
+            "https://noaadata.apps.nsidc.org/NOAA/G02135/north/daily/data/N_seaice_extent_daily_v4.0.csv" \
+            -o data/N_seaice_extent_daily_v4.0.csv
+
+      - name: Commit and push if CSV changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/N_seaice_extent_daily_v4.0.csv
+          if git diff --staged --quiet; then
+            echo "No changes to N_seaice_extent_daily_v4.0.csv — nothing to commit."
+          else
+            git commit -m "chore: update NH sea ice extent data [$(date -u +%Y-%m-%d)]"
+            git push
+          fi
