@@ -109,12 +109,6 @@ span{
 .logo {
 	float: left;
 	padding: 0.6em 0;
-	max-width: 200px;
-}
-.logo img {
-	height: 54px !important;
-	width: auto !important;
-	max-width: none !important;
 }
 .hader-top {
 	float: right;
