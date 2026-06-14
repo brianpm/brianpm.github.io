@@ -11,6 +11,11 @@ PY="/opt/homebrew/Caskroom/mambaforge/base/envs/py12/bin/python3"
 echo "=== Northeast Boulder Climate Deploy ==="
 echo ""
 
+CURRENT_YEAR=$(date +%Y)
+echo "Step 0: Refresh current-year ($CURRENT_YEAR) WeeWX archive from live database..."
+"$PY" "$GGWEATHER_DIR/scripts/archive_year.py" --year "$CURRENT_YEAR" --summary-only
+echo ""
+
 echo "Step 1: Rebuild unified daily parquet from all data sources..."
 "$PY" "$GGWEATHER_DIR/scripts/build_unified_daily.py"
 echo ""

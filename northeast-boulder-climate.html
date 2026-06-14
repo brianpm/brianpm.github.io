@@ -490,6 +490,7 @@ function buildByYearPlot(dates, series, yTitle) {
     var years = Object.keys(yearSet).sort();
     var n = years.length;
 
+    var currentYr = String(weatherData.current_year);
     var traces = years.map(function(yr, i) {
         var doys = [], vals = [];
         dates.forEach(function(d, idx) {
@@ -498,12 +499,13 @@ function buildByYearPlot(dates, series, yTitle) {
                 vals.push(series.data[idx]);
             }
         });
+        var isCurrent = yr === currentYr;
         return {
             x: doys,
             y: vals,
-            name: yr,
+            name: isCurrent ? yr + ' (partial)' : yr,
             type: 'scatter', mode: 'lines',
-            line: { color: yearColor(i, n), width: 1.5 },
+            line: { color: yearColor(i, n), width: isCurrent ? 2.5 : 1.5, dash: isCurrent ? 'dash' : 'solid' },
             connectgaps: false,
             hovertemplate: yr + ' day %{x}: %{y:.1f}<extra></extra>',
         };
@@ -529,6 +531,7 @@ function renderPolarPlot() {
     var years = Object.keys(yearSet).sort();
     var n = years.length;
 
+    var currentYr = String(weatherData.current_year);
     var traces = years.map(function(yr, i) {
         var angles = [], radii = [], actualTemps = [];
         dates.forEach(function(d, idx) {
@@ -541,13 +544,14 @@ function renderPolarPlot() {
                 actualTemps.push(temp);
             }
         });
+        var isCurrent = yr === currentYr;
         return {
             type: 'scatterpolar',
             r: radii,
             theta: angles,
-            name: yr,
+            name: isCurrent ? yr + ' (partial)' : yr,
             mode: 'lines',
-            line: { color: yearColor(i, n), width: 1.5 },
+            line: { color: yearColor(i, n), width: isCurrent ? 2.5 : 1.5, dash: isCurrent ? 'dash' : 'solid' },
             connectgaps: false,
             customdata: actualTemps,
             hovertemplate: yr + ': %{customdata:.1f}°F<extra></extra>',
