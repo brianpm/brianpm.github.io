@@ -37,13 +37,33 @@
 		<div class="head-right">
 		    <P><a href="/contact.html">CONTACT</a></P>
 		</div>
+		<button id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode" style="
+		    background: none;
+		    border: none;
+		    cursor: pointer;
+		    font-size: 1.3em;
+		    padding: 0.4em 0.6em;
+		    margin-top: 1em;
+		    color: var(--color-text-dark, #474e5d);
+		    transition: color 0.3s ease;
+		    line-height: 1;
+		">☀️</button>
 		<div class="clearfix"> </div>
-		</div> 
+		</div>
 		<div class="clearfix"> </div>
-		</div> 
-	</div> 
+		</div>
+	</div>
 
 <!-- header -->
 
+<script>
+// Set initial button emoji from stored preference.
+// Click handling is delegated to theme.js (loaded in page <head>).
+(function() {
+    var btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    btn.textContent = localStorage.getItem('theme') === 'dark' ? '🌙' : '☀️';
+})();
+</script>
 
 </body> </html>

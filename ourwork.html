@@ -28,9 +28,9 @@
 .project-card {
     flex: 1 1 280px;
     max-width: 380px;
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 10px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     display: flex;
@@ -41,7 +41,7 @@
 .project-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-    border-color: #55bfea;
+    border-color: var(--color-accent-blue);
 }
 
 .project-card-img {
@@ -49,7 +49,7 @@
     height: 160px;
     object-fit: cover;
     display: block;
-    border-bottom: 2px solid #55bfea;
+    border-bottom: 2px solid var(--color-accent-blue);
 }
 
 .project-card-body {
@@ -62,7 +62,7 @@
 .project-card-body h3 {
     font-size: 0.95em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     text-transform: uppercase;
     letter-spacing: 1.2px;
     margin: 0 0 0.6em;
@@ -70,7 +70,7 @@
 
 .project-card-body p {
     font-size: 0.9em;
-    color: #575859;
+    color: var(--color-text-mid);
     line-height: 1.65;
     flex: 1;
     margin-bottom: 1em;
@@ -84,8 +84,8 @@
 
 .project-card-links a {
     display: inline-block;
-    background: #55bfea;
-    color: #fff;
+    background: var(--color-accent-blue);
+    color: var(--color-bg-card);
     border-radius: 5px;
     padding: 0.35em 0.85em;
     font-size: 0.82em;
@@ -95,8 +95,8 @@
 }
 
 .project-card-links a:hover {
-    background: #3aa8d8;
-    color: #fff;
+    background: var(--color-accent-blue);
+    color: var(--color-bg-card);
     text-decoration: none;
 }
 
@@ -104,15 +104,15 @@
 .section-heading {
     margin: 2.5em 0 0.3em;
     padding-top: 2em;
-    border-top: 2px solid #f0f0f0;
+    border-top: 2px solid var(--color-border-light);
 }
 
 .section-heading h2 {
-    color: #474e5d;
+    color: var(--color-text-dark);
 }
 
 .section-intro {
-    color: #575859;
+    color: var(--color-text-mid);
     font-size: 1em;
     margin-bottom: 1.5em;
     line-height: 1.7;
@@ -129,9 +129,9 @@
 
 .pres-card {
     flex: 1 1 280px;
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 10px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     display: flex;
@@ -143,14 +143,14 @@
 .pres-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-    border-color: #55bfea;
+    border-color: var(--color-accent-blue);
     text-decoration: none;
     color: inherit;
 }
 
 .pres-card-header {
-    background: #f8f9fa;
-    border-bottom: 2px solid #55bfea;
+    background: var(--color-bg-card-head);
+    border-bottom: 2px solid var(--color-accent-blue);
     border-radius: 10px 10px 0 0;
     padding: 0.9em 1.2em;
     display: flex;
@@ -160,7 +160,7 @@
 
 .pres-card-header .pres-type-icon {
     font-size: 1.6em;
-    color: #55bfea;
+    color: var(--color-accent-blue);
     flex-shrink: 0;
     width: 1.3em;
     text-align: center;
@@ -169,7 +169,7 @@
 .pres-card-header .pres-meta-text h3 {
     font-size: 0.82em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     margin: 0 0 0.1em;
     text-transform: uppercase;
     letter-spacing: 1.2px;
@@ -177,7 +177,7 @@
 
 .pres-card-header .pres-meta-text p {
     font-size: 0.72em;
-    color: #8fc74a;
+    color: var(--color-accent-green);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -192,14 +192,14 @@
 .pres-card-body h4 {
     font-size: 0.93em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     margin: 0 0 0.5em;
     line-height: 1.4;
 }
 
 .pres-card-body p {
     font-size: 0.87em;
-    color: #575859;
+    color: var(--color-text-mid);
     line-height: 1.65;
     margin: 0;
 }
@@ -210,6 +210,7 @@
     padding: 1em 0;
 }
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 <!-- header -->

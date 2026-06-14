@@ -17,9 +17,9 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <style>
 .details-content {
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 10px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     padding: 2em 2.2em;
     margin: 1.5em 0 2em;
@@ -27,14 +27,14 @@
 .details-content h3 {
     font-size: 1.3em;
     font-weight: 700;
-    color: #474e5d;
-    border-bottom: 2px solid #55bfea;
+    color: var(--color-text-dark);
+    border-bottom: 2px solid var(--color-accent-blue);
     padding-bottom: 0.4em;
     margin-bottom: 1.1em;
 }
 .details-content p {
     font-size: 0.96em;
-    color: #575859;
+    color: var(--color-text-mid);
     line-height: 1.85;
     margin-bottom: 1.2em;
 }
@@ -44,7 +44,7 @@
     max-width: 340px;
     width: 100%;
     border-radius: 8px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 @media (max-width: 600px) {
@@ -60,6 +60,7 @@
     clear: both;
 }
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 <!-- header -->

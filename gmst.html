@@ -209,7 +209,25 @@
     vertical-align: top;
     color: #888;
 }
+
+[data-theme="dark"] .controls-label,
+[data-theme="dark"] .stat-ds-name,
+[data-theme="dark"] .stat-year,
+[data-theme="dark"] #loading,
+[data-theme="dark"] .page-notes { color: var(--color-text-light); }
+[data-theme="dark"] .page-notes strong,
+[data-theme="dark"] .baseline-table th,
+[data-theme="dark"] .baseline-table td { color: var(--color-text-mid); }
+[data-theme="dark"] .baseline-table th,
+[data-theme="dark"] .baseline-table td { border-color: var(--color-border); }
+[data-theme="dark"] .dataset-toggle.active {
+    background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
+}
+[data-theme="dark"] .dataset-toggle:hover {
+    background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
+}
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 
@@ -430,6 +448,18 @@ function buildDatasets() {
   return datasets;
 }
 
+// ---- Apply theme colors to an existing chart ----
+function applyChartTheme() {
+  if (!chart) return;
+  const c = ThemeManager.getChartColors();
+  chart.options.plugins.legend.labels.color = c.legendColor;
+  chart.options.scales.x.title.color = c.textColor;
+  chart.options.scales.x.grid.color = c.gridColor;
+  chart.options.scales.y.title.color = c.textColor;
+  chart.options.scales.y.grid.color = c.gridColor;
+  chart.update('none');
+}
+
 // ---- Render or update chart ----
 function renderChart() {
   const datasets = buildDatasets();
@@ -440,6 +470,7 @@ function renderChart() {
     return;
   }
 
+  const c = ThemeManager.getChartColors();
   const ctx = document.getElementById('gmstChart').getContext('2d');
   chart = new Chart(ctx, {
     type: 'line',
@@ -456,7 +487,7 @@ function renderChart() {
           position: 'top',
           labels: {
             filter: (item, chartData) => !chartData.datasets[item.datasetIndex].isBand,
-            color: '#474e5d',
+            color: c.legendColor,
             font: { size: 12, weight: '600' },
             padding: 16,
             usePointStyle: true,
@@ -481,23 +512,23 @@ function renderChart() {
           title: {
             display: true,
             text: 'Year',
-            color: '#474e5d',
+            color: c.textColor,
             font: { size: 13, weight: '600' }
           },
           ticks: {
             stepSize: 20,
             callback: (val) => val
           },
-          grid: { color: '#f0f0f0' }
+          grid: { color: c.gridColor }
         },
         y: {
           title: {
             display: true,
             text: 'Temperature Anomaly (°C)',
-            color: '#474e5d',
+            color: c.textColor,
             font: { size: 13, weight: '600' }
           },
-          grid: { color: '#f0f0f0' },
+          grid: { color: c.gridColor },
           ticks: {
             callback: (val) => (val >= 0 ? '+' : '') + val.toFixed(1)
           }
@@ -506,6 +537,8 @@ function renderChart() {
     }
   });
 }
+
+document.addEventListener('themechange', applyChartTheme);
 
 // ---- Update stats cards ----
 function updateStats() {

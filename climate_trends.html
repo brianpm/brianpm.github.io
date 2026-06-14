@@ -89,7 +89,7 @@
 .dataset-name {
     font-size: 0.88em;
     font-weight: 600;
-    color: #474e5d;
+    color: var(--color-text-dark);
 }
 
 /* ---- Stats grid ---- */
@@ -225,7 +225,25 @@
     color: #888;
     margin-top: 0.4em;
 }
+
+[data-theme="dark"] .controls-label,
+[data-theme="dark"] .stat-ds-name,
+[data-theme="dark"] .stat-units,
+[data-theme="dark"] .stat-year,
+[data-theme="dark"] #loading,
+[data-theme="dark"] #ohc-loading,
+[data-theme="dark"] .page-notes,
+[data-theme="dark"] .albedo-figure figcaption { color: var(--color-text-light); }
+[data-theme="dark"] .page-notes strong { color: var(--color-text-mid); }
+[data-theme="dark"] .albedo-figure img { border-color: var(--color-border); }
+[data-theme="dark"] .dataset-toggle.active {
+    background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
+}
+[data-theme="dark"] .dataset-toggle:hover {
+    background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
+}
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 
@@ -243,7 +261,7 @@
     <h2>Climate Trends</h2>
 
     <!-- ===================== OCEAN HEAT CONTENT ===================== -->
-    <h3 style="color:#474e5d; margin-top:0.5em; margin-bottom:0.4em;">Ocean Heat Content</h3>
+    <h3 style="color:var(--color-text-dark); margin-top:0.5em; margin-bottom:0.4em;">Ocean Heat Content</h3>
     <p class="page-intro">
       Pentadal (rolling 5-year mean) global ocean heat content anomalies for two depth layers,
       from the <a href="https://www.ncei.noaa.gov/products/climate-data-records/global-ocean-heat-content"
@@ -289,7 +307,7 @@
     <!-- ===================== EARTH ENERGY IMBALANCE ===================== -->
     <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
 
-    <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Earth Energy Imbalance</h3>
+    <h3 style="color:var(--color-text-dark); margin-top:0; margin-bottom:0.4em;">Earth Energy Imbalance</h3>
     <p class="page-intro">
       Monthly global mean top-of-atmosphere net radiative flux from the
       <a href="https://asdc.larc.nasa.gov/project/CERES/CERES_EBAF-TOA_Edition4.2.1"
@@ -343,7 +361,7 @@
     <!-- ===================== TOTAL SOLAR IRRADIANCE ===================== -->
     <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
 
-    <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Total Solar Irradiance</h3>
+    <h3 style="color:var(--color-text-dark); margin-top:0; margin-bottom:0.4em;">Total Solar Irradiance</h3>
     <p class="page-intro">
       Total solar irradiance (TSI) is the solar energy flux at the top of Earth's atmosphere.
       The <a href="https://www.ncei.noaa.gov/products/climate-data-records/total-solar-irradiance"
@@ -392,7 +410,7 @@
     <!-- ===================== AEROSOL OPTICAL DEPTH ===================== -->
     <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
 
-    <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Aerosol Optical Depth</h3>
+    <h3 style="color:var(--color-text-dark); margin-top:0; margin-bottom:0.4em;">Aerosol Optical Depth</h3>
     <p class="page-intro">
       Monthly aerosol optical depth (AOD) at 550&thinsp;nm from two satellite records.
       AOD is a dimensionless measure of the total column extinction of sunlight by aerosol
@@ -439,7 +457,7 @@
     <!-- ===================== SURFACE ALBEDO ===================== -->
     <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
 
-    <h3 style="color:#474e5d; margin-top:0; margin-bottom:0.4em;">Earth's Surface Albedo</h3>
+    <h3 style="color:var(--color-text-dark); margin-top:0; margin-bottom:0.4em;">Earth's Surface Albedo</h3>
     <p class="page-intro">
       Monthly broadband <em>land</em> surface albedo &mdash; the fraction of incoming
       solar radiation reflected by the land surface &mdash; from two satellite records.
@@ -526,6 +544,27 @@
 </div>
 
 <script>
+// ---- Theme-aware chart color helper ----
+function chartColors() {
+  return ThemeManager.getChartColors();
+}
+function applyThemeToAllCharts() {
+  [ohcChart, eeiChart, tsiChart, aodChart, albChart].forEach(function(ch) {
+    if (!ch) return;
+    var c = chartColors();
+    if (ch.options.plugins && ch.options.plugins.legend && ch.options.plugins.legend.labels) {
+      ch.options.plugins.legend.labels.color = c.legendColor;
+    }
+    Object.values(ch.options.scales || {}).forEach(function(scale) {
+      if (scale.title) scale.title.color = c.textColor;
+      if (scale.grid)  scale.grid.color  = c.gridColor;
+      if (scale.ticks) scale.ticks.color = c.tickColor;
+    });
+    ch.update('none');
+  });
+}
+document.addEventListener('themechange', applyThemeToAllCharts);
+
 // ============================================================
 //  OHC dataset definitions
 // ============================================================
@@ -707,7 +746,7 @@ function renderOhcChart() {
           labels: {
             filter: (item, chartData) =>
               !chartData.datasets[item.datasetIndex].isBand,
-            color: '#474e5d',
+            color: chartColors().legendColor,
             font: { size: 12, weight: '600' },
             padding: 16,
             usePointStyle: true,
@@ -738,23 +777,23 @@ function renderOhcChart() {
           title: {
             display: true,
             text: 'Year',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           ticks: {
             stepSize: 10,
             callback: (val) => val
           },
-          grid: { color: '#f0f0f0' }
+          grid: { color: chartColors().gridColor }
         },
         y: {
           title: {
             display: true,
             text: 'Heat Content Anomaly (ZJ)',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
-          grid: { color: '#f0f0f0' },
+          grid: { color: chartColors().gridColor },
           ticks: {
             callback: (val) => (val >= 0 ? '+' : '') + val.toFixed(0)
           }
@@ -973,7 +1012,7 @@ function renderEeiChart() {
         legend: {
           position: 'top',
           labels: {
-            color: '#474e5d',
+            color: chartColors().legendColor,
             font: { size: 12, weight: '600' },
             padding: 16,
             usePointStyle: true,
@@ -998,20 +1037,20 @@ function renderEeiChart() {
           title: {
             display: true,
             text: 'Year',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           ticks: { stepSize: 5, callback: (v) => v },
-          grid: { color: '#f0f0f0' }
+          grid: { color: chartColors().gridColor }
         },
         y: {
           title: {
             display: true,
             text: 'EEI (W m⁻²)',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
-          grid: { color: '#f0f0f0' },
+          grid: { color: chartColors().gridColor },
           ticks: {
             callback: (v) => (v >= 0 ? '+' : '') + v.toFixed(1)
           }
@@ -1209,7 +1248,7 @@ function renderTsiChart() {
         legend: {
           position: 'top',
           labels: {
-            color: '#474e5d',
+            color: chartColors().legendColor,
             font: { size: 12, weight: '600' },
             padding: 16,
             usePointStyle: true,
@@ -1233,22 +1272,22 @@ function renderTsiChart() {
           title: {
             display: true,
             text: 'Year',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           ticks: { stepSize: 100, callback: (v) => v },
-          grid: { color: '#f0f0f0' }
+          grid: { color: chartColors().gridColor }
         },
         y: {
           title: {
             display: true,
             text: 'TSI (W m⁻²)',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           min: 1360,
           max: 1364,
-          grid: { color: '#f0f0f0' },
+          grid: { color: chartColors().gridColor },
           ticks: {
             callback: (v) => v.toFixed(1)
           }
@@ -1491,7 +1530,7 @@ function renderAodChart() {
         legend: {
           position: 'top',
           labels: {
-            color: '#474e5d',
+            color: chartColors().legendColor,
             font: { size: 12, weight: '600' },
             padding: 16,
             usePointStyle: true,
@@ -1515,21 +1554,21 @@ function renderAodChart() {
           title: {
             display: true,
             text: 'Year',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           ticks: { stepSize: 1, callback: (v) => v },
-          grid: { color: '#f0f0f0' }
+          grid: { color: chartColors().gridColor }
         },
         y: {
           title: {
             display: true,
             text: 'AOD (550 nm)',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           min: 0,
-          grid: { color: '#f0f0f0' },
+          grid: { color: chartColors().gridColor },
           ticks: { callback: (v) => v.toFixed(2) }
         }
       }
@@ -1767,7 +1806,7 @@ function renderAlbChart() {
         legend: {
           position: 'top',
           labels: {
-            color: '#474e5d',
+            color: chartColors().legendColor,
             font: { size: 12, weight: '600' },
             padding: 14,
             usePointStyle: true,
@@ -1791,21 +1830,21 @@ function renderAlbChart() {
           title: {
             display: true,
             text: 'Year',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           ticks: { stepSize: 1, callback: (v) => v },
-          grid: { color: '#f0f0f0' }
+          grid: { color: chartColors().gridColor }
         },
         y: {
           title: {
             display: true,
             text: 'Surface albedo',
-            color: '#474e5d',
+            color: chartColors().textColor,
             font: { size: 13, weight: '600' }
           },
           min: 0,
-          grid: { color: '#f0f0f0' },
+          grid: { color: chartColors().gridColor },
           ticks: { callback: (v) => v.toFixed(2) }
         }
       }

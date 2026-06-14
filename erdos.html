@@ -22,12 +22,12 @@
 h3.section-heading {
     font-size: 1em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin: 2.5em 0 1em;
     padding-bottom: 0.5em;
-    border-bottom: 2px solid #f0f0f0;
+    border-bottom: 2px solid var(--color-border-light);
 }
 h3.section-heading i {
     margin-right: 0.5em;
@@ -52,7 +52,7 @@ h3.section-heading i {
 }
 .erdos-intro-text p {
     font-size: 0.97em;
-    color: #575859;
+    color: var(--color-text-mid);
     line-height: 1.85;
     margin-bottom: 0.9em;
 }
@@ -70,19 +70,19 @@ h3.section-heading i {
 .er-inline-badge .er-pre {
     font-size: 0.85em;
     font-weight: 700;
-    color: #8fc74a;
+    color: var(--color-accent-green);
 }
 .er-inline-badge .er-n {
     font-size: 1.3em;
     font-weight: 900;
-    color: #474e5d;
+    color: var(--color-text-dark);
 }
 
 /* Chain cards */
 .chain-card {
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 10px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     border-top-width: 4px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
@@ -94,18 +94,18 @@ h3.section-heading i {
     box-shadow: 0 12px 28px rgba(0,0,0,0.1);
 }
 .chain-card.er4-card {
-    border-top-color: #8fc74a;
+    border-top-color: var(--color-accent-green);
 }
 .chain-card.er5-card {
-    border-top-color: #55bfea;
+    border-top-color: var(--color-accent-blue);
 }
 .chain-card-header {
-    background: #f8f9fa;
+    background: var(--color-bg-card-head);
     padding: 1em 1.5em;
     display: flex;
     align-items: center;
     gap: 1em;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid var(--color-border)eee;
 }
 .er-badge {
     display: flex;
@@ -116,21 +116,21 @@ h3.section-heading i {
 .er-badge .er-pre {
     font-size: 1.1em;
     font-weight: 400;
-    color: #55bfea;
+    color: var(--color-accent-blue);
 }
 .er4-badge .er-pre {
-    color: #8fc74a;
+    color: var(--color-accent-green);
 }
 .er-badge .er-n {
     font-size: 2.8em;
     font-weight: 900;
-    color: #474e5d;
+    color: var(--color-text-dark);
     line-height: 1;
 }
 .chain-card-title h4 {
     font-size: 0.95em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     margin: 0 0 0.2em;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -150,7 +150,7 @@ h3.section-heading i {
     flex-wrap: wrap;
     align-items: center;
     gap: 0.3em;
-    background: #f8f9fa;
+    background: var(--color-bg-card-head);
     border-radius: 6px;
     padding: 0.65em 0.9em;
     margin-bottom: 1.4em;
@@ -158,22 +158,22 @@ h3.section-heading i {
 .chain-path-node {
     font-size: 0.78em;
     font-weight: 600;
-    color: #474e5d;
-    background: #fff;
+    color: var(--color-text-dark);
+    background: var(--color-bg-card);
     border: 1px solid #ddd;
     border-radius: 20px;
     padding: 0.2em 0.65em;
     white-space: nowrap;
 }
 .chain-path-node.erdos-node {
-    background: #474e5d;
-    color: #fff;
-    border-color: #474e5d;
+    background: var(--color-text-dark);
+    color: var(--color-bg-card);
+    border-color: var(--color-text-dark);
 }
 .chain-path-node.me-node {
-    background: #8fc74a;
-    color: #fff;
-    border-color: #8fc74a;
+    background: var(--color-accent-green);
+    color: var(--color-bg-card);
+    border-color: var(--color-accent-green);
 }
 .chain-path-arrow {
     color: #bbbbbb;
@@ -193,7 +193,7 @@ h3.section-heading i {
     top: 0.55em;
     bottom: 0.55em;
     width: 2px;
-    background: linear-gradient(to bottom, #474e5d 0%, #55bfea 50%, #8fc74a 100%);
+    background: linear-gradient(to bottom, var(--color-text-dark) 0%, var(--color-accent-blue) 50%, var(--color-accent-green) 100%);
 }
 .ct-node {
     position: relative;
@@ -212,19 +212,19 @@ h3.section-heading i {
     width: 0.85em;
     height: 0.85em;
     border-radius: 50%;
-    background: #55bfea;
-    border: 2px solid #fff;
-    box-shadow: 0 0 0 2px #55bfea;
+    background: var(--color-accent-blue);
+    border: 2px solid var(--color-bg-card);
+    box-shadow: 0 0 0 2px var(--color-accent-blue);
     z-index: 1;
     flex-shrink: 0;
 }
 .ct-dot.erdos-dot {
-    background: #474e5d;
-    box-shadow: 0 0 0 2px #474e5d;
+    background: var(--color-text-dark);
+    box-shadow: 0 0 0 2px var(--color-text-dark);
 }
 .ct-dot.me-dot {
-    background: #8fc74a;
-    box-shadow: 0 0 0 2px #8fc74a;
+    background: var(--color-accent-green);
+    box-shadow: 0 0 0 2px var(--color-accent-green);
 }
 .ct-content {
     flex: 1;
@@ -232,11 +232,11 @@ h3.section-heading i {
 .ct-person {
     font-size: 0.88em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     line-height: 1.3;
 }
-.ct-person.erdos-person { color: #474e5d; }
-.ct-person.me-person    { color: #8fc74a; }
+.ct-person.erdos-person { color: var(--color-text-dark); }
+.ct-person.me-person    { color: var(--color-accent-green); }
 .ct-paper {
     margin-top: 0.4em;
     font-size: 0.78em;
@@ -248,23 +248,23 @@ h3.section-heading i {
 }
 .ct-paper strong {
     font-style: normal;
-    color: #575859;
+    color: var(--color-text-mid);
 }
 
 /* Alt chain note */
 .chain-alt-note {
     margin-top: 1.2em;
     padding: 0.7em 0.9em;
-    background: #f8f9fa;
-    border-left: 3px solid #55bfea;
+    background: var(--color-bg-card-head);
+    border-left: 3px solid var(--color-accent-blue);
     border-radius: 0 5px 5px 0;
     font-size: 0.8em;
-    color: #6f6f6f;
+    color: var(--color-text-light);
     line-height: 1.5;
 }
 .chain-alt-note code {
     background: #edf7fd;
-    color: #474e5d;
+    color: var(--color-text-dark);
     padding: 0.1em 0.3em;
     border-radius: 3px;
     font-size: 0.95em;
@@ -294,8 +294,8 @@ h3.section-heading i {
 }
 .ref-card {
     flex: 1 1 210px;
-    background: #fff;
-    border: 1px solid #e8e8e8;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-mid);
     border-radius: 8px;
     padding: 0.9em 1.1em;
     box-shadow: 0 1px 4px rgba(0,0,0,0.05);
@@ -304,17 +304,17 @@ h3.section-heading i {
     display: flex;
     align-items: flex-start;
     gap: 0.8em;
-    color: #474e5d;
+    color: var(--color-text-dark);
 }
 .ref-card:hover {
-    border-color: #55bfea;
+    border-color: var(--color-accent-blue);
     box-shadow: 0 5px 16px rgba(0,0,0,0.09);
     transform: translateY(-3px);
-    color: #474e5d;
+    color: var(--color-text-dark);
     text-decoration: none !important;
 }
 .ref-card > i {
-    color: #55bfea;
+    color: var(--color-accent-blue);
     font-size: 1.25em;
     flex-shrink: 0;
     margin-top: 0.1em;
@@ -337,6 +337,7 @@ h3.section-heading i {
     .chain-path-arrow { transform: rotate(90deg); margin-left: 0.6em; }
 }
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 

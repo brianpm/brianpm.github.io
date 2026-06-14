@@ -36,6 +36,7 @@ This is a static GitHub Pages website (brianpm.github.io) for Brian Medeiros' cl
   The v4-shims allow using the older `fa fa-*` class syntax (e.g. `fa fa-cloud`) which the site uses extensively. Always include both lines.
 - jQuery 3.7.1 loaded from CDN on all pages: `<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>`
 - All pages use the card-based layout with `about-section` container, flex card grids, hover effects, and `#55bfea` accent color. Use `contact.html` as the style reference.
+- **Dark mode is implemented site-wide** via CSS custom properties in `css/style.css` and a toggle in `navigation.html`. All pages include `<script src="js/theme.js"></script>` in `<head>` for FOUC prevention and chart theming. Never use hardcoded hex colors — always use CSS variables (e.g. `var(--color-text-dark)`). See `STYLE_GUIDE.md` for the full token reference, dark-mode wiring rules, and Chart.js/Plotly.js patterns.
 
 ## Key Workflows
 

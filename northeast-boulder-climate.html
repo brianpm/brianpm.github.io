@@ -24,7 +24,7 @@
     padding: 0 1em;
 }
 .page-intro {
-    color: #575859;
+    color: var(--color-text-mid);
     font-size: 1.05em;
     line-height: 1.7;
     margin-bottom: 1.5em;
@@ -35,18 +35,18 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #8fc74a;
+    color: var(--color-accent-green);
     margin-bottom: 0.3em;
 }
 .section-heading {
-    color: #474e5d;
+    color: var(--color-text-dark);
     font-size: 1.1em;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
     margin: 2em 0 0.8em;
     padding-bottom: 0.4em;
-    border-bottom: 2px solid #55bfea;
+    border-bottom: 2px solid var(--color-accent-blue);
 }
 
 /* ---- Highlight cards ---- */
@@ -57,9 +57,9 @@
     margin-bottom: 2em;
 }
 .highlight-card {
-    background: #fff;
-    border: 1px solid #e8e8e8;
-    border-top: 4px solid #55bfea;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-mid);
+    border-top: 4px solid var(--color-accent-blue);
     border-radius: 8px;
     padding: 1em 0.8em;
     text-align: center;
@@ -67,9 +67,9 @@
 }
 .highlight-card.hot  { border-top-color: #e74c3c; }
 .highlight-card.cold { border-top-color: #3498db; }
-.highlight-card.wind { border-top-color: #8fc74a; }
+.highlight-card.wind { border-top-color: var(--color-accent-green); }
 .highlight-card.rain { border-top-color: #9b59b6; }
-.highlight-card.hum  { border-top-color: #55bfea; }
+.highlight-card.hum  { border-top-color: var(--color-accent-blue); }
 .highlight-card.dry  { border-top-color: #e67e22; }
 .highlight-label {
     font-size: 0.7em;
@@ -82,7 +82,7 @@
 .highlight-value {
     font-size: 1.9em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     line-height: 1.1;
 }
 .highlight-units {
@@ -103,9 +103,9 @@
     gap: 1.5em;
     margin-bottom: 1em;
     padding: 0.8em 1.2em;
-    background: #f8f9fa;
+    background: var(--color-bg-card-head);
     border-radius: 8px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     align-items: center;
 }
 .control-group {
@@ -126,8 +126,8 @@
     padding: 0.35em 1em;
     border: 2px solid #ddd;
     border-radius: 20px;
-    background: #fff;
-    color: #474e5d;
+    background: var(--color-bg-card);
+    color: var(--color-text-dark);
     font-size: 0.86em;
     font-weight: 600;
     cursor: pointer;
@@ -136,13 +136,13 @@
     line-height: 1.4;
 }
 .toggle-btn.active {
-    background: #55bfea;
-    border-color: #55bfea;
-    color: #fff;
+    background: var(--color-accent-blue);
+    border-color: var(--color-accent-blue);
+    color: var(--color-bg-card);
 }
 .toggle-btn:hover:not(.active) {
-    border-color: #55bfea;
-    color: #55bfea;
+    border-color: var(--color-accent-blue);
+    color: var(--color-accent-blue);
 }
 
 /* ---- Extreme days tables ---- */
@@ -152,8 +152,8 @@
     font-size: 0.92em;
 }
 .extreme-table th {
-    background: #474e5d;
-    color: #fff;
+    background: var(--color-text-dark);
+    color: var(--color-bg-card);
     padding: 0.65em 1em;
     text-align: left;
     font-weight: 700;
@@ -161,11 +161,11 @@
 }
 .extreme-table td {
     padding: 0.5em 1em;
-    border-bottom: 1px solid #e8e8e8;
-    color: #474e5d;
+    border-bottom: 1px solid var(--color-border-mid);
+    color: var(--color-text-dark);
     vertical-align: middle;
 }
-.extreme-table tbody tr:nth-child(even) { background: #f8f9fa; }
+.extreme-table tbody tr:nth-child(even) { background: var(--color-bg-card-head); }
 .extreme-table tbody tr:hover { background: #eaf7fd; }
 .rank-col  { font-weight: 700; color: #bbb; width: 2.5em; }
 .value-col { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -175,11 +175,11 @@
 .nav-tabs > li.active > a,
 .nav-tabs > li.active > a:hover,
 .nav-tabs > li.active > a:focus {
-    border-bottom-color: #fff;
-    color: #474e5d;
+    border-bottom-color: var(--color-bg-card);
+    color: var(--color-text-dark);
     font-weight: 700;
 }
-.nav-tabs > li > a:hover { border-color: #55bfea #55bfea #ddd; }
+.nav-tabs > li > a:hover { border-color: var(--color-accent-blue) var(--color-accent-blue) #ddd; }
 .tab-content {
     border: 1px solid #ddd;
     border-top: none;
@@ -193,8 +193,8 @@
     display: inline-block;
     width: 34px;
     height: 34px;
-    border: 3px solid #e8e8e8;
-    border-top-color: #55bfea;
+    border: 3px solid var(--color-border-mid);
+    border-top-color: var(--color-accent-blue);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
     margin-bottom: 0.6em;
@@ -212,7 +212,7 @@
     font-size: 0.82em;
     color: #999;
     line-height: 1.8;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--color-border);
     padding-top: 1.2em;
     margin-top: 2em;
 }
@@ -222,6 +222,7 @@
     .plot-controls { gap: 0.8em; }
 }
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 
@@ -332,6 +333,14 @@
 </div>
 
 <script>
+// ── Plotly theme helper ────────────────────────────────────────────────────
+function plotlyTheme() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    return dark
+        ? { paper: '#1a1f2e', plot: '#252b3b', grid: 'rgba(255,255,255,0.08)', font: '#9ba3b8' }
+        : { paper: '#fff',    plot: '#fafafa', grid: '#e8e8e8',               font: '#474e5d' };
+}
+
 // ── State ──────────────────────────────────────────────────────────────────
 var weatherData   = null;
 var currentVar    = 'temp';    // 'temp' | 'humidity'
@@ -456,14 +465,15 @@ function renderTimeseries() {
 }
 
 function baseLayout(yTitle, xTitle) {
+    var t = plotlyTheme();
     return {
-        xaxis: { title: xTitle || '', gridcolor: '#e8e8e8', zeroline: false },
-        yaxis: { title: yTitle, gridcolor: '#e8e8e8', zeroline: false },
+        xaxis: { title: xTitle || '', gridcolor: t.grid, zeroline: false },
+        yaxis: { title: yTitle, gridcolor: t.grid, zeroline: false },
         margin: { t: 20, b: 50, l: 60, r: 20 },
         showlegend: false,
-        paper_bgcolor: '#fff',
-        plot_bgcolor: '#fafafa',
-        font: { family: 'Lato, sans-serif', color: '#474e5d', size: 12 },
+        paper_bgcolor: t.paper,
+        plot_bgcolor: t.plot,
+        font: { family: 'Lato, sans-serif', color: t.font, size: 12 },
         hovermode: 'x unified',
     };
 }
@@ -567,6 +577,7 @@ function renderPolarPlot() {
     var rTickVals  = [0,  20,  40,  60,  80, 100, 120];
     var rTickText  = ['-20', '0', '20', '40', '60', '80', '100'];
 
+    var t = plotlyTheme();
     var layout = {
         polar: {
             radialaxis: {
@@ -575,8 +586,8 @@ function renderPolarPlot() {
                 ticktext: rTickText,
                 ticksuffix: '°F',
                 tickfont: { size: 10 },
-                gridcolor: '#ddd',
-                linecolor: '#ddd',
+                gridcolor: t.grid,
+                linecolor: t.grid,
             },
             angularaxis: {
                 direction: 'clockwise',
@@ -584,16 +595,16 @@ function renderPolarPlot() {
                 tickvals: tickAngles,
                 ticktext: monthNames,
                 tickfont: { size: 11 },
-                gridcolor: '#e0e0e0',
-                linecolor: '#ccc',
+                gridcolor: t.grid,
+                linecolor: t.grid,
             },
-            bgcolor: '#fafafa',
+            bgcolor: t.plot,
         },
         showlegend: true,
         legend: { orientation: 'h', y: -0.06, font: { size: 10 } },
         margin: { t: 20, b: 60, l: 30, r: 30 },
-        paper_bgcolor: '#fff',
-        font: { family: 'Lato, sans-serif', color: '#474e5d', size: 12 },
+        paper_bgcolor: t.paper,
+        font: { family: 'Lato, sans-serif', color: t.font, size: 12 },
     };
 
     Plotly.react('polar-plot', traces, layout, { responsive: true });
@@ -660,6 +671,13 @@ function resetPolarView() {
         'polar.radialaxis.autorange': false,
     });
 }
+
+document.addEventListener('themechange', function() {
+    if (weatherData) {
+        renderTimeseries();
+        renderPolar();
+    }
+});
 </script>
 
 </body>

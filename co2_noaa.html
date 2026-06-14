@@ -25,6 +25,7 @@
     #site-select { margin-bottom: 1em; }
     .co2-title { margin-top: 1.5em; margin-bottom: 0.5em; }
   </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
   <div id="nav-placeholder"></div>
@@ -305,6 +306,7 @@
         spanGaps: true
       }));
       if (chart) chart.destroy();
+      ThemeManager.applyChartDefaults();
       chart = new Chart(document.getElementById('co2Chart'), {
         type: 'line',
         data: {
@@ -326,6 +328,11 @@
     });
     // Initial plot (first site)
     fetchAndPlot([document.getElementById('site').value]);
+
+    document.addEventListener('themechange', function() {
+      const selected = Array.from(document.getElementById('site').selectedOptions).map(opt => opt.value);
+      fetchAndPlot(selected);
+    });
   </script>
 </body>
 </html>

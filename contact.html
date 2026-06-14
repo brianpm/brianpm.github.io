@@ -27,9 +27,9 @@
 
 .contact-card {
     flex: 1 1 260px;
-    background: #fff;
+    background: var(--color-bg-card);
     border-radius: 10px;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--color-border-mid);
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
     display: flex;
@@ -39,12 +39,12 @@
 .contact-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 12px 30px rgba(0,0,0,0.1);
-    border-color: #55bfea;
+    border-color: var(--color-accent-blue);
 }
 
 .contact-card-header {
-    background: #f8f9fa;
-    border-bottom: 2px solid #55bfea;
+    background: var(--color-bg-card-head);
+    border-bottom: 2px solid var(--color-accent-blue);
     border-radius: 10px 10px 0 0;
     padding: 1.1em 1.4em;
     display: flex;
@@ -54,14 +54,14 @@
 
 .contact-card-header > i {
     font-size: 1.7em;
-    color: #55bfea;
+    color: var(--color-accent-blue);
     flex-shrink: 0;
 }
 
 .contact-card-header h3 {
     font-size: 1em;
     font-weight: 700;
-    color: #474e5d;
+    color: var(--color-text-dark);
     margin: 0 0 0.15em;
     text-transform: uppercase;
     letter-spacing: 1.5px;
@@ -69,7 +69,7 @@
 
 .contact-card-header p {
     font-size: 0.72em;
-    color: #8fc74a;
+    color: var(--color-accent-green);
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 600;
@@ -83,15 +83,15 @@
 
 .address-block {
     font-size: 0.93em;
-    color: #575859;
+    color: var(--color-text-mid);
     line-height: 1.85;
     margin-bottom: 1.1em;
     padding-bottom: 1em;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--color-border-light);
 }
 
 .address-block strong {
-    color: #474e5d;
+    color: var(--color-text-dark);
     font-weight: 700;
     font-size: 1.05em;
     display: block;
@@ -107,8 +107,8 @@
 .contact-info-list li {
     padding: 0.55em 0;
     font-size: 0.93em;
-    color: #575859;
-    border-bottom: 1px solid #f7f7f7;
+    color: var(--color-text-mid);
+    border-bottom: 1px solid var(--color-border-light);
     display: flex;
     align-items: flex-start;
     gap: 0.7em;
@@ -121,7 +121,7 @@
 }
 
 .contact-info-list .li-icon {
-    color: #55bfea;
+    color: var(--color-accent-blue);
     width: 1.3em;
     text-align: center;
     flex-shrink: 0;
@@ -129,16 +129,17 @@
 }
 
 .contact-info-list a {
-    color: #474e5d;
+    color: var(--color-text-dark);
     text-decoration: none;
     transition: color 0.2s;
 }
 
 .contact-info-list a:hover {
-    color: #55bfea;
+    color: var(--color-accent-blue);
     text-decoration: none;
 }
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 <!-- header -->

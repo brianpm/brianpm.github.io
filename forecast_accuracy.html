@@ -132,7 +132,37 @@
     border-color: #55bfea;
     color: #fff;
 }
+
+[data-theme="dark"] .accuracy-table thead th {
+    background: #2d3654;
+    color: #e8eaf0;
+}
+[data-theme="dark"] .accuracy-table thead th:hover { background: var(--color-accent-blue); }
+[data-theme="dark"] .accuracy-table tbody tr:nth-child(even) { background: var(--color-bg-card-head); }
+[data-theme="dark"] .accuracy-table tbody tr:hover { background: rgba(85,191,234,0.12); }
+[data-theme="dark"] .accuracy-table td { color: var(--color-text-mid); border-color: var(--color-border); }
+[data-theme="dark"] .rmse-low  { background: #1a3d27; color: #7dd9a0; }
+[data-theme="dark"] .rmse-mid  { background: #3d3000; color: #f5c842; }
+[data-theme="dark"] .rmse-high { background: #3d1a1a; color: #f08080; }
+[data-theme="dark"] .rmse-na   { color: var(--color-text-light); }
+[data-theme="dark"] .footnote  { color: var(--color-text-light); }
+[data-theme="dark"] .toggle-btn {
+    border-color: var(--color-border-mid);
+    background: var(--color-bg-card);
+    color: var(--color-text-mid);
+}
+[data-theme="dark"] .toggle-btn.active {
+    background: #2d3654;
+    border-color: #2d3654;
+    color: #e8eaf0;
+}
+[data-theme="dark"] .toggle-btn:hover:not(.active) {
+    background: var(--color-accent-blue);
+    border-color: var(--color-accent-blue);
+    color: #fff;
+}
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 

@@ -58,6 +58,7 @@
     100% { transform: rotate(360deg); }
 }
 </style>
+<script src="js/theme.js"></script>
 </head>
 <body>
 <div id="nav-placeholder"></div>
@@ -234,6 +235,7 @@
                 const chartCanvas = document.getElementById('iceChart');
                 chartCanvas.style.display = 'block';
                 
+                ThemeManager.applyChartDefaults();
                 chart = new Chart(chartCanvas, config);
                 
                 // Update statistics
@@ -263,6 +265,8 @@
         
         // Load data when page loads
         window.addEventListener('load', fetchAndPlotData);
+
+        document.addEventListener('themechange', fetchAndPlotData);
         // Load nav and footer
         $('#nav-placeholder').load('navigation.html');
         $('#footer-placeholder').load('footer.html');
