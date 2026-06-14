@@ -1,0 +1,648 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Northeast Boulder Climate - SkyMath.org</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="Boulder, Colorado, climate, weather station, temperature, humidity, wind, personal weather station" />
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+.page-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+.page-intro {
+    color: #575859;
+    font-size: 1.05em;
+    line-height: 1.7;
+    margin-bottom: 1.5em;
+    max-width: 820px;
+}
+.period-label {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #8fc74a;
+    margin-bottom: 0.3em;
+}
+.section-heading {
+    color: #474e5d;
+    font-size: 1.1em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin: 2em 0 0.8em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid #55bfea;
+}
+
+/* ---- Highlight cards ---- */
+.highlights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1em;
+    margin-bottom: 2em;
+}
+.highlight-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-top: 4px solid #55bfea;
+    border-radius: 8px;
+    padding: 1em 0.8em;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.highlight-card.hot  { border-top-color: #e74c3c; }
+.highlight-card.cold { border-top-color: #3498db; }
+.highlight-card.wind { border-top-color: #8fc74a; }
+.highlight-card.rain { border-top-color: #9b59b6; }
+.highlight-card.hum  { border-top-color: #55bfea; }
+.highlight-card.dry  { border-top-color: #e67e22; }
+.highlight-label {
+    font-size: 0.7em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+    margin-bottom: 0.4em;
+}
+.highlight-value {
+    font-size: 1.9em;
+    font-weight: 700;
+    color: #474e5d;
+    line-height: 1.1;
+}
+.highlight-units {
+    font-size: 0.55em;
+    font-weight: 400;
+    color: #aaa;
+}
+.highlight-date {
+    font-size: 0.75em;
+    color: #aaa;
+    margin-top: 0.3em;
+}
+
+/* ---- Toggle controls ---- */
+.plot-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em;
+    margin-bottom: 1em;
+    padding: 0.8em 1.2em;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    align-items: center;
+}
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+}
+.controls-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    white-space: nowrap;
+}
+.toggle-btn {
+    padding: 0.35em 1em;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    background: #fff;
+    color: #474e5d;
+    font-size: 0.86em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Lato', sans-serif;
+    line-height: 1.4;
+}
+.toggle-btn.active {
+    background: #55bfea;
+    border-color: #55bfea;
+    color: #fff;
+}
+.toggle-btn:hover:not(.active) {
+    border-color: #55bfea;
+    color: #55bfea;
+}
+
+/* ---- Extreme days tables ---- */
+.extreme-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92em;
+}
+.extreme-table th {
+    background: #474e5d;
+    color: #fff;
+    padding: 0.65em 1em;
+    text-align: left;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+}
+.extreme-table td {
+    padding: 0.5em 1em;
+    border-bottom: 1px solid #e8e8e8;
+    color: #474e5d;
+    vertical-align: middle;
+}
+.extreme-table tbody tr:nth-child(even) { background: #f8f9fa; }
+.extreme-table tbody tr:hover { background: #eaf7fd; }
+.rank-col  { font-weight: 700; color: #bbb; width: 2.5em; }
+.value-col { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.note-col  { color: #888; font-size: 0.88em; }
+
+/* Bootstrap 3 tab overrides */
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+    border-bottom-color: #fff;
+    color: #474e5d;
+    font-weight: 700;
+}
+.nav-tabs > li > a:hover { border-color: #55bfea #55bfea #ddd; }
+.tab-content {
+    border: 1px solid #ddd;
+    border-top: none;
+    padding: 1.2em;
+    border-radius: 0 0 6px 6px;
+    margin-bottom: 2em;
+}
+
+/* ---- Spinner ---- */
+.spinner {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border: 3px solid #e8e8e8;
+    border-top-color: #55bfea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 0.6em;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.plot-caption {
+    font-size: 0.84em;
+    color: #888;
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+    max-width: 760px;
+}
+.page-notes {
+    font-size: 0.82em;
+    color: #999;
+    line-height: 1.8;
+    border-top: 1px solid #eee;
+    padding-top: 1.2em;
+    margin-top: 2em;
+}
+
+@media (max-width: 640px) {
+    .highlights-grid { grid-template-columns: repeat(2, 1fr); }
+    .plot-controls { gap: 0.8em; }
+}
+</style>
+</head>
+<body>
+
+<!-- navigation -->
+<div id="nav-placeholder">
+  <script>
+   $.get("navigation.html", function(data){
+     $("#nav-placeholder").replaceWith(data);
+   });
+  </script>
+</div>
+
+<div class="about-section">
+  <div class="container page-container">
+
+    <p class="period-label" id="data-period-label">&nbsp;</p>
+    <h2>Northeast Boulder Climate</h2>
+    <p class="page-intro">
+      Daily weather observations from a personal weather station in northeast Boulder, Colorado,
+      spanning 2015 to present. Explore temperature and humidity trends, the annual seasonal
+      cycle, and an archive of the most extreme days on record.
+    </p>
+
+    <!-- Loading state -->
+    <div id="loading" style="text-align:center; padding: 4em 0;">
+      <div class="spinner"></div>
+      <p style="color:#aaa; font-size:0.9em; margin-top:0.5em;">Loading climate data&hellip;</p>
+    </div>
+
+    <!-- Error state (hidden by default) -->
+    <div id="error-message" style="display:none; color:#c0392b; background:#fdf3f2; border:1px solid #f5c6cb; border-radius:6px; padding:1em 1.4em; margin:2em 0;"></div>
+
+    <!-- Main content (hidden until data loads) -->
+    <div id="content" style="display:none;">
+
+      <!-- All-Time Records -->
+      <h3 class="section-heading">All-Time Records</h3>
+      <div class="highlights-grid" id="highlights-grid"></div>
+
+      <!-- Daily Time Series -->
+      <h3 class="section-heading">Daily Time Series</h3>
+      <div class="plot-controls">
+        <div class="control-group">
+          <span class="controls-label">Variable</span>
+          <button class="toggle-btn active" id="btn-temp" onclick="setVariable('temp')">Temperature</button>
+          <button class="toggle-btn" id="btn-humidity" onclick="setVariable('humidity')">Humidity</button>
+        </div>
+        <div class="control-group">
+          <span class="controls-label">View</span>
+          <button class="toggle-btn active" id="btn-chrono" onclick="setView('chrono')">Full record</button>
+          <button class="toggle-btn" id="btn-byyear" onclick="setView('byyear')">By year</button>
+        </div>
+      </div>
+      <div id="timeseries-plot" style="width:100%; height:460px;"></div>
+
+      <!-- Polar plot -->
+      <h3 class="section-heading">Seasonal Temperature Pattern</h3>
+      <p class="plot-caption">
+        Daily mean temperature by day of year, with each year shown as a separate
+        loop — colored from blue (earliest) to red (most recent). The plot reads
+        clockwise, with January at the top.
+      </p>
+      <div id="polar-plot" style="width:100%; height:540px;"></div>
+
+      <!-- Extreme days tables -->
+      <h3 class="section-heading">Extreme Days — Top 20</h3>
+      <ul class="nav nav-tabs" id="extreme-tabs" role="tablist">
+        <li class="active"><a href="#tab-hot"   data-toggle="tab">Hottest</a></li>
+        <li><a href="#tab-cold"  data-toggle="tab">Coldest</a></li>
+        <li><a href="#tab-humid" data-toggle="tab">Most Humid</a></li>
+        <li><a href="#tab-dry"   data-toggle="tab">Driest</a></li>
+        <li><a href="#tab-wind"  data-toggle="tab">Windiest</a></li>
+      </ul>
+      <div class="tab-content">
+        <div class="tab-pane active" id="tab-hot"></div>
+        <div class="tab-pane" id="tab-cold"></div>
+        <div class="tab-pane" id="tab-humid"></div>
+        <div class="tab-pane" id="tab-dry"></div>
+        <div class="tab-pane" id="tab-wind"></div>
+      </div>
+
+      <p class="page-notes" id="page-notes"></p>
+
+    </div><!-- #content -->
+  </div><!-- .container -->
+</div><!-- .about-section -->
+
+<!-- footer -->
+<div id="footer-placeholder">
+  <script>
+   $.get("footer.html", function(data){
+     $("#footer-placeholder").replaceWith(data);
+   });
+  </script>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+var weatherData   = null;
+var currentVar    = 'temp';    // 'temp' | 'humidity'
+var currentView   = 'chrono';  // 'chrono' | 'byyear'
+var POLAR_OFFSET  = 20;        // °F added to radius to avoid negative values
+
+// ── Color scale: blue (oldest) → red (newest) ─────────────────────────────
+function yearColor(i, n) {
+    var hue = Math.round(220 - 220 * i / Math.max(n - 1, 1));
+    return 'hsl(' + hue + ', 75%, 50%)';
+}
+
+// ── Date helpers ──────────────────────────────────────────────────────────
+function dayOfYear(dateStr) {
+    var d = new Date(dateStr + 'T12:00:00');
+    var start = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - start) / 86400000);
+}
+
+function formatDate(isoStr) {
+    var d = new Date(isoStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function shortDate(isoStr) {
+    var d = new Date(isoStr + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ── Load data ─────────────────────────────────────────────────────────────
+fetch('data/northeast_boulder_climate.json')
+    .then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+    })
+    .then(function(data) {
+        weatherData = data;
+        initPage(data);
+    })
+    .catch(function(err) {
+        document.getElementById('loading').style.display = 'none';
+        var em = document.getElementById('error-message');
+        em.textContent = 'Could not load climate data: ' + err.message;
+        em.style.display = '';
+    });
+
+// ── Init ──────────────────────────────────────────────────────────────────
+function initPage(data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('content').style.display = '';
+
+    var lbl = document.getElementById('data-period-label');
+    lbl.textContent = 'Station record: ' + formatDate(data.highlights.data_start)
+                      + ' – ' + formatDate(data.highlights.data_end);
+
+    renderHighlights(data.highlights);
+    renderTimeseries();
+    renderPolarPlot();
+    renderTop20Tables(data.top20);
+
+    var notes = document.getElementById('page-notes');
+    notes.innerHTML = 'Data from a personal weather station in northeast Boulder, CO (elevation ~5,200 ft). '
+        + 'Records span three collection systems: Weather Underground uploads (2015–2016), '
+        + 'a legacy station logger (2016–2018), and a Davis Vantage Pro2 via WeeWX (2022–present). '
+        + 'Rain totals are unavailable for the 2016–2018 period. '
+        + 'Page updated <strong>' + formatDate(data.generated) + '</strong>.';
+}
+
+// ── Highlights ────────────────────────────────────────────────────────────
+function renderHighlights(h) {
+    var CARDS = [
+        { key: 'hottest',    label: 'Record High',      cls: 'hot',  fmt: function(v,u){ return v.toFixed(1) + '<span class="highlight-units">' + u + '</span>'; } },
+        { key: 'coldest',    label: 'Record Low',       cls: 'cold', fmt: function(v,u){ return v.toFixed(1) + '<span class="highlight-units">' + u + '</span>'; } },
+        { key: 'peak_gust',  label: 'Peak Wind Gust',   cls: 'wind', fmt: function(v,u){ return v.toFixed(0) + '<span class="highlight-units">' + u + '</span>'; } },
+        { key: 'wettest',    label: 'Rainiest Day',     cls: 'rain', fmt: function(v,u){ return v.toFixed(2) + '<span class="highlight-units">' + u + '</span>'; } },
+        { key: 'most_humid', label: 'Highest Humidity', cls: 'hum',  fmt: function(v,u){ return v.toFixed(0) + '<span class="highlight-units">' + u + '</span>'; } },
+        { key: 'driest',     label: 'Lowest Humidity',  cls: 'dry',  fmt: function(v,u){ return v.toFixed(0) + '<span class="highlight-units">' + u + '</span>'; } },
+    ];
+    var html = '';
+    CARDS.forEach(function(c) {
+        var item = h[c.key];
+        html += '<div class="highlight-card ' + c.cls + '">'
+              +   '<div class="highlight-label">' + c.label + '</div>'
+              +   '<div class="highlight-value">' + c.fmt(item.value, item.units) + '</div>'
+              +   '<div class="highlight-date">' + shortDate(item.date) + '</div>'
+              + '</div>';
+    });
+    document.getElementById('highlights-grid').innerHTML = html;
+}
+
+// ── Time series ───────────────────────────────────────────────────────────
+function renderTimeseries() {
+    if (!weatherData) return;
+    var ts = weatherData.timeseries;
+
+    var cols;
+    if (currentVar === 'temp') {
+        cols = {
+            max:      ts.outTemp_max,
+            mean:     ts.outTemp_mean,
+            min:      ts.outTemp_min,
+            yTitle:   'Temperature (°F)',
+            lblMax:   'Daily High (°F)',
+            lblMean:  'Daily Mean (°F)',
+            lblMin:   'Daily Low (°F)',
+        };
+    } else {
+        cols = {
+            max:      ts.outHumidity_max,
+            mean:     ts.outHumidity_mean,
+            min:      ts.outHumidity_min,
+            yTitle:   'Relative Humidity (%)',
+            lblMax:   'Daily Max (%)',
+            lblMean:  'Daily Mean (%)',
+            lblMin:   'Daily Min (%)',
+        };
+    }
+
+    if (currentView === 'chrono') {
+        buildChronoPlot(ts.dates, cols);
+    } else {
+        buildByYearPlot(ts.dates, cols);
+    }
+}
+
+function baseLayout(yTitle, xTitle) {
+    return {
+        xaxis: { title: xTitle || '', gridcolor: '#e8e8e8', zeroline: false },
+        yaxis: { title: yTitle, gridcolor: '#e8e8e8', zeroline: false },
+        margin: { t: 20, b: 50, l: 60, r: 20 },
+        showlegend: true,
+        legend: { orientation: 'h', y: -0.15, font: { size: 11 } },
+        paper_bgcolor: '#fff',
+        plot_bgcolor: '#fafafa',
+        font: { family: 'Lato, sans-serif', color: '#474e5d', size: 12 },
+        hovermode: 'x unified',
+    };
+}
+
+function buildChronoPlot(dates, cols) {
+    // Order: [max, min, mean] — min fills toward max above it
+    var traceMax = {
+        x: dates, y: cols.max,
+        name: cols.lblMax,
+        type: 'scatter', mode: 'lines',
+        line: { color: '#e74c3c', width: 1 },
+        connectgaps: false,
+    };
+    var traceMin = {
+        x: dates, y: cols.min,
+        name: cols.lblMin,
+        type: 'scatter', mode: 'lines',
+        line: { color: '#3498db', width: 1 },
+        fill: 'tonexty',
+        fillcolor: 'rgba(85,191,234,0.12)',
+        connectgaps: false,
+    };
+    var traceMean = {
+        x: dates, y: cols.mean,
+        name: cols.lblMean,
+        type: 'scatter', mode: 'lines',
+        line: { color: '#474e5d', width: 1.5 },
+        connectgaps: false,
+    };
+    var layout = baseLayout(cols.yTitle);
+    layout.xaxis.type = 'date';
+    Plotly.react('timeseries-plot', [traceMax, traceMin, traceMean], layout, { responsive: true });
+}
+
+function buildByYearPlot(dates, cols) {
+    var yearSet = {};
+    dates.forEach(function(d) { yearSet[d.slice(0, 4)] = true; });
+    var years = Object.keys(yearSet).sort();
+    var n = years.length;
+
+    var traces = years.map(function(yr, i) {
+        var doys = [], vals = [];
+        dates.forEach(function(d, idx) {
+            if (d.slice(0, 4) === yr) {
+                doys.push(dayOfYear(d));
+                vals.push(cols.mean[idx]);
+            }
+        });
+        return {
+            x: doys,
+            y: vals,
+            name: yr,
+            type: 'scatter', mode: 'lines',
+            line: { color: yearColor(i, n), width: 1.5 },
+            connectgaps: false,
+            hovertemplate: yr + ' day %{x}: %{y:.1f}<extra></extra>',
+        };
+    });
+
+    var layout = baseLayout(cols.yTitle, 'Day of year');
+    layout.xaxis.range = [1, 366];
+    layout.hovermode = 'x';
+    Plotly.react('timeseries-plot', traces, layout, { responsive: true });
+}
+
+// ── Polar plot ────────────────────────────────────────────────────────────
+function renderPolarPlot() {
+    if (!weatherData) return;
+    var ts = weatherData.timeseries;
+    var dates = ts.dates;
+
+    var yearSet = {};
+    dates.forEach(function(d) { yearSet[d.slice(0, 4)] = true; });
+    var years = Object.keys(yearSet).sort();
+    var n = years.length;
+
+    var traces = years.map(function(yr, i) {
+        var angles = [], radii = [], actualTemps = [];
+        dates.forEach(function(d, idx) {
+            if (d.slice(0, 4) === yr) {
+                var doy = dayOfYear(d);
+                var angle = (doy - 1) / 366 * 360;
+                var temp = ts.outTemp_mean[idx];
+                angles.push(angle);
+                radii.push(temp !== null ? temp + POLAR_OFFSET : null);
+                actualTemps.push(temp);
+            }
+        });
+        return {
+            type: 'scatterpolar',
+            r: radii,
+            theta: angles,
+            name: yr,
+            mode: 'lines',
+            line: { color: yearColor(i, n), width: 1.5 },
+            connectgaps: false,
+            customdata: actualTemps,
+            hovertemplate: yr + ': %{customdata:.1f}°F<extra></extra>',
+        };
+    });
+
+    // Angular tick positions: day-of-year for 1st of each month (non-leap)
+    var monthDoys = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var tickAngles = monthDoys.map(function(d) { return (d - 1) / 366 * 360; });
+
+    // Radial ticks: show actual temperature values (offset subtracted in labels)
+    var rTickVals  = [0,  20,  40,  60,  80, 100, 120];
+    var rTickText  = ['-20', '0', '20', '40', '60', '80', '100'];
+
+    var layout = {
+        polar: {
+            radialaxis: {
+                range: [0, 125],
+                tickvals: rTickVals,
+                ticktext: rTickText,
+                ticksuffix: '°F',
+                tickfont: { size: 10 },
+                gridcolor: '#ddd',
+                linecolor: '#ddd',
+            },
+            angularaxis: {
+                direction: 'clockwise',
+                rotation: 90,
+                tickvals: tickAngles,
+                ticktext: monthNames,
+                tickfont: { size: 11 },
+                gridcolor: '#e0e0e0',
+                linecolor: '#ccc',
+            },
+            bgcolor: '#fafafa',
+        },
+        showlegend: true,
+        legend: { orientation: 'h', y: -0.06, font: { size: 10 } },
+        margin: { t: 20, b: 60, l: 30, r: 30 },
+        paper_bgcolor: '#fff',
+        font: { family: 'Lato, sans-serif', color: '#474e5d', size: 12 },
+    };
+
+    Plotly.react('polar-plot', traces, layout, { responsive: true });
+}
+
+// ── Top-20 tables ─────────────────────────────────────────────────────────
+function renderTop20Tables(top20) {
+    var TABS = [
+        { id: 'tab-hot',   key: 'hottest',    valueLabel: 'Daily High',    units: '°F' },
+        { id: 'tab-cold',  key: 'coldest',    valueLabel: 'Daily Low',     units: '°F' },
+        { id: 'tab-humid', key: 'most_humid', valueLabel: 'Max Humidity',  units: '%'  },
+        { id: 'tab-dry',   key: 'driest',     valueLabel: 'Min Humidity',  units: '%'  },
+        { id: 'tab-wind',  key: 'windiest',   valueLabel: 'Peak Gust',     units: 'mph'},
+    ];
+    TABS.forEach(function(tab) {
+        var rows = top20[tab.key] || [];
+        var tbody = rows.map(function(row, i) {
+            return '<tr>'
+                 + '<td class="rank-col">' + (i + 1) + '</td>'
+                 + '<td>' + shortDate(row.date) + '</td>'
+                 + '<td class="value-col">' + row.value.toFixed(1) + ' ' + tab.units + '</td>'
+                 + '<td class="note-col">' + (row.note || '') + '</td>'
+                 + '</tr>';
+        }).join('');
+        document.getElementById(tab.id).innerHTML =
+            '<table class="extreme-table">'
+          +   '<thead><tr>'
+          +     '<th>#</th>'
+          +     '<th>Date</th>'
+          +     '<th>' + tab.valueLabel + '</th>'
+          +     '<th>Notes</th>'
+          +   '</tr></thead>'
+          +   '<tbody>' + tbody + '</tbody>'
+          + '</table>';
+    });
+}
+
+// ── Toggle handlers ───────────────────────────────────────────────────────
+function setVariable(v) {
+    currentVar = v;
+    document.getElementById('btn-temp').classList.toggle('active', v === 'temp');
+    document.getElementById('btn-humidity').classList.toggle('active', v === 'humidity');
+    renderTimeseries();
+}
+
+function setView(v) {
+    currentView = v;
+    document.getElementById('btn-chrono').classList.toggle('active', v === 'chrono');
+    document.getElementById('btn-byyear').classList.toggle('active', v === 'byyear');
+    renderTimeseries();
+}
+</script>
+
+</body>
+</html>
