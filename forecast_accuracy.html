@@ -102,6 +102,36 @@
     border-radius: 3px;
     font-weight: 600;
 }
+
+.toggle-group {
+    display: flex;
+    gap: 0.5em;
+    margin-bottom: 1em;
+}
+
+.toggle-btn {
+    padding: 0.4em 1.2em;
+    border: 2px solid #474e5d;
+    border-radius: 4px;
+    background: #fff;
+    color: #474e5d;
+    font-family: 'Lato', sans-serif;
+    font-weight: 700;
+    font-size: 0.9em;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.toggle-btn.active {
+    background: #474e5d;
+    color: #fff;
+}
+
+.toggle-btn:hover:not(.active) {
+    background: #55bfea;
+    border-color: #55bfea;
+    color: #fff;
+}
 </style>
 </head>
 <body>
@@ -119,10 +149,15 @@
 
     <p class="period-label" id="period-label">&nbsp;</p>
     <h2>Weather Forecast Accuracy</h2>
-    <p class="page-intro">Rolling 14-day RMSE for next-day high temperature forecasts across 60+ US cities, comparing eight operational forecast sources. Lower is better. Data updated automatically each morning.</p>
+    <p class="page-intro">Rolling 14-day RMSE for next-day high and low temperature forecasts across 60+ US cities, comparing eight operational forecast sources. Lower is better. Data updated automatically each morning.</p>
 
     <div id="loading-msg" style="color:#888; margin:1.5em 0;">Loading data&hellip;</div>
     <div id="error-msg"   style="color:#721c24; display:none; margin:1.5em 0;"></div>
+
+    <div class="toggle-group" id="temp-toggle" style="display:none; margin-bottom:1em;">
+      <button class="toggle-btn active" id="btn-tmax" onclick="setMode('tmax')">Tmax</button>
+      <button class="toggle-btn"        id="btn-tmin" onclick="setMode('tmin')">Tmin</button>
+    </div>
 
     <div class="accuracy-table-wrap" id="table-wrap" style="display:none;">
       <table class="accuracy-table" id="rmse-table">
@@ -144,7 +179,8 @@
     </div>
 
     <p class="footnote" id="footnote" style="display:none;">
-      <strong>RMSE</strong> = root mean square error of next-day high temperature forecasts vs. NWS observed highs (&deg;F).
+      <strong>RMSE</strong> = root mean square error of next-day temperature forecasts vs. NWS observed values (&deg;F).
+      Toggle between <strong>Tmax</strong> (daytime high) and <strong>Tmin</strong> (overnight low) using the buttons above.
       Color scale:
       <span class="swatch" style="background:#d4edda;color:#155724;">&lt;2.0&deg;F</span>
       <span class="swatch" style="background:#fff3cd;color:#856404;">2.0&ndash;3.0&deg;F</span>
@@ -169,7 +205,7 @@
 </div>
 
 <script>
-const SOURCES = [
+const SOURCES_TMAX = [
   { key: 'NBM_High',       label: 'NBM'       },
   { key: 'GEFS_TMAX_Mean', label: 'GEFS'      },
   { key: 'NDFD_Tmax',      label: 'NDFD'      },
@@ -179,10 +215,28 @@ const SOURCES = [
   { key: 'UKMO_Tmax_Mean', label: 'UKMO'      },
   { key: 'UKMO_Det_Tmax',  label: 'UKMO Det'  },
 ];
+const SOURCES_TMIN = [
+  { key: 'NBM_Low',        label: 'NBM'       },
+  { key: 'GEFS_TMIN_Mean', label: 'GEFS'      },
+  { key: 'NDFD_Tmin',      label: 'NDFD'      },
+  { key: 'ECMWF_Tmin',     label: 'ECMWF'     },
+  { key: 'ECMWF_OM_Tmin',  label: 'ECMWF 9km' },
+  { key: 'HRRR_Tmin',      label: 'HRRR'      },
+  { key: 'UKMO_Tmin_Mean', label: 'UKMO'      },
+  { key: 'UKMO_Det_Tmin',  label: 'UKMO Det'  },
+];
 
+let activeSources = SOURCES_TMAX;
 let tableData = [];
 let sortColIdx = 0;
 let sortAsc = true;
+
+function setMode(mode) {
+  activeSources = (mode === 'tmin') ? SOURCES_TMIN : SOURCES_TMAX;
+  document.getElementById('btn-tmax').classList.toggle('active', mode === 'tmax');
+  document.getElementById('btn-tmin').classList.toggle('active', mode === 'tmin');
+  sortTable(sortColIdx);
+}
 
 function rmseClass(v) {
   if (v === null || isNaN(v)) return 'rmse-na';
@@ -198,7 +252,7 @@ function fmtRmse(v) {
 
 function buildRow(record) {
   let cells = `<td class="city-col">${record.City || ''}</td>`;
-  for (const s of SOURCES) {
+  for (const s of activeSources) {
     const raw = record[s.key];
     const num = (raw !== null && raw !== undefined && raw !== '') ? parseFloat(raw) : NaN;
     const cls = 'rmse-cell ' + rmseClass(isNaN(num) ? null : num);
@@ -227,7 +281,7 @@ function sortTable(colIdx) {
       const va = a.City || '', vb = b.City || '';
       return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
     }
-    const key = SOURCES[colIdx - 1].key;
+    const key = activeSources[colIdx - 1].key;
     let va = parseFloat(a[key]), vb = parseFloat(b[key]);
     if (isNaN(va)) va = sortAsc ? Infinity : -Infinity;
     if (isNaN(vb)) vb = sortAsc ? Infinity : -Infinity;
@@ -246,6 +300,7 @@ fetch('data/weather_rmse.json')
   .then(data => {
     tableData = data;
     document.getElementById('loading-msg').style.display = 'none';
+    document.getElementById('temp-toggle').style.display = '';
     document.getElementById('table-wrap').style.display = '';
     document.getElementById('footnote').style.display = '';
 
