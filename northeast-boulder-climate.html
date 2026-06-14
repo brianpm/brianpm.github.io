@@ -266,16 +266,22 @@
       <div class="plot-controls">
         <div class="control-group">
           <span class="controls-label">Variable</span>
-          <button class="toggle-btn active" id="btn-temp" onclick="setVariable('temp')">Temperature</button>
-          <button class="toggle-btn" id="btn-humidity" onclick="setVariable('humidity')">Humidity</button>
+          <button class="toggle-btn active" id="btn-temp"     onclick="setVariable('temp')">Temperature</button>
+          <button class="toggle-btn"        id="btn-humidity" onclick="setVariable('humidity')">Humidity</button>
+        </div>
+        <div class="control-group">
+          <span class="controls-label">Series</span>
+          <button class="toggle-btn"        id="btn-max"  onclick="setSeries('max')">Daily High</button>
+          <button class="toggle-btn active" id="btn-mean" onclick="setSeries('mean')">Daily Mean</button>
+          <button class="toggle-btn"        id="btn-min"  onclick="setSeries('min')">Daily Low</button>
         </div>
         <div class="control-group">
           <span class="controls-label">View</span>
           <button class="toggle-btn active" id="btn-chrono" onclick="setView('chrono')">Full record</button>
-          <button class="toggle-btn" id="btn-byyear" onclick="setView('byyear')">By year</button>
+          <button class="toggle-btn"        id="btn-byyear" onclick="setView('byyear')">By year</button>
         </div>
       </div>
-      <div id="timeseries-plot" style="width:100%; height:460px;"></div>
+      <div id="timeseries-plot" style="width:100%; height:440px;"></div>
 
       <!-- Polar plot -->
       <h3 class="section-heading">Seasonal Temperature Pattern</h3>
@@ -284,7 +290,14 @@
         loop — colored from blue (earliest) to red (most recent). The plot reads
         clockwise, with January at the top.
       </p>
+      <div style="text-align:right; margin-bottom:0.3em;">
+        <button class="toggle-btn" onclick="resetPolarView()" style="font-size:0.8em; padding:0.25em 0.8em;">Reset view</button>
+      </div>
       <div id="polar-plot" style="width:100%; height:540px;"></div>
+      <p class="plot-caption" style="margin-top:0.5em; font-style:italic;">
+        <strong>How to use:</strong> Click a year in the legend to hide it; double-click to isolate it (double-click again to restore all).
+        Scroll or pinch to zoom in, drag to pan. The Reset view button restores the original scale.
+      </p>
 
       <!-- Extreme days tables -->
       <h3 class="section-heading">Extreme Days — Top 20</h3>
@@ -322,6 +335,7 @@
 // ── State ──────────────────────────────────────────────────────────────────
 var weatherData   = null;
 var currentVar    = 'temp';    // 'temp' | 'humidity'
+var currentSeries = 'mean';    // 'max' | 'mean' | 'min'
 var currentView   = 'chrono';  // 'chrono' | 'byyear'
 var POLAR_OFFSET  = 20;        // °F added to radius to avoid negative values
 
@@ -414,33 +428,30 @@ function renderTimeseries() {
     if (!weatherData) return;
     var ts = weatherData.timeseries;
 
-    var cols;
+    // Build per-variable config: data arrays and labels for each series
+    var cfg;
     if (currentVar === 'temp') {
-        cols = {
-            max:      ts.outTemp_max,
-            mean:     ts.outTemp_mean,
-            min:      ts.outTemp_min,
-            yTitle:   'Temperature (°F)',
-            lblMax:   'Daily High (°F)',
-            lblMean:  'Daily Mean (°F)',
-            lblMin:   'Daily Low (°F)',
+        cfg = {
+            max:    { data: ts.outTemp_max,      label: 'Daily High',  color: '#e74c3c' },
+            mean:   { data: ts.outTemp_mean,     label: 'Daily Mean',  color: '#474e5d' },
+            min:    { data: ts.outTemp_min,      label: 'Daily Low',   color: '#3498db' },
+            yTitle: 'Temperature (°F)',
         };
     } else {
-        cols = {
-            max:      ts.outHumidity_max,
-            mean:     ts.outHumidity_mean,
-            min:      ts.outHumidity_min,
-            yTitle:   'Relative Humidity (%)',
-            lblMax:   'Daily Max (%)',
-            lblMean:  'Daily Mean (%)',
-            lblMin:   'Daily Min (%)',
+        cfg = {
+            max:    { data: ts.outHumidity_max,  label: 'Daily Max',   color: '#2980b9' },
+            mean:   { data: ts.outHumidity_mean, label: 'Daily Mean',  color: '#474e5d' },
+            min:    { data: ts.outHumidity_min,  label: 'Daily Min',   color: '#e67e22' },
+            yTitle: 'Relative Humidity (%)',
         };
     }
 
+    var series = cfg[currentSeries];
+
     if (currentView === 'chrono') {
-        buildChronoPlot(ts.dates, cols);
+        buildChronoPlot(ts.dates, series, cfg.yTitle);
     } else {
-        buildByYearPlot(ts.dates, cols);
+        buildByYearPlot(ts.dates, series, cfg.yTitle);
     }
 }
 
@@ -449,8 +460,7 @@ function baseLayout(yTitle, xTitle) {
         xaxis: { title: xTitle || '', gridcolor: '#e8e8e8', zeroline: false },
         yaxis: { title: yTitle, gridcolor: '#e8e8e8', zeroline: false },
         margin: { t: 20, b: 50, l: 60, r: 20 },
-        showlegend: true,
-        legend: { orientation: 'h', y: -0.15, font: { size: 11 } },
+        showlegend: false,
         paper_bgcolor: '#fff',
         plot_bgcolor: '#fafafa',
         font: { family: 'Lato, sans-serif', color: '#474e5d', size: 12 },
@@ -458,37 +468,23 @@ function baseLayout(yTitle, xTitle) {
     };
 }
 
-function buildChronoPlot(dates, cols) {
-    // Order: [max, min, mean] — min fills toward max above it
-    var traceMax = {
-        x: dates, y: cols.max,
-        name: cols.lblMax,
-        type: 'scatter', mode: 'lines',
-        line: { color: '#e74c3c', width: 1 },
+function buildChronoPlot(dates, series, yTitle) {
+    var trace = {
+        x: dates,
+        y: series.data,
+        name: series.label,
+        type: 'scatter',
+        mode: 'lines',
+        line: { color: series.color, width: 1.2 },
         connectgaps: false,
+        hovertemplate: series.label + ': %{y:.1f}<extra></extra>',
     };
-    var traceMin = {
-        x: dates, y: cols.min,
-        name: cols.lblMin,
-        type: 'scatter', mode: 'lines',
-        line: { color: '#3498db', width: 1 },
-        fill: 'tonexty',
-        fillcolor: 'rgba(85,191,234,0.12)',
-        connectgaps: false,
-    };
-    var traceMean = {
-        x: dates, y: cols.mean,
-        name: cols.lblMean,
-        type: 'scatter', mode: 'lines',
-        line: { color: '#474e5d', width: 1.5 },
-        connectgaps: false,
-    };
-    var layout = baseLayout(cols.yTitle);
+    var layout = baseLayout(yTitle);
     layout.xaxis.type = 'date';
-    Plotly.react('timeseries-plot', [traceMax, traceMin, traceMean], layout, { responsive: true });
+    Plotly.react('timeseries-plot', [trace], layout, { responsive: true });
 }
 
-function buildByYearPlot(dates, cols) {
+function buildByYearPlot(dates, series, yTitle) {
     var yearSet = {};
     dates.forEach(function(d) { yearSet[d.slice(0, 4)] = true; });
     var years = Object.keys(yearSet).sort();
@@ -499,7 +495,7 @@ function buildByYearPlot(dates, cols) {
         dates.forEach(function(d, idx) {
             if (d.slice(0, 4) === yr) {
                 doys.push(dayOfYear(d));
-                vals.push(cols.mean[idx]);
+                vals.push(series.data[idx]);
             }
         });
         return {
@@ -513,9 +509,12 @@ function buildByYearPlot(dates, cols) {
         };
     });
 
-    var layout = baseLayout(cols.yTitle, 'Day of year');
+    var layout = baseLayout(yTitle, 'Day of year');
     layout.xaxis.range = [1, 366];
     layout.hovermode = 'x';
+    layout.showlegend = true;
+    layout.legend = { orientation: 'h', y: -0.15, font: { size: 11 } };
+    layout.margin.b = 80;
     Plotly.react('timeseries-plot', traces, layout, { responsive: true });
 }
 
@@ -636,11 +635,26 @@ function setVariable(v) {
     renderTimeseries();
 }
 
+function setSeries(s) {
+    currentSeries = s;
+    document.getElementById('btn-max').classList.toggle('active', s === 'max');
+    document.getElementById('btn-mean').classList.toggle('active', s === 'mean');
+    document.getElementById('btn-min').classList.toggle('active', s === 'min');
+    renderTimeseries();
+}
+
 function setView(v) {
     currentView = v;
     document.getElementById('btn-chrono').classList.toggle('active', v === 'chrono');
     document.getElementById('btn-byyear').classList.toggle('active', v === 'byyear');
     renderTimeseries();
+}
+
+function resetPolarView() {
+    Plotly.relayout('polar-plot', {
+        'polar.radialaxis.range': [0, 125],
+        'polar.radialaxis.autorange': false,
+    });
 }
 </script>
 

@@ -38966,204 +38966,204 @@
       {
         "date": "2015-05-09",
         "value": 97.0,
-        "note": "dewpoint 40.0\u00b0F"
+        "note": "mean temp 42.0\u00b0F; dewpoint 40.0\u00b0F"
       },
       {
         "date": "2015-05-20",
         "value": 97.0,
-        "note": "dewpoint 38.0\u00b0F"
+        "note": "mean temp 40.0\u00b0F; dewpoint 38.0\u00b0F"
       },
       {
         "date": "2015-05-23",
         "value": 97.0,
-        "note": "dewpoint 47.0\u00b0F"
+        "note": "mean temp 50.0\u00b0F; dewpoint 47.0\u00b0F"
       },
       {
         "date": "2015-05-26",
         "value": 97.0,
-        "note": "dewpoint 45.0\u00b0F"
+        "note": "mean temp 56.0\u00b0F; dewpoint 45.0\u00b0F"
       },
       {
         "date": "2015-06-06",
         "value": 97.0,
-        "note": "dewpoint 53.0\u00b0F"
+        "note": "mean temp 63.0\u00b0F; dewpoint 53.0\u00b0F"
       },
       {
         "date": "2015-07-22",
         "value": 97.0,
-        "note": "dewpoint 53.0\u00b0F"
+        "note": "mean temp 72.0\u00b0F; dewpoint 53.0\u00b0F"
       },
       {
         "date": "2015-10-07",
         "value": 97.0,
-        "note": "dewpoint 48.0\u00b0F"
+        "note": "mean temp 58.0\u00b0F; dewpoint 48.0\u00b0F"
       },
       {
         "date": "2015-10-23",
         "value": 97.0,
-        "note": "dewpoint 42.0\u00b0F"
+        "note": "mean temp 48.0\u00b0F; dewpoint 42.0\u00b0F"
       },
       {
         "date": "2015-04-16",
         "value": 96.0,
-        "note": "dewpoint 32.0\u00b0F"
+        "note": "mean temp 36.0\u00b0F; dewpoint 32.0\u00b0F"
       },
       {
         "date": "2015-04-17",
         "value": 96.0,
-        "note": "dewpoint 37.0\u00b0F"
+        "note": "mean temp 41.0\u00b0F; dewpoint 37.0\u00b0F"
       },
       {
         "date": "2015-04-27",
         "value": 96.0,
-        "note": "dewpoint 40.0\u00b0F"
+        "note": "mean temp 43.0\u00b0F; dewpoint 40.0\u00b0F"
       },
       {
         "date": "2015-05-05",
         "value": 96.0,
-        "note": "dewpoint 49.0\u00b0F"
+        "note": "mean temp 51.0\u00b0F; dewpoint 49.0\u00b0F"
       },
       {
         "date": "2015-05-06",
         "value": 96.0,
-        "note": "dewpoint 48.0\u00b0F"
+        "note": "mean temp 54.0\u00b0F; dewpoint 48.0\u00b0F"
       },
       {
         "date": "2015-05-08",
         "value": 96.0,
-        "note": "dewpoint 45.0\u00b0F"
+        "note": "mean temp 46.0\u00b0F; dewpoint 45.0\u00b0F"
       },
       {
         "date": "2015-05-10",
         "value": 96.0,
-        "note": "dewpoint 32.0\u00b0F"
+        "note": "mean temp 37.0\u00b0F; dewpoint 32.0\u00b0F"
       },
       {
         "date": "2015-05-14",
         "value": 96.0,
-        "note": "dewpoint 42.0\u00b0F"
+        "note": "mean temp 57.0\u00b0F; dewpoint 42.0\u00b0F"
       },
       {
         "date": "2015-05-19",
         "value": 96.0,
-        "note": "dewpoint 43.0\u00b0F"
+        "note": "mean temp 44.0\u00b0F; dewpoint 43.0\u00b0F"
       },
       {
         "date": "2015-05-21",
         "value": 96.0,
-        "note": "dewpoint 42.0\u00b0F"
+        "note": "mean temp 46.0\u00b0F; dewpoint 42.0\u00b0F"
       },
       {
         "date": "2015-05-24",
         "value": 96.0,
-        "note": "dewpoint 43.0\u00b0F"
+        "note": "mean temp 49.0\u00b0F; dewpoint 43.0\u00b0F"
       },
       {
         "date": "2015-05-25",
         "value": 96.0,
-        "note": "dewpoint 44.0\u00b0F"
+        "note": "mean temp 52.0\u00b0F; dewpoint 44.0\u00b0F"
       }
     ],
     "driest": [
       {
         "date": "2020-08-09",
         "value": 3.0,
-        "note": "max humidity 31.0%"
+        "note": "max humidity 31.0%; mean temp 89.0\u00b0F; dewpoint 29.0\u00b0F"
       },
       {
         "date": "2017-02-16",
         "value": 4.0,
-        "note": "max humidity 48.0%"
+        "note": "max humidity 48.0%; mean temp 53.5\u00b0F"
       },
       {
         "date": "2022-06-15",
         "value": 4.0,
-        "note": "max humidity 69.0%"
+        "note": "max humidity 69.0%; mean temp 70.5\u00b0F; dewpoint 31.1\u00b0F"
       },
       {
         "date": "2025-08-05",
         "value": 4.0,
-        "note": "max humidity 69.0%"
+        "note": "max humidity 69.0%; mean temp 78.7\u00b0F; dewpoint 43.5\u00b0F"
       },
       {
         "date": "2016-12-30",
         "value": 5.0,
-        "note": "max humidity 78.0%"
+        "note": "max humidity 78.0%; mean temp 47.4\u00b0F"
       },
       {
         "date": "2017-02-17",
         "value": 5.0,
-        "note": "max humidity 50.0%"
+        "note": "max humidity 50.0%; mean temp 53.2\u00b0F"
       },
       {
         "date": "2017-10-16",
         "value": 5.0,
-        "note": "max humidity 80.0%"
+        "note": "max humidity 80.0%; mean temp 53.3\u00b0F"
       },
       {
         "date": "2018-09-13",
         "value": 5.0,
-        "note": "max humidity 36.0%"
+        "note": "max humidity 36.0%; mean temp 79.0\u00b0F; dewpoint 28.0\u00b0F"
       },
       {
         "date": "2020-02-02",
         "value": 5.0,
-        "note": "max humidity 68.0%"
+        "note": "max humidity 68.0%; mean temp 56.0\u00b0F; dewpoint 12.0\u00b0F"
       },
       {
         "date": "2025-06-21",
         "value": 5.0,
-        "note": "max humidity 34.0%"
+        "note": "max humidity 34.0%; mean temp 84.1\u00b0F; dewpoint 30.8\u00b0F"
       },
       {
         "date": "2025-07-09",
         "value": 5.0,
-        "note": "max humidity 70.0%"
+        "note": "max humidity 70.0%; mean temp 80.5\u00b0F; dewpoint 42.6\u00b0F"
       },
       {
         "date": "2017-03-04",
         "value": 6.0,
-        "note": "max humidity 47.0%"
+        "note": "max humidity 47.0%; mean temp 50.6\u00b0F"
       },
       {
         "date": "2017-06-09",
         "value": 6.0,
-        "note": "max humidity 85.0%"
+        "note": "max humidity 85.0%; mean temp 75.2\u00b0F"
       },
       {
         "date": "2017-06-13",
         "value": 6.0,
-        "note": "max humidity 64.0%"
+        "note": "max humidity 64.0%; mean temp 69.6\u00b0F"
       },
       {
         "date": "2018-09-14",
         "value": 6.0,
-        "note": "max humidity 59.0%"
+        "note": "max humidity 59.0%; mean temp 74.0\u00b0F; dewpoint 32.0\u00b0F"
       },
       {
         "date": "2020-07-08",
         "value": 6.0,
-        "note": "max humidity 59.0%"
+        "note": "max humidity 59.0%; mean temp 78.0\u00b0F; dewpoint 37.0\u00b0F"
       },
       {
         "date": "2020-07-10",
         "value": 6.0,
-        "note": "max humidity 77.0%"
+        "note": "max humidity 77.0%; mean temp 81.0\u00b0F; dewpoint 45.0\u00b0F"
       },
       {
         "date": "2021-04-03",
         "value": 6.0,
-        "note": "max humidity 62.0%"
+        "note": "max humidity 62.0%; mean temp 60.0\u00b0F; dewpoint 19.0\u00b0F"
       },
       {
         "date": "2021-09-10",
         "value": 6.0,
-        "note": "max humidity 60.0%"
+        "note": "max humidity 60.0%; mean temp 76.0\u00b0F; dewpoint 38.0\u00b0F"
       },
       {
         "date": "2021-12-22",
         "value": 6.0,
-        "note": "max humidity 28.0%"
+        "note": "max humidity 28.0%; mean temp 53.0\u00b0F; dewpoint 4.0\u00b0F"
       }
     ],
     "windiest": [
