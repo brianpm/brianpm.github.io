@@ -64,9 +64,10 @@ These three are always the same and using a variable adds no value:
 
 | Value | Where | Why |
 |---|---|---|
-| `#fff` (white text) | CTA button labels, `.head-right p a` | Always white regardless of theme |
+| `#fff` (white text) | CTA button labels, `.head-right p a`, `#theme-toggle` | Always white regardless of theme |
 | Dataset line colors in charts | `gmst.html`, `climate_trends.html` | Per-dataset scientific identity, not theme-dependent |
 | RMSE badge dark-mode overrides | `forecast_accuracy.html` `[data-theme="dark"]` block | Explicit dark-surface colors that can't be expressed as globals |
+| Error box dark surfaces | `#2a1a1a` bg / `#5a2a2a` border / `#f08080` text | Red-tinted dark surface; no equivalent global token |
 
 ---
 
@@ -103,6 +104,46 @@ Sometimes a component has a dark background in light mode (like the forecast tab
 ```
 
 Use `#2d3654` as the "dark elevated surface" for elements that were previously `#474e5d` in light mode (the mid-dark grey). See `forecast_accuracy.html` for a worked example.
+
+### 4. Common dark-mode patterns (copy-paste reference)
+
+**Code blocks and inline code** (`.doc-content pre`, `.doc-content code`):
+```css
+[data-theme="dark"] .doc-content pre      { background: var(--color-bg-card); }
+[data-theme="dark"] .doc-content pre code { color: var(--color-text-dark); }
+[data-theme="dark"] .doc-content code     { background: var(--color-bg-light); color: var(--color-text-dark); }
+[data-theme="dark"] .doc-content .note    { background: var(--color-bg-light); }
+```
+
+**Dataset controls bar** (`.dataset-controls`):
+```css
+[data-theme="dark"] .dataset-controls { background: var(--color-bg-card-head); border-color: var(--color-border-mid); }
+```
+
+**Stat cards with per-dataset accent border** (`.stat-card`):
+```css
+/* border-color resets all sides; border-left-color restores the per-dataset stripe */
+[data-theme="dark"] .stat-card { background: var(--color-bg-card); border-color: var(--color-border-mid); border-left-color: var(--ds-color); }
+```
+
+**Error messages** — use a brighter red on dark so contrast holds:
+```css
+/* light mode: built into the CSS rule */
+.error-message { color: #c0392b; }
+/* dark mode override */
+[data-theme="dark"] .error-message { color: #e74c3c; }
+```
+For error boxes with background/border, use `background: #2a1a1a; border-color: #5a2a2a; color: #f08080;`.
+
+**JS-generated labels** — never use `element.style.cssText` with a hardcoded color. Assign a CSS class instead so the variable system works:
+```js
+// ❌ wrong — bypasses dark mode
+lbl.style.cssText = 'color:#888; font-size:0.78em; ...';
+// ✅ correct — CSS class carries var(--color-text-light)
+lbl.className = 'controls-source-label';
+```
+
+**Separate CSS files** (e.g. `css/bibbase_custom.css`) — dark overrides must live in that same file, not in `style.css`. Add a `[data-theme="dark"]` block at the bottom of the file. The token variables still resolve correctly because `style.css` is loaded first on every page.
 
 ### Chart.js pages
 

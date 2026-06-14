@@ -131,6 +131,9 @@ span{
 .head-right p a:hover{
     background:var(--color-text-dark);
 }
+#theme-toggle:hover {
+    background: var(--color-text-dark);
+}
 .head-nav ul li a{
 	position: relative;
 	display: inline-block;

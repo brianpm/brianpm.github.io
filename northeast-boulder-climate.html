@@ -221,6 +221,24 @@
     .highlights-grid { grid-template-columns: repeat(2, 1fr); }
     .plot-controls { gap: 0.8em; }
 }
+
+#loading p        { color: #aaa; }
+#error-message    { color: #c0392b; background: #fdf3f2; border: 1px solid #f5c6cb; }
+
+[data-theme="dark"] .highlight-label,
+[data-theme="dark"] .highlight-units,
+[data-theme="dark"] .highlight-date,
+[data-theme="dark"] .controls-label,
+[data-theme="dark"] .rank-col,
+[data-theme="dark"] .note-col,
+[data-theme="dark"] .plot-caption,
+[data-theme="dark"] .page-notes       { color: var(--color-text-light); }
+[data-theme="dark"] .toggle-btn       { border-color: var(--color-border-mid); }
+[data-theme="dark"] .extreme-table tbody tr:hover { background: rgba(85,191,234,0.1); }
+[data-theme="dark"] .nav-tabs > li > a:hover { border-color: var(--color-accent-blue) var(--color-accent-blue) var(--color-bg-card); }
+[data-theme="dark"] .tab-content      { border-color: var(--color-border-mid); }
+[data-theme="dark"] #loading p        { color: var(--color-text-light); }
+[data-theme="dark"] #error-message    { color: #f08080; background: #2a1a1a; border-color: #5a2a2a; }
 </style>
 <script src="js/theme.js"></script>
 </head>
@@ -249,11 +267,11 @@
     <!-- Loading state -->
     <div id="loading" style="text-align:center; padding: 4em 0;">
       <div class="spinner"></div>
-      <p style="color:#aaa; font-size:0.9em; margin-top:0.5em;">Loading climate data&hellip;</p>
+      <p style="font-size:0.9em; margin-top:0.5em;">Loading climate data&hellip;</p>
     </div>
 
     <!-- Error state (hidden by default) -->
-    <div id="error-message" style="display:none; color:#c0392b; background:#fdf3f2; border:1px solid #f5c6cb; border-radius:6px; padding:1em 1.4em; margin:2em 0;"></div>
+    <div id="error-message" style="display:none; border-radius:6px; padding:1em 1.4em; margin:2em 0;"></div>
 
     <!-- Main content (hidden until data loads) -->
     <div id="content" style="display:none;">

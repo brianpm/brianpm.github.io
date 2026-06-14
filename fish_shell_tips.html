@@ -88,6 +88,11 @@
 .doc-content a:hover {
     text-decoration: underline;
 }
+
+[data-theme="dark"] .doc-content pre      { background: var(--color-bg-card); }
+[data-theme="dark"] .doc-content pre code { color: var(--color-text-dark); }
+[data-theme="dark"] .doc-content code     { background: var(--color-bg-light); color: var(--color-text-dark); }
+[data-theme="dark"] .doc-content .note    { background: var(--color-bg-light); }
 </style>
 <script src="js/theme.js"></script>
 </head>
@@ -215,7 +220,7 @@ end</code></pre>
 
       <h3>Oh My Fish</h3>
 
-      <div class="note" style="background:#f0f9ff; border-color: #55bfea;">
+      <div class="note">
         <strong><a href="https://github.com/oh-my-fish/oh-my-fish">Oh My Fish</a> (omf)</strong> is a package manager for fish that makes it easy to install prompt themes and plugins. Install it with:
         <pre style="margin: 0.6em 0 0.3em;"><code>curl https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install | fish</code></pre>
         Then browse and install themes (<code>omf install bobthefish</code> is a popular choice) or plugins (<code>omf install z</code> for directory jumping). Run <code>omf help</code> to see available commands, or visit the <a href="https://github.com/oh-my-fish/oh-my-fish">omf repository</a> for a full list of packages.

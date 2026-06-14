@@ -251,3 +251,16 @@ span.bibbase_group_count {
 #bibbase li {
     list-style: none;
 }
+
+[data-theme="dark"] .references ul li:nth-child(odd) {
+    background-color: var(--color-bg-light);
+}
+[data-theme="dark"] .references ul li:nth-child(even) {
+    background-color: var(--color-bg-card);
+}
+[data-theme="dark"] .references ul li:hover {
+    background-color: #2d3654;
+}
+[data-theme="dark"] .references h1 h2 h3 {
+    color: var(--color-text-dark);
+}

@@ -57,6 +57,13 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+[data-theme="dark"] .stat-card    { background: var(--color-bg-card); border-color: var(--color-border-mid); }
+[data-theme="dark"] .stat-value   { color: var(--color-accent-blue); }
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .data-source  { color: var(--color-text-light); }
+[data-theme="dark"] .spinner      { border-color: var(--color-border-mid); }
+[data-theme="dark"] #error-message { color: #e74c3c; }
 </style>
 <script src="js/theme.js"></script>
 </head>

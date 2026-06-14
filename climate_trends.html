@@ -226,6 +226,17 @@
     margin-top: 0.4em;
 }
 
+.controls-source-label {
+    font-size: 0.78em;
+    color: var(--color-text-light);
+    align-self: center;
+    margin-left: 0.4em;
+    margin-right: 0.2em;
+    white-space: nowrap;
+}
+
+.error-message { color: #c0392b; }
+
 [data-theme="dark"] .controls-label,
 [data-theme="dark"] .stat-ds-name,
 [data-theme="dark"] .stat-units,
@@ -242,6 +253,12 @@
 [data-theme="dark"] .dataset-toggle:hover {
     background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
 }
+[data-theme="dark"] .page-intro       { color: var(--color-text-mid); }
+[data-theme="dark"] .dataset-controls { background: var(--color-bg-card-head); border-color: var(--color-border-mid); }
+[data-theme="dark"] .stat-card        { background: var(--color-bg-card); border-color: var(--color-border-mid); border-left-color: var(--ds-color); }
+[data-theme="dark"] .spinner          { border-color: var(--color-border-mid); }
+[data-theme="dark"] .page-notes       { border-top-color: var(--color-border-mid); }
+[data-theme="dark"] .error-message    { color: #e74c3c; }
 </style>
 <script src="js/theme.js"></script>
 </head>
@@ -284,7 +301,7 @@
     <!-- Loading / error -->
     <div id="ohc-loading">
       <div class="spinner"></div><br>Fetching OHC data from NOAA&hellip;
-      <div id="ohc-error-message" class="error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+      <div id="ohc-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
     </div>
 
     <!-- Chart -->
@@ -329,7 +346,7 @@
     <!-- Loading / error -->
     <div id="eei-loading">
       <div class="spinner"></div><br>Loading EEI data&hellip;
-      <div id="eei-error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+      <div id="eei-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
     </div>
 
     <!-- Chart -->
@@ -383,7 +400,7 @@
     <!-- Loading / error -->
     <div id="tsi-loading">
       <div class="spinner"></div><br>Loading TSI data&hellip;
-      <div id="tsi-error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+      <div id="tsi-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
     </div>
 
     <!-- Chart -->
@@ -430,7 +447,7 @@
     <!-- Loading / error -->
     <div id="aod-loading">
       <div class="spinner"></div><br>Loading AOD data&hellip;
-      <div id="aod-error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+      <div id="aod-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
     </div>
 
     <!-- Chart -->
@@ -480,7 +497,7 @@
     <!-- Loading / error -->
     <div id="alb-loading">
       <div class="spinner"></div><br>Loading surface albedo data&hellip;
-      <div id="alb-error-message" style="color:#c0392b;font-size:0.88em;margin-top:0.5em;display:none;"></div>
+      <div id="alb-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
     </div>
 
     <!-- Chart -->
@@ -1607,7 +1624,7 @@ function buildAodControls() {
     // Insert a source-group label when the source changes
     if (ds.source !== lastSource) {
       const lbl = document.createElement('span');
-      lbl.style.cssText = 'font-size:0.78em;color:#888;align-self:center;margin-left:0.4em;margin-right:0.2em;white-space:nowrap;';
+      lbl.className = 'controls-source-label';
       lbl.textContent = ds.source;
       controlsDiv.appendChild(lbl);
       lastSource = ds.source;
@@ -1882,7 +1899,7 @@ function buildAlbControls() {
   for (const ds of ALB_DATASETS) {
     if (ds.source !== lastSource) {
       const lbl = document.createElement('span');
-      lbl.style.cssText = 'font-size:0.78em;color:#888;align-self:center;margin-left:0.4em;margin-right:0.2em;white-space:nowrap;';
+      lbl.className = 'controls-source-label';
       lbl.textContent = ds.source;
       controlsDiv.appendChild(lbl);
       lastSource = ds.source;

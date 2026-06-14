@@ -161,6 +161,11 @@
     border-color: var(--color-accent-blue);
     color: #fff;
 }
+#loading-msg { color: #888; }
+#error-msg   { color: #721c24; }
+[data-theme="dark"] #loading-msg { color: var(--color-text-light); }
+[data-theme="dark"] #error-msg   { color: #f08080; }
+[data-theme="dark"] .page-intro  { color: var(--color-text-mid); }
 </style>
 <script src="js/theme.js"></script>
 </head>
@@ -181,8 +186,8 @@
     <h2>Weather Forecast Accuracy</h2>
     <p class="page-intro">Rolling 14-day RMSE for next-day high and low temperature forecasts across 60+ US cities, comparing eight operational forecast sources. Lower is better. Data updated automatically each morning.</p>
 
-    <div id="loading-msg" style="color:#888; margin:1.5em 0;">Loading data&hellip;</div>
-    <div id="error-msg"   style="color:#721c24; display:none; margin:1.5em 0;"></div>
+    <div id="loading-msg" style="margin:1.5em 0;">Loading data&hellip;</div>
+    <div id="error-msg"   style="display:none; margin:1.5em 0;"></div>
 
     <div class="toggle-group" id="temp-toggle" style="display:none; margin-bottom:1em;">
       <button class="toggle-btn active" id="btn-tmax" onclick="setMode('tmax')">Tmax</button>
