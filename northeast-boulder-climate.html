@@ -235,7 +235,20 @@
 [data-theme="dark"] .page-notes       { color: var(--color-text-light); }
 [data-theme="dark"] .toggle-btn       { border-color: var(--color-border-mid); }
 [data-theme="dark"] .extreme-table tbody tr:hover { background: rgba(85,191,234,0.1); }
+[data-theme="dark"] .nav-tabs > li > a {
+    background-color: var(--color-bg-card-head);
+    color: var(--color-text-mid);
+    border-color: var(--color-border-mid);
+}
 [data-theme="dark"] .nav-tabs > li > a:hover { border-color: var(--color-accent-blue) var(--color-accent-blue) var(--color-bg-card); }
+[data-theme="dark"] .nav-tabs > li.active > a,
+[data-theme="dark"] .nav-tabs > li.active > a:hover,
+[data-theme="dark"] .nav-tabs > li.active > a:focus {
+    background-color: var(--color-bg-card);
+    color: var(--color-text-dark);
+    border-color: var(--color-border-mid);
+    border-bottom-color: var(--color-bg-card);
+}
 [data-theme="dark"] .tab-content      { border-color: var(--color-border-mid); }
 [data-theme="dark"] #loading p        { color: var(--color-text-light); }
 [data-theme="dark"] #error-message    { color: #f08080; background: #2a1a1a; border-color: #5a2a2a; }
@@ -693,7 +706,7 @@ function resetPolarView() {
 document.addEventListener('themechange', function() {
     if (weatherData) {
         renderTimeseries();
-        renderPolar();
+        renderPolarPlot();
     }
 });
 </script>
