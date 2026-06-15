@@ -18,12 +18,13 @@ def produce_author_field(ainput):
 
 def produce_html_slug(authors, year, title, journal, doi):
     slug = ""
-    slug += (authors)
-    slug += (f" ({year}): ")
-    slug += (title)
-    slug += (", ")
-    slug += (f'<em class="references">{journal}</em>, ')
-    slug += (f'doi: <a class="references" href=http://dx.doi.org/{doi}>{doi}</a>')
+    slug += authors
+    slug += f" ({year}): "
+    slug += title
+    slug += ", "
+    slug += f'<em class="references">{journal}</em>'
+    if doi:
+        slug += f', doi: <a class="references" href="https://doi.org/{doi}">{doi}</a>'
     return slug
 
 def send_to_html_file(filname, htmlinput):
@@ -89,12 +90,12 @@ def check_bib(bibobj):
     
 def clean_doi(d):
     if d is None:
-        return "NA"
-    if not isinstance(d, str): 
+        return None
+    if not isinstance(d, str):
         d = d.value
-    else:
-        print(type(d))
-    r = d.removeprefix("https://doi.org/")
+    r = d.strip()
+    r = r.removeprefix("https://doi.org/")
+    r = r.removeprefix("http://dx.doi.org/")
     r = r.removeprefix("doi:")
     return r
 
@@ -118,10 +119,11 @@ def get_items(bibobj, by_year=None):
         else:
             jField = jField.value
         yrField = entry.get('year').value
-        doiField = clean_doi(entry.get("doi"))
-        if doiField is not None:
-            doiField = doiField
-            print(doiField)
+        # BibDesk stores DOIs in bdsk-url-2 (preferred) or bdsk-url-1; fall back to explicit doi field
+        doi_raw = (entry.fields_dict.get("doi")
+                   or entry.fields_dict.get("bdsk-url-2")
+                   or entry.fields_dict.get("bdsk-url-1"))
+        doiField = clean_doi(doi_raw)
         html = produce_html_slug(auField, yrField, titleField, jField, doiField)
         if by_year:
             if yrField not in pub_list_items.keys():
