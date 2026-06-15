@@ -38,6 +38,14 @@ This is a static GitHub Pages website (brianpm.github.io) for Brian Medeiros' cl
 - All pages use the card-based layout with `about-section` container, flex card grids, hover effects, and `#55bfea` accent color. Use `contact.html` as the style reference.
 - **Dark mode is implemented site-wide** via CSS custom properties in `css/style.css` and a toggle in `navigation.html`. All pages include `<script src="js/theme.js"></script>` in `<head>` for FOUC prevention and chart theming. Never use hardcoded hex colors — always use CSS variables (e.g. `var(--color-text-dark)`). See `STYLE_GUIDE.md` for the full token reference, dark-mode wiring rules, and Chart.js/Plotly.js patterns.
 
+## Conda Environment
+
+The Python environment for scripts is named differently per machine:
+- **lothal** (desktop Mac): `py12`
+- **laptop**: likely `p12`
+
+Check with `conda env list` if unsure. All workflow commands below use `py12`; substitute `p12` on the laptop.
+
 ## Key Workflows
 
 ### Updating Publications
@@ -46,7 +54,7 @@ Publications are automatically extracted from the master bibliography and conver
 
 **Quick Update (Recommended):**
 ```bash
-conda activate p12
+conda activate py12
 cd bibtoweb
 python update_publications.py
 ```
@@ -60,7 +68,7 @@ This automated script (`update_publications.py`):
 
 **Manual Step-by-Step (if needed):**
 ```bash
-conda activate p12
+conda activate py12
 cd bibtoweb
 
 # Step 1: Extract publications from master bibliography
@@ -81,7 +89,7 @@ The extraction script matches all variations:
 - `B. Medeiros`
 
 **Dependencies:**
-- Python 3 (use `p12` conda environment)
+- Python 3 (use `py12` conda environment on lothal; `p12` on laptop)
 - `pylatexenc==2.10` - for LaTeX character conversion
 - `bibtexparser==2.0.0b9` (v2 beta) - for parsing BibTeX files
 
@@ -141,7 +149,7 @@ All MetOffice-formatted files use a common pre-industrial baseline (~1850–1900
 
 **Updating GMST data:** Run the following to refresh the five CSVs in `data/` from the Met Office Climate Dashboard (data is released monthly):
 ```bash
-conda activate p12
+conda activate py12
 python scripts/update_gmst_data.py
 # then commit data/gmt_*.csv
 ```
@@ -153,7 +161,7 @@ python scripts/update_gmst_data.py
 Climate data scripts live in `scripts/` at the repo root. All write their output to `data/` and can be run from the repo root:
 
 ```bash
-conda activate p12
+conda activate py12
 python scripts/update_gmst_data.py        # 5 GMST CSVs from Met Office
 python scripts/update_eei_data.py         # EEI from CERES EBAF (also runs via GitHub Actions monthly)
 python scripts/update_tsi_data.py         # TSI from NOAA NCEI (also runs via GitHub Actions quarterly)
