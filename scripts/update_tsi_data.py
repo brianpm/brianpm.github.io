@@ -35,8 +35,12 @@ Or triggered automatically by .github/workflows/update_tsi.yml.
 
 import re
 import csv
+import time
+import socket
 import datetime
 import urllib.request
+import urllib.error
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from pathlib import Path
 
 # ── Configuration ──────────────────────────────────────────────────────────────
@@ -60,13 +64,71 @@ SCRIPT_DIR = Path(__file__).parent
 OUTPUT_YEARLY = SCRIPT_DIR.parent / "data" / "tsi_yearly.csv"
 OUTPUT_MONTHLY = SCRIPT_DIR.parent / "data" / "tsi_monthly.csv"
 
+# ── Network timeouts ──────────────────────────────────────────────────────────
+# READ_TIMEOUT bounds each socket operation; REQUEST_DEADLINE is a hard
+# wall-clock cap on a whole request, enforced in a worker thread so it also
+# catches a server that trickles bytes slowly enough to evade the per-read
+# timeout (observed once as a multi-hour stall). MONTHLY_BUDGET caps the total
+# time spent fetching the ~150 per-year monthly files; files are fetched
+# newest-first so a budget cutoff drops only old history, never recent data.
+READ_TIMEOUT = 30          # seconds, per socket operation
+REQUEST_DEADLINE = 60      # seconds, hard cap per request
+REQUEST_RETRIES = 1        # extra attempts after the first
+MONTHLY_BUDGET = 600       # seconds, total cap on the monthly-file loop
+
+# Backstop so any worker thread left blocked on a hung socket dies on its own.
+socket.setdefaulttimeout(READ_TIMEOUT)
+
+# Force IPv4. NOAA NCEI advertises IPv6 (AAAA) addresses that are unreachable
+# from many networks (and from IPv4-only CI runners); urllib tries addresses
+# serially and blocks on each dead IPv6 connect until timeout. Across the ~150
+# per-year files that compounded into a multi-hour stall. NCEI serves fine over
+# IPv4, so filter getaddrinfo to AF_INET.
+_orig_getaddrinfo = socket.getaddrinfo
+
+
+def _ipv4_only_getaddrinfo(*args, **kwargs):
+    return [r for r in _orig_getaddrinfo(*args, **kwargs) if r[0] == socket.AF_INET]
+
+
+socket.getaddrinfo = _ipv4_only_getaddrinfo
+
+
+def fetch_text(url: str) -> str:
+    """GET *url* and return decoded text, with a hard per-request deadline.
+
+    Runs the blocking urlopen in a worker thread and abandons it if it exceeds
+    REQUEST_DEADLINE, so a slow/stalled server can never hang the run. Retries
+    transient failures REQUEST_RETRIES times; raises the last error if all fail.
+    """
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+
+    def _do() -> str:
+        with urllib.request.urlopen(req, timeout=READ_TIMEOUT) as r:
+            return r.read().decode("utf-8", errors="replace")
+
+    last_err: Exception = RuntimeError("no attempt made")
+    for attempt in range(1, REQUEST_RETRIES + 2):
+        ex = ThreadPoolExecutor(max_workers=1)
+        future = ex.submit(_do)
+        try:
+            result = future.result(timeout=REQUEST_DEADLINE)
+            ex.shutdown(wait=False)
+            return result
+        except FutureTimeoutError:
+            last_err = TimeoutError(f"request exceeded {REQUEST_DEADLINE}s")
+        except (urllib.error.URLError, OSError) as e:
+            last_err = e
+        ex.shutdown(wait=False)  # don't block on a hung socket
+        if attempt <= REQUEST_RETRIES:
+            print(f"    Warning: attempt {attempt} failed ({last_err}); retrying…")
+    raise last_err
+
 
 # ── Step 1: Find the latest yearly TSI file in the THREDDS catalog ────────────
 def find_latest_yearly_filename() -> str:
     print(f"Fetching yearly catalog: {YEARLY_CATALOG_URL}")
-    req = urllib.request.Request(YEARLY_CATALOG_URL, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        html = r.read().decode("utf-8", errors="replace")
+    html = fetch_text(YEARLY_CATALOG_URL)
 
     # Pattern: tsi_v03r00_yearly_s1610_e2025_c20260305.nc
     pattern = r"tsi_v03r00_yearly_s\d+_e\d+_c\d+\.nc"
@@ -82,9 +144,7 @@ def find_latest_yearly_filename() -> str:
 # ── Step 2: Find all monthly TSI files in the THREDDS catalog ────────────────
 def find_monthly_filenames() -> list[str]:
     print(f"Fetching monthly catalog: {MONTHLY_CATALOG_URL}")
-    req = urllib.request.Request(MONTHLY_CATALOG_URL, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        html = r.read().decode("utf-8", errors="replace")
+    html = fetch_text(MONTHLY_CATALOG_URL)
 
     # Pattern: tsi_v03r00_monthly_s187405_e187412_c20240831.nc or
     #          tsi_v03r00-preliminary_monthly_s202601_e202603_c20260421.nc
@@ -161,10 +221,7 @@ def fetch_yearly_data(filename: str) -> tuple[list[int], list[float], list[float
     url = OPENDAP_BASE_YEARLY.format(filename=filename) + "?time,TSI,TSI_UNC"
     print(f"Fetching yearly OPeNDAP: {url}")
 
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        text = r.read().decode("utf-8", errors="replace")
-
+    text = fetch_text(url)
     data = parse_opendap_ascii(text)
 
     if "time" not in data or "TSI" not in data:
@@ -194,16 +251,24 @@ def fetch_monthly_data(filenames: list[str]) -> tuple[list[float], list[float], 
     tsi_vals = []
     tsi_uncs = []
 
-    for i, filename in enumerate(filenames):
+    # Fetch newest-first so that if the total budget is exhausted we drop only
+    # old history (already in the CSV), never the recent months we care about.
+    ordered = sorted(filenames, reverse=True)
+    start = time.monotonic()
+
+    for i, filename in enumerate(ordered):
+        if time.monotonic() - start > MONTHLY_BUDGET:
+            print(f"  Reached {MONTHLY_BUDGET}s budget after {i} files — "
+                  f"stopping (remaining {len(ordered) - i} older files skipped).")
+            break
+
         url = OPENDAP_BASE_MONTHLY.format(filename=filename) + "?time,TSI,TSI_UNC"
-        print(f"  [{i+1}/{len(filenames)}] Fetching {filename}...")
+        print(f"  [{i+1}/{len(ordered)}] Fetching {filename}...")
 
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=60) as r:
-                text = r.read().decode("utf-8", errors="replace")
-        except urllib.error.HTTPError as e:
-            print(f"    Warning: HTTP {e.code} — skipping")
+            text = fetch_text(url)
+        except (urllib.error.URLError, OSError, TimeoutError) as e:
+            print(f"    Warning: fetch failed ({e}) — skipping")
             continue
 
         try:

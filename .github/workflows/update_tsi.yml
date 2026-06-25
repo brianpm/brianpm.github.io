@@ -10,6 +10,7 @@ on:
 jobs:
   update-tsi:
     runs-on: ubuntu-latest
+    timeout-minutes: 20      # backstop: the script self-bounds, but never hang the runner
 
     steps:
       - name: Check out repository
