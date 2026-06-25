@@ -2,7 +2,7 @@
 """Download MODIS surface albedo (MCD43C3 v061) and summarise it.
 
 Usage:
-    conda activate p12
+    conda activate py
     python scripts/update_albedo_modis.py
 
 Downloads MCD43C3 v061 (CMG 0.05° BRDF/Albedo) HDF4 files from NASA LP DAAC
@@ -14,8 +14,7 @@ the repo root:
     images/albedo_modis_zonal.png  zonal-mean albedo vs latitude
 
 MCD43C3 is land-only (ocean is fill), so the hemispheric means are land
-means. Only one overlap year is downloaded for now (see YEAR); the rest of
-the record (2000–present) can be filled in later.
+means. The full record (2000–present) is downloaded; see YEARS.
 
 Credentials: ~/.netrc (earthaccess will prompt on first run).
 HDF cache:   scripts/modis_albedo_hdf_cache/  (gitignored)
@@ -44,8 +43,8 @@ CACHE_DIR  = Path(__file__).parent / "modis_albedo_hdf_cache"
 SHORT_NAME = "MCD43C3"
 VERSION    = "061"
 
-# Only one overlap year for now; extend to fill in the 2000–present record.
-YEAR = 2003
+# Download full MODIS record (2000–present)
+YEARS = range(2000, 2027)
 
 # MODIS CMG 0.05° grid: 3600 rows, row 0 = 89.975°N
 LATS = np.linspace(89.975, -89.975, 3600)
@@ -163,25 +162,51 @@ def select_monthly_granules(results: list) -> list:
     return [by_month[m][1] for m in sorted(by_month)]
 
 
+def dedupe_monthly_files(files: list[Path]) -> list[Path]:
+    """Keep one file per (year, month): the granule nearest mid-month (day 15).
+
+    Two cached granules can map to the same calendar month (e.g. a Dec-15 and a
+    Dec-25 acquisition). Without this guard both are processed, producing a
+    duplicate year_frac row in the CSV and double-counting that month in the
+    map/zonal accumulators.
+    """
+    best: dict = {}
+    for path in files:
+        date = parse_date_from_filename(path.name)
+        if date is None:
+            print(f"  WARNING: cannot parse date from {path.name}, skipping")
+            continue
+        year, month, doy = date
+        dt = datetime(year, 1, 1) + timedelta(days=doy - 1)
+        dist = abs(dt.day - 15)
+        key = (year, month)
+        if key not in best or dist < best[key][0]:
+            best[key] = (dist, path)
+    return [best[k][1] for k in sorted(best)]
+
+
 def download_granules() -> list[Path]:
-    """Search MCD43C3 for YEAR, pick one granule/month, download with cache."""
+    """Search MCD43C3 for YEARS, pick one granule/month, download with cache."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     print("Authenticating with NASA Earthdata…")
     earthaccess.login()
 
-    print(f"Searching for {SHORT_NAME} v{VERSION} granules in {YEAR}…")
-    results = earthaccess.search_data(
-        short_name=SHORT_NAME,
-        version=VERSION,
-        temporal=(f"{YEAR}-01-01", f"{YEAR}-12-31"),
-        count=-1,
-    )
-    print(f"Found {len(results)} granules; selecting one per month…")
-    monthly = select_monthly_granules(results)
-    print(f"Selected {len(monthly)} monthly granules.")
+    all_paths, monthly_all = [], []
+    for year in YEARS:
+        print(f"Searching for {SHORT_NAME} v{VERSION} granules in {year}…")
+        results = earthaccess.search_data(
+            short_name=SHORT_NAME,
+            version=VERSION,
+            temporal=(f"{year}-01-01", f"{year}-12-31"),
+            count=-1,
+        )
+        print(f"Found {len(results)} granules; selecting one per month…")
+        monthly = select_monthly_granules(results)
+        print(f"Selected {len(monthly)} monthly granules.")
+        monthly_all.extend(monthly)
 
-    all_paths, need = [], []
-    for g in monthly:
+    need = []
+    for g in monthly_all:
         links = g.data_links(access="direct") or g.data_links()
         fname = links[0].split("/")[-1]
         local = CACHE_DIR / fname
@@ -191,11 +216,11 @@ def download_granules() -> list[Path]:
             need.append(g)
 
     if need:
-        print(f"Downloading {len(need)} new granules to {CACHE_DIR}…")
+        print(f"\nDownloading {len(need)} new granules to {CACHE_DIR}…")
         downloaded = earthaccess.download(need, str(CACHE_DIR))
         all_paths.extend(Path(p) for p in downloaded)
     else:
-        print("All granules already cached.")
+        print("\nAll granules already cached.")
     return sorted(all_paths)
 
 
@@ -213,7 +238,7 @@ def render_map():
     ax.set_global()
     cb = fig.colorbar(mesh, ax=ax, orientation="vertical", shrink=0.8, pad=0.02)
     cb.set_label("White-sky broadband albedo")
-    ax.set_title(f"MODIS MCD43C3 mean land surface albedo ({YEAR})")
+    ax.set_title(f"MODIS MCD43C3 mean land surface albedo ({min(YEARS)}-{max(YEARS)})")
     fig.tight_layout()
     MAP_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(MAP_PNG, dpi=110)
@@ -240,7 +265,7 @@ def render_zonal():
     ax.set_ylim(-90, 90)
     ax.grid(alpha=0.3)
     ax.legend()
-    ax.set_title(f"MODIS MCD43C3 zonal-mean land albedo ({YEAR})")
+    ax.set_title(f"MODIS MCD43C3 zonal-mean land albedo ({min(YEARS)}-{max(YEARS)})")
     fig.tight_layout()
     ZONAL_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(ZONAL_PNG, dpi=110)
@@ -250,6 +275,7 @@ def render_zonal():
 
 def main():
     files = download_granules()
+    files = dedupe_monthly_files(files)
     print(f"\nProcessing {len(files)} HDF4 files…")
 
     records = []  # (year_frac, wsa_g, wsa_nh, wsa_sh, bsa_g, bsa_nh, bsa_sh)

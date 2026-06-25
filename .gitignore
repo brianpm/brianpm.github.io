@@ -79,3 +79,5 @@ scripts/modis_albedo_hdf_cache/
 !.gitignore
 !.nvmrc
 !.phpcs.xml.dist
+# ignore local cron/launchd logs
+scripts/logs/

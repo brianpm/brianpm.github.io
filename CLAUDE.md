@@ -43,8 +43,9 @@ This is a static GitHub Pages website (brianpm.github.io) for Brian Medeiros' cl
 The Python environment for scripts is named differently per machine:
 - **lothal** (desktop Mac): `py12`
 - **laptop**: likely `p12`
+- some hosts use a plain `py` env (e.g. the machine where `conda env list` shows only `base` and `py`)
 
-Check with `conda env list` if unsure. All workflow commands below use `py12`; substitute `p12` on the laptop.
+Check with `conda env list` if unsure. All workflow commands below use `py12`; substitute the local env name (`p12`, `py`, …) as needed. A reliable non-interactive form is `conda run -n <env> python scripts/<name>.py`.
 
 ## Key Workflows
 
