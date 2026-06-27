@@ -46,6 +46,10 @@ scripts/modis_albedo_hdf_cache/
 *.sql
 *.sqlite
 
+# ignore Python bytecode cache
+__pycache__/
+*.pyc
+
 # ignore compiled files
 *.com
 *.class
