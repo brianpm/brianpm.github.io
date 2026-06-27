@@ -35,6 +35,14 @@ if git diff --cached --quiet; then
     echo "No changes to deploy — data already up to date."
 else
     git commit -m "Update weather forecast RMSE $(date +%Y-%m-%d)"
-    git push
-    echo "Deployed to GitHub Pages."
+    # Integrate any commits pushed from another machine first, otherwise the
+    # push is rejected (non-fast-forward) and commits pile up locally unnoticed.
+    # This script only touches data/weather_rmse.*, so a rebase is always clean.
+    git pull --rebase --autostash origin main
+    if git push; then
+        echo "Deployed to GitHub Pages."
+    else
+        echo "ERROR: git push failed — commit is local only." >&2
+        exit 1
+    fi
 fi
