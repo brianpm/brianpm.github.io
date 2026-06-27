@@ -1,0 +1,49 @@
+name: Update Sentinel-3A AOD Data
+
+# Runs monthly. The Copernicus CDS satellite-aerosol-properties product
+# (SLSTR / Sentinel-3A) lags by several months; the script requests a dynamic
+# year range and gracefully skips years CDS has not published yet, so this will
+# automatically pick up new data once it appears. Can also be triggered manually.
+on:
+  schedule:
+    - cron: '0 6 16 * *'   # 06:00 UTC on the 16th of every month
+  workflow_dispatch:         # manual trigger
+
+jobs:
+  update-aod:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90      # CDS queue latency is unpredictable
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install cdsapi numpy xarray netCDF4
+
+      - name: Write CDS API credentials
+        run: |
+          printf 'url: %s\nkey: %s\n' "${{ secrets.CDSAPI_URL }}" "${{ secrets.CDSAPI_KEY }}" > "$HOME/.cdsapirc"
+        env:
+          CDSAPI_URL: ${{ secrets.CDSAPI_URL }}
+          CDSAPI_KEY: ${{ secrets.CDSAPI_KEY }}
+
+      - name: Run AOD update script
+        run: python scripts/update_aod_data.py
+
+      - name: Commit and push if CSV changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/aod_sentinel3a.csv
+          if git diff --staged --quiet; then
+            echo "No changes to data/aod_sentinel3a.csv — nothing to commit."
+          else
+            git commit -m "chore: update Sentinel-3A AOD data [$(date -u +%Y-%m-%d)]"
+            git push
+          fi

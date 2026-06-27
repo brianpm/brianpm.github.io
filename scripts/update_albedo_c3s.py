@@ -1,21 +1,31 @@
 #!/usr/bin/env python3
-"""Download C3S satellite surface albedo (AVHRR 4km) and summarise it.
+"""Download C3S satellite surface albedo (multi-era) and summarise it.
 
 Usage:
     conda activate p12
     python scripts/update_albedo_c3s.py
 
-Downloads the Copernicus Climate Data Store "satellite-albedo" product
-(broadband white-sky ALBB-BH and black-sky ALBB-DH, AVHRR 4km record) and
-produces, relative to the repo root:
+Downloads from the Copernicus Climate Data Store "satellite-albedo" product,
+switching satellite platform automatically by year:
 
+    1981-1984  NOAA-7  / AVHRR / 4km  / v2
+    1985-1988  NOAA-9  / AVHRR / 4km  / v2
+    1989-1994  NOAA-11 / AVHRR / 4km  / v2
+    1995-2000  NOAA-14 / AVHRR / 4km  / v2
+    2001-2002  NOAA-16 / AVHRR / 4km  / v2
+    2003-2005  NOAA-17 / AVHRR / 4km  / v2
+    2006-2013  SPOT    / VGT   / 1km  / v2
+    2014-2020  PROBA-V / VGT   / 1km  / v1
+    2021-2025  Sentinel-3 / OLCI+SLSTR / 300m / v3_1
+
+Outputs (relative to repo root):
     data/albedo_c3s.csv          monthly land-mean albedo time series
     images/albedo_c3s_map.png    time-mean white-sky albedo map
     images/albedo_c3s_zonal.png  zonal-mean albedo vs latitude
 
-The CDS product is land-only (ocean is masked by the algorithm), so the
-hemispheric means are land means. Only one overlap year is downloaded for
-now (see YEARS); the rest of the record can be filled in later.
+The script resumes from where it left off: existing (year, month) pairs in the
+CSV are skipped, so it can be restarted safely after a crash and can also
+fill in gaps in either direction.
 
 Credentials: ~/.cdsapirc (standard cdsapi config).
 """
@@ -40,30 +50,64 @@ MAP_PNG   = REPO_ROOT / "images" / "albedo_c3s_map.png"
 ZONAL_PNG = REPO_ROOT / "images" / "albedo_c3s_zonal.png"
 TMP_FILE  = REPO_ROOT / "data" / "_albedo_c3s_tmp.zip"
 
-DATASET = "satellite-albedo"
+DATASET   = "satellite-albedo"
+VARIABLES = ["albb_bh", "albb_dh"]  # broadband white-sky, black-sky
 
-# Only the 2000-2005 overlap year(s) for now; extend this list to fill in the
-# rest of the AVHRR 4km record (1981-2005).
-YEARS = ["2003"]
+# Full year range to attempt.  Resume logic skips already-present year-months.
+YEARS = [str(y) for y in range(1981, 2026)]
 
-# AVHRR 4km record parameters. For 2003-2005 the only satellite is NOAA-17.
-SATELLITE        = ["noaa_17"]
-SENSOR           = "avhrr"
-PRODUCT_VERSION  = ["v2"]
-RESOLUTION       = ["4km"]
-VARIABLES        = ["albb_bh", "albb_dh"]  # broadband white-sky, black-sky
+# Satellite schedule: (start_year, end_year_inclusive,
+#                      satellite_list, sensor, version_list, resolution_list)
+#
+# CDS API values —
+#   satellite: noaa_7 noaa_9 noaa_11 noaa_14 noaa_16 noaa_17 spot proba sentinel_3
+#   sensor:    avhrr  vgt  olci_and_slstr
+#   version:   v0 v1 v2 v3 v3_1
+#   resolution: 4km  1km  300m
+SATELLITE_SCHEDULE = [
+    (1981, 1984, ["noaa_7"],     "avhrr",          ["v2"],   ["4km"]),
+    (1985, 1988, ["noaa_9"],     "avhrr",          ["v2"],   ["4km"]),
+    (1989, 1994, ["noaa_11"],    "avhrr",          ["v2"],   ["4km"]),
+    (1995, 2000, ["noaa_14"],    "avhrr",          ["v2"],   ["4km"]),
+    (2001, 2002, ["noaa_16"],    "avhrr",          ["v2"],   ["4km"]),
+    (2003, 2005, ["noaa_17"],    "avhrr",          ["v2"],   ["4km"]),
+    (2006, 2013, ["spot"],       "vgt",            ["v2"],   ["1km"]),
+    (2014, 2020, ["proba"],      "vgt",            ["v1"],   ["1km"]),
+    (2021, 2025, ["sentinel_3"], "olci_and_slstr", ["v3_1"], ["300m"]),
+]
 
 # Accumulator grid is strided down to roughly this many columns for the
 # map/zonal figures (the CSV means are always computed at full resolution).
 TARGET_COLS = 720
 
 # Running accumulators for the map/zonal figures (filled on first decad).
-_acc = {"lat": None, "lon": None}
+_acc: dict = {"lat": None, "lon": None}
 
 # All-NaN latitude rows (rows with no land) are expected in the zonal mean.
 warnings.filterwarnings("ignore", "Mean of empty slice")
 warnings.filterwarnings("ignore", "All-NaN slice encountered")
 
+
+# ---------------------------------------------------------------------------
+# Satellite schedule lookup
+# ---------------------------------------------------------------------------
+
+def params_for_year(year: int) -> dict:
+    """Return the CDS satellite/sensor/version/resolution params for *year*."""
+    for start, end, satellite, sensor, version, resolution in SATELLITE_SCHEDULE:
+        if start <= year <= end:
+            return {
+                "satellite": satellite,
+                "sensor": sensor,
+                "product_version": version,
+                "horizontal_resolution": resolution,
+            }
+    raise ValueError(f"No satellite schedule entry for year {year}")
+
+
+# ---------------------------------------------------------------------------
+# NetCDF processing helpers
+# ---------------------------------------------------------------------------
 
 def _normname(name: str) -> str:
     return name.upper().replace("-", "_")
@@ -148,25 +192,29 @@ def process_nc(path: Path) -> dict:
     return out
 
 
-def fetch_month(client: cdsapi.Client, year: str, month: int) -> dict:
+# ---------------------------------------------------------------------------
+# CDS download
+# ---------------------------------------------------------------------------
+
+def fetch_month(client: cdsapi.Client, year: str, month: int,
+                sat_params: dict) -> dict:
     """Download one month (all decads) and return monthly mean records by key."""
     last_day = calendar.monthrange(int(year), month)[1]
     nominal_day = ["10", "20", str(last_day)]
     request = {
         "variable": VARIABLES,
-        "satellite": SATELLITE,
-        "sensor": SENSOR,
-        "product_version": PRODUCT_VERSION,
-        "horizontal_resolution": RESOLUTION,
+        **sat_params,
         "year": [year],
         "month": [f"{month:02d}"],
         "nominal_day": nominal_day,
     }
-    print(f"  {year}-{month:02d} (days {nominal_day})…", end=" ", flush=True)
+    sat_label = sat_params["satellite"][0]
+    print(f"  {year}-{month:02d} [{sat_label}] (days {nominal_day})…",
+          end=" ", flush=True)
     client.retrieve(DATASET, request).download(str(TMP_FILE))
     print("downloaded", end=" ", flush=True)
 
-    decads = {"bh": [], "dh": []}
+    decads: dict = {"bh": [], "dh": []}
     if zipfile.is_zipfile(TMP_FILE):
         with zipfile.ZipFile(TMP_FILE) as zf:
             members = sorted(n for n in zf.namelist() if n.lower().endswith(".nc"))
@@ -189,6 +237,10 @@ def fetch_month(client: cdsapi.Client, year: str, month: int) -> dict:
     return monthly
 
 
+# ---------------------------------------------------------------------------
+# Figures
+# ---------------------------------------------------------------------------
+
 def render_map():
     if "bh_sum" not in _acc:
         print("  WARNING: no grid data accumulated; skipping map")
@@ -204,7 +256,7 @@ def render_map():
     ax.set_global()
     cb = fig.colorbar(mesh, ax=ax, orientation="vertical", shrink=0.8, pad=0.02)
     cb.set_label("White-sky broadband albedo")
-    ax.set_title(f"C3S/AVHRR mean land surface albedo ({', '.join(YEARS)})")
+    ax.set_title(f"C3S mean land surface albedo ({YEARS[0]}–{YEARS[-1]})")
     fig.tight_layout()
     MAP_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(MAP_PNG, dpi=110)
@@ -232,7 +284,7 @@ def render_zonal():
     ax.set_ylim(-90, 90)
     ax.grid(alpha=0.3)
     ax.legend()
-    ax.set_title(f"C3S/AVHRR zonal-mean land albedo ({', '.join(YEARS)})")
+    ax.set_title(f"C3S zonal-mean land albedo ({YEARS[0]}–{YEARS[-1]})")
     fig.tight_layout()
     ZONAL_PNG.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(ZONAL_PNG, dpi=110)
@@ -240,15 +292,69 @@ def render_zonal():
     print(f"  Wrote {ZONAL_PNG}")
 
 
+# ---------------------------------------------------------------------------
+# CSV helpers
+# ---------------------------------------------------------------------------
+
+def load_existing_records() -> list:
+    """Return records already in OUT_CSV as a list of tuples, or []."""
+    if not OUT_CSV.exists():
+        return []
+    records = []
+    with open(OUT_CSV) as f:
+        next(f)  # skip header
+        for line in f:
+            line = line.strip()
+            if line:
+                records.append(tuple(float(v) for v in line.split(",")))
+    return records
+
+
+def downloaded_months(records: list) -> set:
+    """Return the set of (year, month) int pairs already present in *records*."""
+    done = set()
+    for r in records:
+        yf = r[0]
+        year = int(yf)
+        month = round((yf - year) * 12 + 0.5)
+        done.add((year, month))
+    return done
+
+
+def write_csv(records: list):
+    records.sort(key=lambda r: r[0])
+    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
+    with open(OUT_CSV, "w") as f:
+        f.write("year_frac,wsa_global,wsa_nh,wsa_sh,bsa_global,bsa_nh,bsa_sh\n")
+        for r in records:
+            f.write(",".join(f"{v:.6f}" for v in r) + "\n")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
 def main():
     print("Downloading C3S surface albedo from CDS (one month at a time)…")
-    client  = cdsapi.Client()
-    records = []  # (year_frac, bh_g, bh_nh, bh_sh, dh_g, dh_nh, dh_sh)
+    client = cdsapi.Client()
+
+    existing = load_existing_records()
+    done = downloaded_months(existing)
+    if done:
+        print(f"  Skipping {len(done)} already-downloaded year-months.")
+    records = list(existing)
 
     for year in YEARS:
+        try:
+            sat_params = params_for_year(int(year))
+        except ValueError as e:
+            print(f"  SKIP {year}: {e}")
+            continue
         for month in range(1, 13):
+            if (int(year), month) in done:
+                continue
             try:
-                monthly = fetch_month(client, year, month)
+                monthly = fetch_month(client, year, month, sat_params)
             except Exception as e:
                 print(f"  WARNING: failed for {year}-{month:02d}: {e}")
                 continue
@@ -258,18 +364,13 @@ def main():
             dh = monthly.get("dh", (np.nan, np.nan, np.nan))
             year_frac = int(year) + (month - 0.5) / 12
             records.append((year_frac, *bh, *dh))
+            # Write after every month so progress survives a crash.
+            write_csv(records)
 
     if not records:
         raise RuntimeError("No albedo records extracted — check the download.")
 
-    records.sort(key=lambda r: r[0])
-    OUT_CSV.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUT_CSV, "w") as f:
-        f.write("year_frac,wsa_global,wsa_nh,wsa_sh,bsa_global,bsa_nh,bsa_sh\n")
-        for r in records:
-            f.write(",".join(f"{v:.6f}" for v in r) + "\n")
-    print(f"Wrote {len(records)} monthly records to {OUT_CSV}")
-
+    print(f"Total: {len(records)} monthly records in {OUT_CSV}")
     render_map()
     render_zonal()
 
