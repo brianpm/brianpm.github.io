@@ -96,6 +96,75 @@
     margin-top: 0.3em;
 }
 
+/* ---- Current conditions card ---- */
+.cc-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-mid);
+    border-top: 4px solid var(--color-accent-blue);
+    border-radius: 8px;
+    padding: 1.4em 1.6em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 2em;
+}
+.cc-status {
+    text-align: center;
+    color: var(--color-text-light);
+    padding: 1.2em 0;
+    font-size: 0.95em;
+}
+.cc-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6em 1.2em;
+    margin-bottom: 1em;
+}
+.cc-temp {
+    font-size: 3.4em;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    line-height: 1;
+}
+.cc-temp .highlight-units { font-size: 0.35em; vertical-align: super; }
+.cc-feels {
+    font-size: 1em;
+    color: var(--color-text-light);
+    font-weight: 600;
+}
+.cc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.9em;
+    margin-bottom: 1em;
+}
+.cc-stat {
+    text-align: center;
+    padding: 0.5em 0.4em;
+    border-radius: 6px;
+    background: var(--color-bg-card-head);
+    border: 1px solid var(--color-border-mid);
+}
+.cc-stat-label {
+    font-size: 0.68em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #999;
+    margin-bottom: 0.3em;
+}
+.cc-stat-value {
+    font-size: 1.25em;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    font-variant-numeric: tabular-nums;
+}
+.cc-stat-value .highlight-units { font-size: 0.6em; font-weight: 400; color: #aaa; }
+.cc-meta {
+    font-size: 0.82em;
+    color: #999;
+    line-height: 1.6;
+}
+
 /* ---- Toggle controls ---- */
 .plot-controls {
     display: flex;
@@ -232,7 +301,9 @@
 [data-theme="dark"] .rank-col,
 [data-theme="dark"] .note-col,
 [data-theme="dark"] .plot-caption,
-[data-theme="dark"] .page-notes       { color: var(--color-text-light); }
+[data-theme="dark"] .page-notes,
+[data-theme="dark"] .cc-stat-label,
+[data-theme="dark"] .cc-meta          { color: var(--color-text-light); }
 [data-theme="dark"] .toggle-btn       { border-color: var(--color-border-mid); }
 [data-theme="dark"] .extreme-table tbody tr:hover { background: rgba(85,191,234,0.1); }
 [data-theme="dark"] .nav-tabs > li > a {
@@ -276,6 +347,14 @@
       spanning 2015 to present. Explore temperature and humidity trends, the annual seasonal
       cycle, and an archive of the most extreme days on record.
     </p>
+
+    <!-- Current conditions (loads independently of the climate JSON) -->
+    <h3 class="section-heading" style="margin-top:1em;">Current Conditions</h3>
+    <div id="current-conditions" class="cc-card">
+      <div id="cc-loading" class="cc-status"><span class="spinner" style="width:20px;height:20px;margin:0;vertical-align:middle;"></span> Fetching latest observation&hellip;</div>
+      <div id="cc-body" style="display:none;"></div>
+      <div id="cc-error" class="cc-status" style="display:none;"></div>
+    </div>
 
     <!-- Loading state -->
     <div id="loading" style="text-align:center; padding: 4em 0;">
@@ -371,6 +450,91 @@ function plotlyTheme() {
         ? { paper: '#1a1f2e', plot: '#252b3b', grid: 'rgba(255,255,255,0.08)', font: '#9ba3b8' }
         : { paper: '#fff',    plot: '#fafafa', grid: '#e8e8e8',               font: '#474e5d' };
 }
+
+// ── Current conditions (live WU PWS observation) ───────────────────────────
+(function loadCurrentConditions() {
+    var STATION = 'KCOBOULD164';                        // WU Station ID
+    var API_KEY = '880a59296ab347998a59296ab3c799c4';   // WU PWS API key
+    var url = 'https://api.weather.com/v2/pws/observations/current'
+            + '?stationId=' + encodeURIComponent(STATION)
+            + '&format=json&units=e&apiKey=' + encodeURIComponent(API_KEY);
+
+    fetch(url)
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(data) {
+            var o = data.observations && data.observations[0];
+            if (!o || !o.imperial) throw new Error('No recent observation');
+            renderCurrent(o);
+        })
+        .catch(showCcError);
+
+    function compass(deg) {
+        if (deg === null || deg === undefined) return '';
+        var pts = ['N','NNE','NE','ENE','E','ESE','SE','SSE',
+                   'S','SSW','SW','WSW','W','WNW','NW','NNW'];
+        return pts[Math.round(deg / 22.5) % 16];
+    }
+
+    function num(v, d) { return (v === null || v === undefined) ? '—' : v.toFixed(d || 0); }
+
+    function statTile(label, value) {
+        return '<div class="cc-stat">'
+             +   '<div class="cc-stat-label">' + label + '</div>'
+             +   '<div class="cc-stat-value">' + value + '</div>'
+             + '</div>';
+    }
+
+    function renderCurrent(o) {
+        var im = o.imperial;
+        var temp = im.temp;
+
+        // "Feels like": heat index when warmer, wind chill when colder.
+        var feels = '';
+        if (temp !== null && temp !== undefined) {
+            if (im.heatIndex !== null && im.heatIndex - temp >= 1)
+                feels = 'Feels like ' + num(im.heatIndex) + '°F';
+            else if (im.windChill !== null && temp - im.windChill >= 1)
+                feels = 'Feels like ' + num(im.windChill) + '°F';
+        }
+
+        var windTxt = num(im.windSpeed) + ' <span class="highlight-units">mph</span>';
+        var dir = compass(o.winddir);
+        if (dir) windTxt = dir + ' ' + windTxt;
+
+        var tiles = ''
+            + statTile('Humidity',   num(o.humidity) + '<span class="highlight-units">%</span>')
+            + statTile('Dew Point',  num(im.dewpt) + '<span class="highlight-units">°F</span>')
+            + statTile('Wind',       windTxt)
+            + statTile('Gust',       num(im.windGust) + ' <span class="highlight-units">mph</span>')
+            + statTile('Pressure',   num(im.pressure, 2) + ' <span class="highlight-units">inHg</span>')
+            + statTile('Precip Today', num(im.precipTotal, 2) + ' <span class="highlight-units">in</span>');
+        if (o.solarRadiation !== null && o.solarRadiation !== undefined)
+            tiles += statTile('Solar', num(o.solarRadiation) + ' <span class="highlight-units">W/m²</span>');
+        if (o.uv !== null && o.uv !== undefined)
+            tiles += statTile('UV Index', num(o.uv));
+
+        var where = o.neighborhood ? o.neighborhood + ' · ' : '';
+        var html = ''
+            + '<div class="cc-top">'
+            +   '<span class="cc-temp">' + num(temp) + '<span class="highlight-units">°F</span></span>'
+            +   (feels ? '<span class="cc-feels">' + feels + '</span>' : '')
+            + '</div>'
+            + '<div class="cc-grid">' + tiles + '</div>'
+            + '<div class="cc-meta">' + where + 'Observed ' + (o.obsTimeLocal || 'recently')
+            +   ' · live from Weather Underground (may lag up to ~60 min)</div>';
+
+        document.getElementById('cc-body').innerHTML = html;
+        document.getElementById('cc-loading').style.display = 'none';
+        document.getElementById('cc-body').style.display = '';
+    }
+
+    function showCcError() {
+        document.getElementById('cc-loading').style.display = 'none';
+        var e = document.getElementById('cc-error');
+        e.textContent = 'Live conditions temporarily unavailable.';
+        e.style.display = '';
+    }
+})();
 
 // ── State ──────────────────────────────────────────────────────────────────
 var weatherData   = null;
