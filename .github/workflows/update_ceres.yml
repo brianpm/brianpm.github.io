@@ -1,11 +1,17 @@
 name: Update CERES EEI Data
 
 # Runs on the 15th of each month (data typically lags ~6-8 weeks,
-# so by mid-month the previous month's file is usually available).
+# so by mid-month the previous month's file is usually available), with two
+# extra retry attempts later in the month in case NASA's OPeNDAP server is
+# down on the 15th. The script always fetches the *latest* available file and
+# the commit step no-ops when the CSV is unchanged, so the later runs are
+# harmless once an earlier run has already succeeded.
 # Can also be triggered manually from the Actions tab.
 on:
   schedule:
     - cron: '0 6 15 * *'   # 06:00 UTC on the 15th of every month
+    - cron: '0 6 20 * *'   # 06:00 UTC on the 20th (retry if the 15th failed)
+    - cron: '0 6 25 * *'   # 06:00 UTC on the 25th (retry if still failing)
   workflow_dispatch:         # manual trigger
 
 jobs:

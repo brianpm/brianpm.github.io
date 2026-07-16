@@ -28,7 +28,9 @@ Or triggered automatically by .github/workflows/update_ceres.yml.
 import re
 import csv
 import datetime
+import socket
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 from pathlib import Path
 
 # ── Configuration ──────────────────────────────────────────────────────────────
@@ -45,13 +47,53 @@ TIME_ORIGIN = datetime.date(2000, 3, 1)
 SCRIPT_DIR = Path(__file__).parent
 OUTPUT_CSV = SCRIPT_DIR.parent / "data" / "eei_ceres.csv"
 
+# ── Network timeouts ──────────────────────────────────────────────────────────
+# READ_TIMEOUT bounds each socket operation; REQUEST_DEADLINE is a hard
+# wall-clock cap on a whole request, enforced in a worker thread so a stalled
+# server can never hang the runner. REQUEST_RETRIES absorbs brief transient
+# failures (e.g. a fluky 500) without failing the whole scheduled run.
+READ_TIMEOUT = 30          # seconds, per socket operation
+REQUEST_DEADLINE = 60      # seconds, hard cap per request
+REQUEST_RETRIES = 1        # extra attempts after the first
+
+socket.setdefaulttimeout(READ_TIMEOUT)
+
+
+def fetch_text(url: str) -> str:
+    """GET *url* and return decoded text, with a hard per-request deadline.
+
+    Runs the blocking urlopen in a worker thread and abandons it if it exceeds
+    REQUEST_DEADLINE, so a slow/stalled server can never hang the run. Retries
+    transient failures REQUEST_RETRIES times; raises the last error if all fail.
+    """
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+
+    def _do() -> str:
+        with urllib.request.urlopen(req, timeout=READ_TIMEOUT) as r:
+            return r.read().decode("utf-8", errors="replace")
+
+    last_err: Exception = RuntimeError("no attempt made")
+    for attempt in range(1, REQUEST_RETRIES + 2):
+        ex = ThreadPoolExecutor(max_workers=1)
+        future = ex.submit(_do)
+        try:
+            result = future.result(timeout=REQUEST_DEADLINE)
+            ex.shutdown(wait=False)
+            return result
+        except FutureTimeoutError:
+            last_err = TimeoutError(f"request exceeded {REQUEST_DEADLINE}s")
+        except (urllib.error.URLError, OSError) as e:
+            last_err = e
+        ex.shutdown(wait=False)  # don't block on a hung socket
+        if attempt <= REQUEST_RETRIES:
+            print(f"    Warning: attempt {attempt} failed ({last_err}); retrying…")
+    raise last_err
+
 
 # ── Step 1: find the latest cumulative file in the OPeNDAP catalog ─────────────
 def find_latest_filename() -> str:
     print(f"Fetching catalog: {CATALOG_URL}")
-    req = urllib.request.Request(CATALOG_URL, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        html = r.read().decode("utf-8", errors="replace")
+    html = fetch_text(CATALOG_URL)
 
     pattern = r"CERES_EBAF-TOA_Edition4\.2\.1_200003-(\d{6})\.nc"
     end_dates = sorted(set(re.findall(pattern, html)))
@@ -79,9 +121,7 @@ def fetch_opendap(filename: str) -> tuple[list[float], list[float]]:
     url += "?time,gtoa_net_all_mon.gtoa_net_all_mon"
     print(f"Fetching: {url}")
 
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(req, timeout=60) as r:
-        text = r.read().decode("utf-8", errors="replace")
+    text = fetch_text(url)
 
     # Parse "name, v1, v2, v3, ..." lines (values may wrap across lines)
     data: dict[str, list[float]] = {}
