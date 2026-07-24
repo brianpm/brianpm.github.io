@@ -32,6 +32,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
     --color-subtitle:      #55bfea;
     --color-shadow:        rgba(0,0,0,0.05);
     --color-shadow-hover:  rgba(0,0,0,0.1);
+    --color-link:          #1B242F;
 }
 
 [data-theme="dark"] {
@@ -59,6 +60,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
     --color-subtitle:      #55bfea;
     --color-shadow:        rgba(0,0,0,0.2);
     --color-shadow-hover:  rgba(0,0,0,0.4);
+    --color-link:          var(--color-accent-blue);
 }
 
 /* Dark mode: page background */
@@ -76,6 +78,9 @@ html,body{
 }
 body {padding-top: 70px;}
 
+a {
+    color: var(--color-link);
+}
 body a{
     transition:0.5s all;
 	-webkit-transition:0.5s all;
