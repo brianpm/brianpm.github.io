@@ -1,5 +1,13 @@
 [
   {
+    "slug": "km_summit_2026",
+    "title": "Sensitivity of km-scale simulations to dynamical core",
+    "venue": "Km-scale Global Modeling Summit 2026",
+    "date": "2026",
+    "type": "Talk",
+    "description": "Talk on the sensitivity of km-scale simulations to choice of dynamical core."
+  },
+  {
     "slug": "cmip_2026",
     "title": "Exploring parametric uncertainty using initialized predictions with the Community Earth System Model",
     "venue": "CMIP 2026 Community Workshop",
