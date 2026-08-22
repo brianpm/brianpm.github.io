@@ -194,6 +194,18 @@ body { padding-top: 0; background: var(--color-bg-page); }
                         only part of the system that still works if the domain, the app or the
                         QR format ever changes.
                     </div>
+                    <label style="text-transform:none;letter-spacing:0;color:var(--color-text-mid);font-weight:400;margin-top:0.4em;">
+                        <input type="checkbox" id="g-host" style="width:auto;min-height:0;margin-right:0.5em;">
+                        Also print "skymath.org/c" under it
+                    </label>
+                </div>
+                <div class="cellar-field">
+                    <label>Code size (pt)</label>
+                    <input id="g-codePt" inputmode="decimal">
+                    <div class="cellar-field-hint">
+                        Drives both what gets drawn and the round-label fit check, so the
+                        warning always matches the sheet. Small circles need 6pt or so.
+                    </div>
                 </div>
             </details>
 
@@ -339,20 +351,23 @@ body { padding-top: 0; background: var(--color-bg-page); }
                   'Verified: 30 labels land exactly on one Letter page.',
             shape: 'rect', cols: 3, rows: 10,
             w: 2.625, h: 1, ml: 0.1875, mt: 0.5, px: 2.625, py: 1, qr: 0.85,
-            text: true
+            text: true, codePt: 14, host: true
         },
         {
             id: 'round075',
             label: 'Round 0.75 in — 80 per sheet (8 × 10)',
             stock: '0.75 in round, 80/sheet, waterproof laser',
-            note: 'Cheapest per label, but the tightest fit: the QR lands at ' +
-                  '0.345 mm per module, under the 0.40 mm comfort guideline, and there ' +
-                  'is no room left for the printed code. Print the scan test card first ' +
-                  'and confirm 0.50 in reads reliably on the phone you will actually use. ' +
-                  'The grid below is derived, not measured — verify it against your sheet.',
+            note: 'Cheapest per label. MEASURED on a Brother MFC-L3770CDW: two phones ' +
+                  'read every size on the scan test card down to 0.40 in (0.275 mm per ' +
+                  'module), so the 0.45 in QR here has real headroom — the generic ' +
+                  '0.40 mm warning below is calibrated for an unknown printer and phone, ' +
+                  'not this one. Shrinking the QR to 0.45 in leaves room for a 5pt printed ' +
+                  'code, which is worth more than scan margin already in hand; the QR still ' +
+                  'clears the die cut by about 0.6 mm at its corners. ' +
+                  'The 8 x 10 grid is derived, not measured — verify it against your sheet.',
             shape: 'round', cols: 8, rows: 10,
-            w: 0.75, h: 0.75, ml: 0.59375, mt: 0.5, px: 0.9375, py: 1.0, qr: 0.50,
-            text: false
+            w: 0.75, h: 0.75, ml: 0.59375, mt: 0.5, px: 0.9375, py: 1.0, qr: 0.45,
+            text: true, codePt: 5, host: false
         },
         {
             id: 'round24',
@@ -363,7 +378,7 @@ body { padding-top: 0; background: var(--color-bg-page); }
                   'test-print on plain paper and nudge the margins to match your sheet.',
             shape: 'round', cols: 4, rows: 6,
             w: 1.5, h: 1.5, ml: 0.53125, mt: 0.5, px: 1.9375, py: 1.75, qr: 0.85,
-            text: true
+            text: true, codePt: 14, host: true
         },
         {
             id: 'round2',
@@ -373,24 +388,39 @@ body { padding-top: 0; background: var(--color-bg-page); }
                   'verify the grid against your actual stock before printing a run.',
             shape: 'round', cols: 3, rows: 4,
             w: 2, h: 2, ml: 0.625, mt: 0.5, px: 2.5, py: 2.5, qr: 1.2,
-            text: true
+            text: true, codePt: 14, host: true
         }
     ];
 
-    var GEOM = ['shape', 'cols', 'rows', 'w', 'h', 'ml', 'mt', 'px', 'py', 'qr'];
+    var GEOM = ['shape', 'cols', 'rows', 'w', 'h', 'ml', 'mt', 'px', 'py', 'qr', 'codePt'];
 
     function readGeom() {
-        var g = { shape: el('g-shape').value, text: el('g-text').checked };
+        var g = {
+            shape: el('g-shape').value,
+            text: el('g-text').checked,
+            host: el('g-host').checked
+        };
         ['cols', 'rows'].forEach(function (k) { g[k] = parseInt(el('g-' + k).value, 10) || 1; });
         ['w', 'h', 'ml', 'mt', 'px', 'py', 'qr'].forEach(function (k) {
             g[k] = parseFloat(el('g-' + k).value) || 0;
         });
+        g.codePt = parseFloat(el('g-codePt').value) || 10;
         return g;
     }
 
     function writeGeom(p) {
         GEOM.forEach(function (k) { el('g-' + k).value = p[k]; });
         el('g-text').checked = p.text !== false;
+        el('g-host').checked = p.host !== false;
+    }
+
+    // Height of the printed text block, in inches. The renderer and the fit-check
+    // MUST agree on this: they used to disagree (an 8pt floor in render() against a
+    // hardcoded 0.20 in here), so the warning never described what was drawn.
+    function textBlockIn(g) {
+        if (!g.text) return 0;
+        var pts = g.codePt * 1.05 + (g.host ? g.codePt * 0.4 * 1.1 : 0);
+        return pts / 72;
     }
 
     function perSheet(g) { return g.cols * g.rows; }
@@ -415,9 +445,15 @@ body { padding-top: 0; background: var(--color-bg-page); }
         // On a round label the QR square must fit INSIDE the circle, not its
         // bounding box — and only reserve room for the code if it is being printed.
         if (g.shape === 'round') {
-            var textH = g.text ? 0.20 : 0;
-            var halfDiag = Math.sqrt(Math.pow(g.qr / 2, 2) + Math.pow((g.qr + textH) / 2, 2));
-            if (halfDiag > Math.min(g.w, g.h) / 2 - 0.04) {
+            var textH = textBlockIn(g);
+            var gap = g.text ? 0.02 : 0;                       // matches .lb-round gap
+            var halfDiag = Math.sqrt(Math.pow(g.qr / 2, 2) +
+                                     Math.pow((g.qr + gap + textH) / 2, 2));
+            // 0.02 in ~ 0.5 mm, the order of a die-cut registration tolerance. It was
+            // 0.04 in, which demanded more clearance than a 0.75 in circle can offer —
+            // that rejected even a bare 0.50 in QR, so the warning was unreachable advice
+            // rather than a real constraint.
+            if (halfDiag > Math.min(g.w, g.h) / 2 - 0.02) {
                 warn += ' ⚠ QR' + (g.text ? ' plus code text' : '') +
                         ' does not fit inside a ' + g.w + ' in circle — reduce the QR size' +
                         (g.text ? ', turn off the printed code,' : '') + ' or use larger labels.';
@@ -445,7 +481,9 @@ body { padding-top: 0; background: var(--color-bg-page); }
         return '<option value="' + p.id + '">' + p.label + '</option>';
     }).join('');
     el('lb-preset').addEventListener('change', function () { applyPreset(this.value); });
-    GEOM.concat([]).forEach(function (k) {
+    // 'text' and 'host' are checkboxes rather than GEOM value fields, but both feed
+    // textBlockIn() and so must re-run the fit check too.
+    GEOM.concat(['text', 'host']).forEach(function (k) {
         el('g-' + k).addEventListener('input', refreshNotes);
         el('g-' + k).addEventListener('change', refreshNotes);
     });
@@ -519,7 +557,7 @@ body { padding-top: 0; background: var(--color-bg-page); }
         var host = el('lb-sheets');
         host.innerHTML = '';
         var n = perSheet(g);
-        var codeFont = Math.min(16, Math.max(8, g.qr * 17)); // pt, scaled to the label
+        var codeFont = g.codePt;                              // explicit; see textBlockIn()
         var page = null;
 
         codes.forEach(function (code, i) {
@@ -551,7 +589,10 @@ body { padding-top: 0; background: var(--color-bg-page); }
                 (g.text
                     ? '<div class="lb-text">' +
                         '<div class="lb-code" style="font-size:' + codeFont.toFixed(1) + 'pt;">' + code + '</div>' +
-                        '<div class="lb-host" style="font-size:' + (codeFont * 0.4).toFixed(1) + 'pt;">skymath.org/c</div>' +
+                        (g.host
+                            ? '<div class="lb-host" style="font-size:' +
+                              (codeFont * 0.4).toFixed(1) + 'pt;">skymath.org/c</div>'
+                            : '') +
                       '</div>'
                     : '');
             page.appendChild(d);

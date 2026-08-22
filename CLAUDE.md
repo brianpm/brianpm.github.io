@@ -193,7 +193,14 @@ in `robots.txt`, and absent from `sitemap.xml`; reach it by bookmark.
   the URL printed on every physical QR label.** A bare 6-char code is a bottle; anything
   starting `#/` is an app route. That scheme is baked into hundreds of stickers — do not
   change it, and keep `c/index.html` in place permanently even if the app ever moves.
-- `c/labels.html` — QR label-sheet generator (Avery 5160 geometry). No token, no store.
+- `c/labels.html` — QR label-sheet generator: presets for 2.625x1 in rectangular and
+  0.75 / 1.5 / 2 in round, every dimension editable. No token, no store.
+  **Measured 2026-08-22 on a Brother MFC-L3770CDW:** two phones read every size on
+  the scan test card down to **0.40 in QR = 0.275 mm per module**. That is the
+  empirical floor for this household's hardware — the 0.40 mm/module figure the UI
+  warns against is a generic guideline, not a measurement. Don't re-litigate label
+  sizing from rules of thumb; reprint the test card if the printer or phones change.
+  Round labels must fit content inside the *inscribed circle*, not the bounding box.
 - `c/selftest.html` — the test suite. **Run it after every change to the cellar files.**
   Also runs headless: `node -e "require('./js/cellar-model.js');require('./js/cellar-store.js');require('./js/cellar-selftest.js');Cellar.selftest.run().then(s=>{console.log(s.passed+'/'+s.total);process.exit(s.failed?1:0)})"`
 - `js/cellar-model.js` — pure: codes, reducers, canonical serialization, CSV. No DOM, no network.
