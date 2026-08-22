@@ -1603,6 +1603,7 @@
                 '<button class="cellar-btn" id="cf-export-csv">Export CSV</button></div>' +
                 '<a class="cellar-btn cellar-btn-block" href="#/import" style="margin-top:0.6em;">Import CSV</a>' +
                 '<a class="cellar-btn cellar-btn-block" href="labels.html">Print QR labels</a>' +
+                '<a class="cellar-btn cellar-btn-block" href="guide.html">Printable guide</a>' +
                 '<button class="cellar-btn cellar-btn-sm cellar-btn-danger cellar-btn-block" ' +
                 'id="cf-clear" style="margin-top:0.6em;">Clear this device\'s cache</button>' +
                 '<p class="cellar-field-hint">Clearing the cache keeps your token and any ' +

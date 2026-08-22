@@ -1,0 +1,312 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Cellar Guide</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link href="../css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/cellar.css" rel="stylesheet" type="text/css" media="all">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+/* A one-page printable guide. Static document: no token, no store, no network —
+   so it is safe to leave open, hand to anyone, or tape inside a cupboard door.
+   Screen view follows the app's theme; print is always black on white. */
+
+body { padding-top: 0; background: var(--color-bg-page); }
+
+.gd-sheet {
+    width: 7.5in;                        /* Letter minus 0.5in margins */
+    margin: 0 auto;
+    padding: 0.3in 0 0.6in;
+    color: var(--color-text-mid);
+    font-size: 9.4pt;
+    line-height: 1.33;
+}
+
+.gd-head { border-bottom: 2px solid var(--color-accent-blue); padding-bottom: 0.09in; margin-bottom: 0.16in; }
+.gd-head h1 {
+    font-size: 19pt; font-weight: 700; margin: 0;
+    color: var(--color-text-dark); letter-spacing: -0.2pt;
+}
+.gd-head .gd-url {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 10.5pt; color: var(--color-accent-blue); font-weight: 700;
+}
+.gd-head .gd-sub { font-size: 8.7pt; color: var(--color-text-light); margin-top: 0.03in; }
+
+.gd-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 0.34in; align-items: start; }
+.gd-col { min-width: 0; }
+
+.gd-sec { break-inside: avoid; page-break-inside: avoid; margin-bottom: 0.13in; }
+.gd-sec h2 {
+    font-size: 10pt; font-weight: 700; color: var(--color-text-dark);
+    margin: 0 0 0.05in; text-transform: uppercase; letter-spacing: 0.6pt;
+    display: flex; align-items: baseline; gap: 0.08in;
+}
+.gd-num {
+    display: inline-block; min-width: 1.55em; text-align: center;
+    background: var(--color-accent-blue); color: #fff;   /* white on accent, both themes */
+    border-radius: 2em; font-size: 8.5pt; padding: 0.04em 0.3em; font-weight: 700;
+    letter-spacing: 0;
+}
+.gd-sec ol, .gd-sec ul { margin: 0; padding-left: 0.19in; }
+.gd-sec li { margin-bottom: 0.028in; }
+.gd-sec p  { margin: 0 0 0.05in; }
+
+b, strong { color: var(--color-text-dark); }
+.gd-key {                                 /* an on-screen button or field name */
+    font-weight: 700; color: var(--color-text-dark);
+    white-space: nowrap;
+}
+.gd-mono {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 9pt; color: var(--color-text-dark);
+}
+.gd-note { color: var(--color-text-light); font-size: 8.7pt; }
+
+.gd-settings {
+    border: 1px solid var(--color-border-mid); border-radius: 4px;
+    padding: 0.06in 0.09in; margin: 0.05in 0; font-size: 8.8pt;
+}
+.gd-settings div { display: flex; justify-content: space-between; gap: 0.1in; }
+.gd-settings span:first-child { color: var(--color-text-light); }
+.gd-settings span:last-child {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    color: var(--color-text-dark); font-weight: 700;
+}
+
+.gd-warn {
+    border-left: 2.5px solid var(--color-danger);
+    padding-left: 0.08in; margin: 0.06in 0; font-size: 8.7pt;
+}
+
+.gd-ref {
+    grid-column: 1 / -1; margin-top: 0.05in; padding-top: 0.11in;
+    border-top: 1px solid var(--color-border-mid);
+}
+.gd-ref h2 {
+    font-size: 9pt; text-transform: uppercase; letter-spacing: 0.7pt;
+    color: var(--color-text-dark); margin: 0 0 0.07in; font-weight: 700;
+}
+.gd-ref-grid { column-count: 2; column-gap: 0.34in; font-size: 8.7pt; }
+.gd-ref-grid p { break-inside: avoid; margin: 0 0 0.055in; }
+
+.gd-pills { margin: 0.02in 0 0.07in; }
+.gd-pill {
+    display: inline-block; border: 1px solid var(--color-border-mid);
+    border-radius: 2em; padding: 0.01in 0.07in; margin: 0 0.03in 0.03in 0;
+    font-size: 8pt; white-space: nowrap; color: var(--color-text-mid);
+}
+
+.gd-foot {
+    grid-column: 1 / -1; margin-top: 0.1in; padding-top: 0.07in;
+    border-top: 1px solid var(--color-border-light);
+    font-size: 7.8pt; color: var(--color-text-light);
+    display: flex; justify-content: space-between; gap: 0.2in;
+}
+
+@media print {
+    @page { size: letter; margin: 0.5in; }
+    html, body { background: #fff !important; }
+    .no-print { display: none !important; }
+    /* Paper is white and toner is black regardless of the reader's theme. */
+    .gd-sheet { width: auto; margin: 0; padding: 0; color: #000 !important; }
+    .gd-sheet h1, .gd-sheet h2, b, strong, .gd-key, .gd-mono,
+    .gd-settings span:last-child { color: #000 !important; }
+    .gd-head { border-bottom-color: #000 !important; }
+    .gd-head .gd-url { color: #000 !important; }
+    .gd-note, .gd-settings span:first-child, .gd-pill, .gd-foot { color: #444 !important; }
+    .gd-num { background: #000 !important; color: #fff !important; }
+    .gd-warn { border-left-color: #000 !important; }
+    .gd-ref, .gd-foot, .gd-settings, .gd-pill { border-color: #999 !important; }
+}
+</style>
+<script src="../js/theme.js"></script>
+</head>
+
+<body>
+
+<div class="cellar-app no-print" style="padding-bottom:0;">
+    <div class="cellar-bar">
+        <span class="cellar-bar-title"><a href="index.html"><i class="fa fa-book"></i> Cellar guide</a></span>
+        <button class="cellar-btn cellar-btn-sm cellar-btn-primary" onclick="window.print()">
+            <i class="fa fa-print"></i> Print
+        </button>
+        <button class="cellar-sync" id="theme-toggle" type="button"
+                aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
+    </div>
+</div>
+
+<div class="gd-sheet">
+
+    <div class="gd-head">
+        <h1>Wine Cellar &mdash; how it works</h1>
+        <div class="gd-url">skymath.org/c</div>
+        <div class="gd-sub">
+            Every bottle wears a QR sticker. Scan it with the phone&rsquo;s normal camera &mdash;
+            there is nothing to install. Bookmark the address above, or add it to your Home Screen.
+        </div>
+    </div>
+
+    <div class="gd-cols">
+
+      <div class="gd-col">
+        <div class="gd-sec">
+            <h2><span class="gd-num">1</span> Set up a phone</h2>
+            <p class="gd-note">Once per phone. Takes a minute.</p>
+            <ol>
+                <li>Open <span class="gd-mono">skymath.org/c</span> and tap
+                    <span class="gd-key">Set up this device</span>.</li>
+                <li>Leave the backend on <span class="gd-key">Private GitHub repo</span> and fill in:</li>
+            </ol>
+            <div class="gd-settings">
+                <div><span>Owner</span><span>brianpm</span></div>
+                <div><span>Repo</span><span>cellar-data</span></div>
+                <div><span>Branch</span><span>main</span></div>
+                <div><span>Path</span><span>data</span></div>
+            </div>
+            <ol start="3">
+                <li>Paste the <span class="gd-key">Access token</span> from the password manager.</li>
+                <li>Set <span class="gd-key">This device is called</span> to something you&rsquo;ll
+                    recognise &mdash; it shows up in the history of who changed what.</li>
+                <li>Tap <span class="gd-key">Save</span>, then <span class="gd-key">Verify</span>.
+                    You want: <em>&ldquo;Connected to brianpm/cellar-data (private)&rdquo;</em>.</li>
+            </ol>
+            <div class="gd-warn">
+                Never write the token on paper or send it in a message. It lives in the password
+                manager, and it is pasted into each phone once.
+            </div>
+        </div>
+
+        <div class="gd-sec">
+            <h2><span class="gd-num">2</span> Drink a bottle</h2>
+            <ol>
+                <li>Point the camera at the sticker. Tap the link that pops up.</li>
+                <li>Check it&rsquo;s the right wine &mdash; the page shows the producer, the vintage,
+                    and which fridge and shelf it came from.</li>
+                <li>Tap <span class="gd-key">Drink this</span>. Done; the bottle leaves the cellar list.</li>
+                <li>Grabbed the wrong bottle? <span class="gd-key">Undo</span> appears at the bottom
+                    for ten seconds.</li>
+                <li>You land on its archive entry. Add a note, tap a rating from 1 to 5, then
+                    <span class="gd-key">Save note</span>.</li>
+            </ol>
+            <p class="gd-note">
+                The note can wait. Open the bottle from <span class="gd-key">Archive</span> any time
+                later &mdash; tomorrow, next year &mdash; and add one. Notes stack up.
+            </p>
+            <p><b>Not drinking it?</b> <span class="gd-key">Other outcome&hellip;</span> covers
+                gifted, broken, corked, sold.<br>
+                <b>Changed your mind?</b> Open it in <span class="gd-key">Archive</span> &rarr;
+                <span class="gd-key">Put back in the cellar</span>.</p>
+        </div>
+
+      </div><!-- /col A -->
+
+      <div class="gd-col">
+        <div class="gd-sec">
+            <h2><span class="gd-num">3</span> Add new wine</h2>
+            <ol>
+                <li>Open the app and tap <span class="gd-key">Add wine</span>.</li>
+                <li>Fill in what you know &mdash; only the producer <em>or</em> the wine name is
+                    required. Add where you bought it and the price if you want the value and
+                    spending stats to mean anything.</li>
+                <li>Set <span class="gd-key">How many bottles</span>, the fridge and the shelf.
+                    For a case, put 12 &mdash; you type the wine once. Tap
+                    <span class="gd-key">Add</span>.</li>
+            </ol>
+            <p><b>Then label them.</b> The app starts a labelling session and counts you through it:</p>
+            <ol start="4">
+                <li>Stick a sticker on a bottle and scan it. The page says
+                    <em>&ldquo;Labelling session in progress &mdash; Bottle 3 of 12&rdquo;</em>.</li>
+                <li>Tap <span class="gd-key">Assign this label</span> &mdash; one tap per bottle.
+                    Wrong wine on screen? <span class="gd-key">Not this wine</span>.</li>
+            </ol>
+            <p class="gd-note">
+                Stickers are blank until scanned, so any sticker fits any bottle. Keep a sheet near
+                the fridges &mdash; an unlabelled bottle still counts, it just can&rsquo;t be scanned yet.
+            </p>
+        </div>
+
+        <div class="gd-sec">
+            <h2><span class="gd-num">?</span> If something looks wrong</h2>
+            <p><b>&ldquo;Private cellar catalog&rdquo;</b> and nothing else &mdash; this phone
+                hasn&rsquo;t been set up. Go back to step 1.</p>
+            <p><b>&ldquo;Label not recognized&rdquo;</b> &mdash; the sticker is genuine but this
+                phone hasn&rsquo;t caught up yet. Pull the page down to reload and try again;
+                if it persists, that sticker was never registered.</p>
+            <p><b>&ldquo;Token rejected&rdquo;</b> on the badge &mdash; the access token was
+                replaced or expired. Paste the current one from the password manager into
+                Settings again. Nothing is lost while this is broken; changes queue on the
+                phone until it&rsquo;s fixed.</p>
+            <p class="gd-note">Anything stranger than this: nothing you can do from the phone
+                makes it worse. Every change is versioned and reversible.</p>
+        </div>
+      </div><!-- /col B -->
+
+        <div class="gd-ref">
+            <h2>Worth knowing</h2>
+            <div class="gd-ref-grid">
+                <p>
+                    <b>The badge at the top right</b> is the save indicator:
+                </p>
+                <div class="gd-pills">
+                    <span class="gd-pill">Synced</span>
+                    <span class="gd-pill">Syncing&hellip;</span>
+                    <span class="gd-pill">3 pending</span>
+                    <span class="gd-pill">Offline &mdash; 3 pending</span>
+                    <span class="gd-pill">Sync failed &mdash; tap</span>
+                </div>
+                <p>
+                    &ldquo;Pending&rdquo; is normal and clears itself in seconds. Only
+                    <em>Sync failed</em> wants attention &mdash; tap it to retry.
+                </p>
+                <p>
+                    <b>It works with no signal.</b> Every tap is saved on the phone immediately and
+                    uploads when you&rsquo;re back in range, so a basement with no bars changes
+                    nothing. Two people logging at once is fine; both are kept.
+                </p>
+                <p>
+                    <b>Sticker scratched or won&rsquo;t scan?</b> Type the six characters printed
+                    under the QR into the <span class="gd-key">Look up</span> box.
+                    The letters <span class="gd-mono">I L O U</span> are never used &mdash; read them
+                    as <span class="gd-mono">1</span>, <span class="gd-mono">1</span>,
+                    <span class="gd-mono">0</span>.
+                </p>
+                <p>
+                    <b>Scanning a bottle you already drank</b> shows its archive entry, tasting note
+                    and all &mdash; expected, not an error.
+                </p>
+                <p>
+                    <b>Guests see nothing.</b> Someone who scans a bottle at dinner gets a blank page
+                    with the sticker&rsquo;s code and nothing else &mdash; no wines, no prices.
+                </p>
+                <p>
+                    <b>Finding a bottle:</b> the home screen lists every fridge shelf by shelf.
+                    <span class="gd-key">Tonight</span> suggests what&rsquo;s ready; search takes a
+                    producer, a region or a sticker code.
+                </p>
+            </div>
+        </div>
+
+        <div class="gd-foot">
+            <span>Nothing is ever really deleted &mdash; every change is saved with a full history and can be undone.</span>
+            <span>skymath.org/c</span>
+        </div>
+
+    </div>
+</div>
+
+<script>
+(function () {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = localStorage.getItem('theme') === 'dark' ? '🌙' : '☀️';
+})();
+</script>
+
+</body>
+</html>
