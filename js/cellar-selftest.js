@@ -176,7 +176,7 @@
               sizeMl: 750, notes: '', createdAt: ts, updatedAt: ts }
         ];
         s.codes.batches = [
-            { id: 'batch-1', printedAt: '2026-01-01', stock: 'Avery 94503',
+            { id: 'batch-1', printedAt: '2026-01-01', stock: '2.625 x 1 in, 30/sheet',
               codes: ['K7M2QP', '3XR9TB', 'ZZ99ZZ'] }
         ];
         return s;
@@ -304,7 +304,7 @@
     test('ISSUE_CODES is idempotent by batch id', function () {
         var s = seeded();
         var op = model.makeOp('ISSUE_CODES', {
-            batchId: 'batch-2', printedAt: '2026-02-01', stock: 'Avery 94503',
+            batchId: 'batch-2', printedAt: '2026-02-01', stock: '2.625 x 1 in, 30/sheet',
             codes: ['AAAAAA', 'BBBBBB']
         }, 't');
         var once = model.replay(s, [op]);

@@ -15,63 +15,83 @@
 <style>
 body { padding-top: 0; background: var(--color-bg-page); }
 
-/* ---- Avery 5160 geometry: US Letter, 2.625in x 1in, 3 across, 10 down ----
-   Exact numbers matter. Print at 100% ("Actual size"), never "Fit to page".
+/* ---------------------------------------------------------------- sheets
 
-   The sheet is always white with black text in BOTH themes. This is a preview of
-   a piece of paper, so it should look like one — and a dark-mode QR code does not
-   scan. Justified exception to the no-hardcoded-color rule in STYLE_GUIDE.md. */
-.lb-sheet {
-    width: 7.9375in;                 /* 3 x 2.625 */
-    margin: 0 auto;
-    background: #fff;
+   Labels are absolutely positioned inside a page-sized box rather than floated.
+   Floats cannot express a pitch that differs from the label size (every round
+   stock has gaps between labels), and absolute coordinates let the geometry
+   fields below map 1:1 onto inches on paper.
+
+   @page margin is 0 so those coordinates are true page coordinates; every
+   margin comes from the sheet definition instead. */
+
+.lb-page {
+    position: relative;
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto 0.4in;
+    background: #fff;                /* always paper-white, both themes */
     color: #000;
+    overflow: hidden;
 }
-/* The labels are floated, so without this the sheet collapses to zero height and
-   its white background covers nothing. A ::after clearfix contains the floats
-   without establishing a block formatting context — `overflow:hidden` and
-   `display:flow-root` both do, and a BFC interferes with page breaking in print. */
-.lb-sheet::after { content: ""; display: block; clear: both; }
 
 .lb-label {
-    width: 2.625in;
-    height: 1in;
-    float: left;
-    overflow: hidden;
+    position: absolute;
+    box-sizing: border-box;
     display: flex;
+    overflow: hidden;
+}
+
+/* Rectangular: QR left, code and host stacked to its right. */
+.lb-rect {
+    flex-direction: row;
     align-items: center;
     gap: 0.12in;
     padding: 0.07in 0.1in;
-    box-sizing: border-box;
 }
+.lb-rect .lb-text { min-width: 0; text-align: left; }
 
-.lb-qr { width: 0.85in; height: 0.85in; flex: 0 0 auto; }
+/* Round: QR centred with the code beneath it. The printed circle is the label
+   itself, so content has to stay inside the inscribed area, not the bounding box. */
+.lb-round {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.02in;
+    border-radius: 50%;
+    padding: 0.06in;
+}
+.lb-round .lb-text { text-align: center; }
+
+.lb-qr { flex: 0 0 auto; }
 .lb-qr svg { width: 100%; height: 100%; display: block; }
 
-.lb-text { min-width: 0; }
 .lb-code {
     font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
-    font-size: 15pt;
     font-weight: 700;
     letter-spacing: 0.5pt;
-    line-height: 1.1;
+    line-height: 1.05;
     color: #000;
 }
-.lb-host { font-size: 6pt; color: #444; letter-spacing: 0.3pt; }
+.lb-host { color: #444; letter-spacing: 0.3pt; line-height: 1.1; }
 
-/* Cut guides on screen only — never printed. */
+/* Cut guides on screen only. */
 .lb-preview .lb-label { outline: 1px dashed #ccc; }
-.lb-clear { clear: both; }
+.lb-preview .lb-page  { box-shadow: 0 2px 10px rgba(0,0,0,0.25); }
 
 @media print {
-    /* The sheet must be pure black on white regardless of the viewer's theme —
-       a dark-mode QR code does not scan. This is the one place hardcoded colors
-       are correct (STYLE_GUIDE "intentionally hardcoded" exception). */
-    @page { size: letter; margin: 0.5in 0.1875in; }
+    /* margin 0 so .lb-page coordinates are exact page coordinates */
+    @page { size: letter; margin: 0; }
     html, body { background: #fff !important; }
     .no-print { display: none !important; }
-    .lb-sheet { margin: 0; background: #fff !important; }
-    .lb-label { outline: none !important; page-break-inside: avoid; }
+    .lb-page {
+        margin: 0 !important;
+        box-shadow: none !important;
+        page-break-after: always;
+        break-after: page;
+    }
+    .lb-page:last-child { page-break-after: auto; break-after: auto; }
+    .lb-label { outline: none !important; }
     .lb-code { color: #000 !important; }
     .lb-host { color: #444 !important; }
     .lb-qr svg path,
@@ -101,15 +121,69 @@ body { padding-top: 0; background: var(--color-bg-page); }
                 printer at the moment you buy wine.
             </p>
 
+            <div class="cellar-field">
+                <label>Label stock</label>
+                <select id="lb-preset"></select>
+                <div class="cellar-field-hint" id="lb-preset-note"></div>
+            </div>
+
+            <details id="lb-geom-wrap" style="margin-bottom:1em;">
+                <summary class="cellar-muted" style="cursor:pointer;padding:0.4em 0;">
+                    Sheet geometry — open this to match a different stock
+                </summary>
+                <p class="cellar-field-hint" style="margin-top:0.6em;">
+                    All measurements in inches, from the top-left corner of the page. Every label
+                    sheet vendor publishes these; if your labels sit slightly off, nudge the
+                    margins rather than rescaling at print time.
+                </p>
+                <div class="cellar-field-row">
+                    <div class="cellar-field"><label>Shape</label>
+                        <select id="g-shape">
+                            <option value="rect">Rectangular</option>
+                            <option value="round">Round</option>
+                        </select></div>
+                    <div class="cellar-field"><label>Columns</label>
+                        <input id="g-cols" inputmode="numeric"></div>
+                    <div class="cellar-field"><label>Rows</label>
+                        <input id="g-rows" inputmode="numeric"></div>
+                </div>
+                <div class="cellar-field-row">
+                    <div class="cellar-field"><label>Label width</label>
+                        <input id="g-w" inputmode="decimal"></div>
+                    <div class="cellar-field"><label>Label height</label>
+                        <input id="g-h" inputmode="decimal"></div>
+                </div>
+                <div class="cellar-field-row">
+                    <div class="cellar-field"><label>Left margin</label>
+                        <input id="g-ml" inputmode="decimal"></div>
+                    <div class="cellar-field"><label>Top margin</label>
+                        <input id="g-mt" inputmode="decimal"></div>
+                </div>
+                <div class="cellar-field-row">
+                    <div class="cellar-field"><label>Horizontal pitch</label>
+                        <input id="g-px" inputmode="decimal">
+                        <div class="cellar-field-hint">Left edge to left edge.</div></div>
+                    <div class="cellar-field"><label>Vertical pitch</label>
+                        <input id="g-py" inputmode="decimal">
+                        <div class="cellar-field-hint">Top edge to top edge.</div></div>
+                </div>
+                <div class="cellar-field">
+                    <label>QR size</label>
+                    <input id="g-qr" inputmode="decimal">
+                    <div class="cellar-field-hint" id="lb-qr-note"></div>
+                </div>
+            </details>
+
             <div class="cellar-field-row">
                 <div class="cellar-field">
                     <label>How many labels</label>
                     <input id="lb-count" inputmode="numeric" value="500">
-                    <div class="cellar-field-hint">Rounded up to a full sheet of 30.</div>
+                    <div class="cellar-field-hint" id="lb-count-note"></div>
                 </div>
                 <div class="cellar-field">
-                    <label>Label stock</label>
-                    <input id="lb-stock" value="Avery 94503 (WeatherProof polyester)">
+                    <label>Stock description</label>
+                    <input id="lb-stock">
+                    <div class="cellar-field-hint">Recorded in codes.json so you can rebuy it.</div>
                 </div>
             </div>
 
@@ -117,8 +191,8 @@ body { padding-top: 0; background: var(--color-bg-page); }
                 <label>URL each code points at</label>
                 <input id="lb-base" value="https://skymath.org/c/#">
                 <div class="cellar-field-hint">
-                    This is printed into every QR code and can never be changed for labels
-                    already on bottles. Keep it exactly as-is unless you know why you are changing it.
+                    This is printed into every QR code and can never be changed for labels already
+                    on bottles. Keep it exactly as-is unless you know why you are changing it.
                 </div>
             </div>
 
@@ -149,9 +223,9 @@ body { padding-top: 0; background: var(--color-bg-page); }
                 <i class="fa fa-download"></i> Download codes.json
             </button>
 
-            <p style="margin-top:1em;"><strong>2.</strong> Print one test sheet on plain paper.
-               Hold it over a blank label sheet against a window to check alignment before
-               committing real stock.</p>
+            <p style="margin-top:1em;"><strong>2.</strong> Print one test sheet on plain paper and
+               hold it over a blank label sheet against a window. If it is off, adjust the margins
+               in "Sheet geometry" — never fix alignment by rescaling at print time.</p>
             <button class="cellar-btn cellar-btn-primary cellar-btn-block" id="lb-print">
                 <i class="fa fa-print"></i> Print
             </button>
@@ -159,23 +233,30 @@ body { padding-top: 0; background: var(--color-bg-page); }
             <div class="cellar-banner cellar-banner-warn" style="margin-top:1em;">
                 Print at <strong>Actual size / 100%</strong> — never "Fit to page", which is the
                 most common cause of labels drifting off their backing. Use pure black, no
-                toner-save and no draft mode.
+                toner-save and no draft mode. Margins are built into the sheet, so set the
+                printer's own margin to <strong>None</strong> if it offers the choice.
             </div>
 
             <p class="cellar-muted">
-                In a wine fridge the real enemy is condensation when the door opens in a warm
-                room. Use laser-printed polyester (Avery 94503/5520) — an inkjet will not fuse to
-                the film, and plain paper wicks and smears. Put the label on the shoulder or a
-                blank part of the back label: not the foil capsule, which peels, and not the very
-                bottom, which sits in whatever pools on the shelf.
+                <strong>Buy by specification, not by part number</strong> — vendors reuse numbers
+                across completely different products. Match the size and count above, and for the
+                fridge also insist on <strong>weatherproof film / polyester</strong> rated for
+                <strong>laser</strong>. Condensation when the door opens in a warm room is what
+                destroys labels; plain paper wicks and smears, and laser toner fuses to film in a
+                way inkjet ink does not.
+            </p>
+            <p class="cellar-muted">
+                Put the label on the shoulder or a blank part of the back label — not the foil
+                capsule, which peels away with the foil, and not the very bottom, which sits in
+                whatever pools on the shelf. On a sharply curved shoulder a round label lies
+                flatter than a wide rectangle, which tends to lift at its corners.
             </p>
         </div>
     </div>
 
 </div>
 
-<div class="lb-sheet lb-preview" id="lb-sheet"></div>
-<div class="lb-clear"></div>
+<div id="lb-sheets" class="lb-preview"></div>
 
 <script>
 (function () {
@@ -195,13 +276,122 @@ body { padding-top: 0; background: var(--color-bg-page); }
     var el = function (id) { return document.getElementById(id); };
     var batch = null;
 
+    // A QR of this URL is 29x29 modules at ECC Q, plus a 4-module quiet zone on
+    // each side = 37 modules across. Phone cameras need roughly 0.4 mm per module,
+    // so the QR block must be about 0.58 in. Anything smaller will not scan.
+    var MODULES_ACROSS = 37;
+    var MIN_MODULE_MM = 0.40;
+    var MIN_QR_IN = (MODULES_ACROSS * MIN_MODULE_MM) / 25.4;
+
+    var PRESETS = [
+        {
+            id: 'rect30',
+            label: 'Rectangular 2.625 × 1 in — 30 per sheet (3 × 10)',
+            stock: '2.625 x 1 in, 30/sheet, weatherproof laser',
+            note: 'The classic address-label layout (the Avery 5160/8160 grid). ' +
+                  'Verified: 30 labels land exactly on one Letter page.',
+            shape: 'rect', cols: 3, rows: 10,
+            w: 2.625, h: 1, ml: 0.1875, mt: 0.5, px: 2.625, py: 1, qr: 0.85
+        },
+        {
+            id: 'round24',
+            label: 'Round 1.5 in — 24 per sheet (4 × 6)',
+            stock: '1.5 in round, 24/sheet, weatherproof laser',
+            note: 'The most common 1.5 in circle layout. Treat these numbers as a ' +
+                  'STARTING POINT — round-label grids vary between vendors, so ' +
+                  'test-print on plain paper and nudge the margins to match your sheet.',
+            shape: 'round', cols: 4, rows: 6,
+            w: 1.5, h: 1.5, ml: 0.53125, mt: 0.5, px: 1.9375, py: 1.75, qr: 0.85
+        },
+        {
+            id: 'round2',
+            label: 'Round 2 in — 12 per sheet (3 × 4)',
+            stock: '2 in round, 12/sheet, weatherproof laser',
+            note: 'Bigger circle, easiest to scan, fewest per sheet. Same caveat: ' +
+                  'verify the grid against your actual stock before printing a run.',
+            shape: 'round', cols: 3, rows: 4,
+            w: 2, h: 2, ml: 0.625, mt: 0.5, px: 2.5, py: 2.5, qr: 1.2
+        }
+    ];
+
+    var GEOM = ['shape', 'cols', 'rows', 'w', 'h', 'ml', 'mt', 'px', 'py', 'qr'];
+
+    function readGeom() {
+        var g = { shape: el('g-shape').value };
+        ['cols', 'rows'].forEach(function (k) { g[k] = parseInt(el('g-' + k).value, 10) || 1; });
+        ['w', 'h', 'ml', 'mt', 'px', 'py', 'qr'].forEach(function (k) {
+            g[k] = parseFloat(el('g-' + k).value) || 0;
+        });
+        return g;
+    }
+
+    function writeGeom(p) {
+        GEOM.forEach(function (k) { el('g-' + k).value = p[k]; });
+    }
+
+    function perSheet(g) { return g.cols * g.rows; }
+
+    function refreshNotes() {
+        var g = readGeom();
+        var n = perSheet(g);
+        var want = parseInt(el('lb-count').value, 10) || n;
+        var sheets = Math.ceil(want / n);
+        el('lb-count-note').textContent =
+            n + ' per sheet — rounded up to ' + (sheets * n) + ' on ' + sheets + ' sheet(s).';
+
+        var warn = '';
+        if (g.qr < MIN_QR_IN) {
+            warn = ' ⚠ Too small to scan reliably — needs at least ' +
+                   MIN_QR_IN.toFixed(2) + ' in.';
+        }
+        // On a round label the QR square must fit INSIDE the circle, not its
+        // bounding box, and the printed code needs room underneath it.
+        if (g.shape === 'round') {
+            var textH = 0.20;
+            var halfDiag = Math.sqrt(Math.pow(g.qr / 2, 2) + Math.pow((g.qr + textH) / 2, 2));
+            if (halfDiag > Math.min(g.w, g.h) / 2 - 0.04) {
+                warn += ' ⚠ QR plus code text does not fit inside a ' + g.w +
+                        ' in circle — reduce the QR size or use larger labels.';
+            }
+        }
+        el('lb-qr-note').textContent =
+            'Minimum for a scannable code is ' + MIN_QR_IN.toFixed(2) + ' in (' +
+            MODULES_ACROSS + ' modules at ' + MIN_MODULE_MM + ' mm).' + warn;
+        el('lb-qr-note').style.color = warn ? 'var(--color-danger)' : '';
+    }
+
+    function applyPreset(id) {
+        var p = PRESETS.filter(function (x) { return x.id === id; })[0];
+        if (!p) return;
+        writeGeom(p);
+        el('lb-stock').value = p.stock;
+        el('lb-preset-note').textContent = p.note;
+        refreshNotes();
+    }
+
+    el('lb-preset').innerHTML = PRESETS.map(function (p) {
+        return '<option value="' + p.id + '">' + p.label + '</option>';
+    }).join('');
+    el('lb-preset').addEventListener('change', function () { applyPreset(this.value); });
+    GEOM.concat([]).forEach(function (k) {
+        el('g-' + k).addEventListener('input', refreshNotes);
+        el('g-' + k).addEventListener('change', refreshNotes);
+    });
+    el('lb-count').addEventListener('input', refreshNotes);
+    applyPreset(PRESETS[0].id);
+
+    function existingBatches() {
+        var raw = el('lb-existing').value.trim();
+        if (!raw) return [];
+        try { return (JSON.parse(raw).batches || []); } catch (e) { return []; }
+    }
+
     function existingCodes() {
         var raw = el('lb-existing').value.trim();
         if (!raw) return [];
         try {
-            var parsed = JSON.parse(raw);
             var out = [];
-            (parsed.batches || []).forEach(function (b) {
+            existingBatches().forEach(function (b) {
                 (b.codes || []).forEach(function (c) { out.push(c); });
             });
             return out;
@@ -211,17 +401,20 @@ body { padding-top: 0; background: var(--color-bg-page); }
         }
     }
 
-    function existingBatches() {
-        var raw = el('lb-existing').value.trim();
-        if (!raw) return [];
-        try { return (JSON.parse(raw).batches || []); } catch (e) { return []; }
-    }
-
     el('lb-generate').addEventListener('click', function () {
-        var want = parseInt(el('lb-count').value, 10) || 30;
-        var count = Math.ceil(want / 30) * 30;            // whole sheets only
+        var g = readGeom();
+        var n = perSheet(g);
+        var want = parseInt(el('lb-count').value, 10) || n;
+        var count = Math.ceil(want / n) * n;               // whole sheets only
         var base = el('lb-base').value;
         var prior = existingCodes();
+
+        if (g.qr < MIN_QR_IN) {
+            el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-error">' +
+                'QR size ' + g.qr + ' in is below the ' + MIN_QR_IN.toFixed(2) +
+                ' in needed for a phone camera to read it. Increase it before printing.</div>';
+            return;
+        }
 
         var codes;
         try {
@@ -239,9 +432,32 @@ body { padding-top: 0; background: var(--color-bg-page); }
             codes: codes
         };
 
-        var sheet = el('lb-sheet');
-        sheet.innerHTML = '';
-        codes.forEach(function (code) {
+        render(codes, g, base);
+
+        el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-info">' +
+            count + ' labels on ' + (count / n) + ' sheet(s)' +
+            (prior.length ? ', deduped against ' + prior.length + ' already issued' : '') +
+            '.</div>';
+        el('lb-output').className = 'cellar-card';
+        el('lb-output').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    function render(codes, g, base) {
+        var host = el('lb-sheets');
+        host.innerHTML = '';
+        var n = perSheet(g);
+        var codeFont = Math.min(16, Math.max(8, g.qr * 17)); // pt, scaled to the label
+        var page = null;
+
+        codes.forEach(function (code, i) {
+            var slot = i % n;
+            if (slot === 0) {
+                page = document.createElement('div');
+                page.className = 'lb-page';
+                host.appendChild(page);
+            }
+            var col = slot % g.cols, row = Math.floor(slot / g.cols);
+
             // Error correction Q (25%): labels in a fridge take condensation and
             // abrasion, and Q survives a quarter of the symbol being damaged.
             var qr = qrcode(0, 'Q');
@@ -251,23 +467,21 @@ body { padding-top: 0; background: var(--color-bg-page); }
             // common reason a printed QR refuses to scan.
             var svg = qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true });
 
-            var div = document.createElement('div');
-            div.className = 'lb-label';
-            div.innerHTML = '<div class="lb-qr">' + svg + '</div>' +
+            var d = document.createElement('div');
+            d.className = 'lb-label ' + (g.shape === 'round' ? 'lb-round' : 'lb-rect');
+            d.style.left   = (g.ml + col * g.px) + 'in';
+            d.style.top    = (g.mt + row * g.py) + 'in';
+            d.style.width  = g.w + 'in';
+            d.style.height = g.h + 'in';
+            d.innerHTML =
+                '<div class="lb-qr" style="width:' + g.qr + 'in;height:' + g.qr + 'in;">' + svg + '</div>' +
                 '<div class="lb-text">' +
-                '<div class="lb-code">' + code + '</div>' +
-                '<div class="lb-host">skymath.org/c</div>' +
+                    '<div class="lb-code" style="font-size:' + codeFont.toFixed(1) + 'pt;">' + code + '</div>' +
+                    '<div class="lb-host" style="font-size:' + (codeFont * 0.4).toFixed(1) + 'pt;">skymath.org/c</div>' +
                 '</div>';
-            sheet.appendChild(div);
+            page.appendChild(d);
         });
-
-        el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-info">' +
-            count + ' labels generated (' + (count / 30) + ' sheets)' +
-            (prior.length ? ', deduped against ' + prior.length + ' already issued' : '') +
-            '.</div>';
-        el('lb-output').className = 'cellar-card';
-        el('lb-output').scrollIntoView({ behavior: 'smooth' });
-    });
+    }
 
     el('lb-download').addEventListener('click', function () {
         if (!batch) return;

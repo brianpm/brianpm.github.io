@@ -1928,7 +1928,7 @@
             }
         });
         s.codes.batches.push({
-            id: 'demo-batch', printedAt: '2026-01-01', stock: 'Avery 94503',
+            id: 'demo-batch', printedAt: '2026-01-01', stock: '2.625 x 1 in, 30/sheet',
             codes: s.bottles.bottles.filter(function (b) { return b.code; })
                     .map(function (b) { return b.code; })
                     .concat(model.newCodes(20, []))
