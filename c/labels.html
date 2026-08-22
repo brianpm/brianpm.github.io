@@ -172,6 +172,19 @@ body { padding-top: 0; background: var(--color-bg-page); }
                     <input id="g-qr" inputmode="decimal">
                     <div class="cellar-field-hint" id="lb-qr-note"></div>
                 </div>
+                <div class="cellar-field">
+                    <label>Printed code</label>
+                    <label style="text-transform:none;letter-spacing:0;color:var(--color-text-mid);font-weight:400;">
+                        <input type="checkbox" id="g-text" style="width:auto;min-height:0;margin-right:0.5em;">
+                        Print the 6-character code next to the QR
+                    </label>
+                    <div class="cellar-field-hint">
+                        Turn this off only when the label is too small to hold it. The printed
+                        code is how you look a bottle up when a label gets scratched, and the
+                        only part of the system that still works if the domain, the app or the
+                        QR format ever changes.
+                    </div>
+                </div>
             </details>
 
             <div class="cellar-field-row">
@@ -208,6 +221,16 @@ body { padding-top: 0; background: var(--color-bg-page); }
             <button class="cellar-btn cellar-btn-primary cellar-btn-block" id="lb-generate">
                 <i class="fa fa-rotate"></i> Generate
             </button>
+
+            <button class="cellar-btn cellar-btn-block" id="lb-testcard">
+                <i class="fa fa-ruler"></i> Print a scan test card
+            </button>
+            <p class="cellar-field-hint">
+                One page, the same code at seven sizes. Print it on plain paper, scan each with
+                the phone you will actually use, and take the smallest that reads first try
+                every time — then set the QR size at or above it. This settles whether a given
+                label stock is big enough far more reliably than any rule of thumb.
+            </p>
 
             <div id="lb-status"></div>
         </div>
@@ -280,8 +303,18 @@ body { padding-top: 0; background: var(--color-bg-page); }
     // each side = 37 modules across. Phone cameras need roughly 0.4 mm per module,
     // so the QR block must be about 0.58 in. Anything smaller will not scan.
     var MODULES_ACROSS = 37;
-    var MIN_MODULE_MM = 0.40;
-    var MIN_QR_IN = (MODULES_ACROSS * MIN_MODULE_MM) / 25.4;
+    // 0.40 mm/module is the conservative industry guideline and is what a
+    // comfortable design targets. Below it a modern phone usually still copes;
+    // below ~0.27 mm it genuinely does not. So this is a warning band with a hard
+    // floor at the bottom, not a single cutoff — and the scan test card exists so
+    // the choice inside the band is settled by measurement rather than by argument.
+    var GOOD_MODULE_MM = 0.40;
+    var HARD_MODULE_MM = 0.27;
+    var GOOD_QR_IN = (MODULES_ACROSS * GOOD_MODULE_MM) / 25.4;   // ~0.58 in
+    var HARD_QR_IN = (MODULES_ACROSS * HARD_MODULE_MM) / 25.4;   // ~0.39 in
+    var TEST_SIZES = [0.40, 0.45, 0.50, 0.55, 0.60, 0.70, 0.85];
+
+    function moduleMm(qrIn) { return (qrIn * 25.4) / MODULES_ACROSS; }
 
     var PRESETS = [
         {
@@ -291,7 +324,21 @@ body { padding-top: 0; background: var(--color-bg-page); }
             note: 'The classic address-label layout (the Avery 5160/8160 grid). ' +
                   'Verified: 30 labels land exactly on one Letter page.',
             shape: 'rect', cols: 3, rows: 10,
-            w: 2.625, h: 1, ml: 0.1875, mt: 0.5, px: 2.625, py: 1, qr: 0.85
+            w: 2.625, h: 1, ml: 0.1875, mt: 0.5, px: 2.625, py: 1, qr: 0.85,
+            text: true
+        },
+        {
+            id: 'round075',
+            label: 'Round 0.75 in — 80 per sheet (8 × 10)',
+            stock: '0.75 in round, 80/sheet, waterproof laser',
+            note: 'Cheapest per label, but the tightest fit: the QR lands at ' +
+                  '0.345 mm per module, under the 0.40 mm comfort guideline, and there ' +
+                  'is no room left for the printed code. Print the scan test card first ' +
+                  'and confirm 0.50 in reads reliably on the phone you will actually use. ' +
+                  'The grid below is derived, not measured — verify it against your sheet.',
+            shape: 'round', cols: 8, rows: 10,
+            w: 0.75, h: 0.75, ml: 0.59375, mt: 0.5, px: 0.9375, py: 1.0, qr: 0.50,
+            text: false
         },
         {
             id: 'round24',
@@ -301,7 +348,8 @@ body { padding-top: 0; background: var(--color-bg-page); }
                   'STARTING POINT — round-label grids vary between vendors, so ' +
                   'test-print on plain paper and nudge the margins to match your sheet.',
             shape: 'round', cols: 4, rows: 6,
-            w: 1.5, h: 1.5, ml: 0.53125, mt: 0.5, px: 1.9375, py: 1.75, qr: 0.85
+            w: 1.5, h: 1.5, ml: 0.53125, mt: 0.5, px: 1.9375, py: 1.75, qr: 0.85,
+            text: true
         },
         {
             id: 'round2',
@@ -310,14 +358,15 @@ body { padding-top: 0; background: var(--color-bg-page); }
             note: 'Bigger circle, easiest to scan, fewest per sheet. Same caveat: ' +
                   'verify the grid against your actual stock before printing a run.',
             shape: 'round', cols: 3, rows: 4,
-            w: 2, h: 2, ml: 0.625, mt: 0.5, px: 2.5, py: 2.5, qr: 1.2
+            w: 2, h: 2, ml: 0.625, mt: 0.5, px: 2.5, py: 2.5, qr: 1.2,
+            text: true
         }
     ];
 
     var GEOM = ['shape', 'cols', 'rows', 'w', 'h', 'ml', 'mt', 'px', 'py', 'qr'];
 
     function readGeom() {
-        var g = { shape: el('g-shape').value };
+        var g = { shape: el('g-shape').value, text: el('g-text').checked };
         ['cols', 'rows'].forEach(function (k) { g[k] = parseInt(el('g-' + k).value, 10) || 1; });
         ['w', 'h', 'ml', 'mt', 'px', 'py', 'qr'].forEach(function (k) {
             g[k] = parseFloat(el('g-' + k).value) || 0;
@@ -327,6 +376,7 @@ body { padding-top: 0; background: var(--color-bg-page); }
 
     function writeGeom(p) {
         GEOM.forEach(function (k) { el('g-' + k).value = p[k]; });
+        el('g-text').checked = p.text !== false;
     }
 
     function perSheet(g) { return g.cols * g.rows; }
@@ -339,25 +389,33 @@ body { padding-top: 0; background: var(--color-bg-page); }
         el('lb-count-note').textContent =
             n + ' per sheet — rounded up to ' + (sheets * n) + ' on ' + sheets + ' sheet(s).';
 
-        var warn = '';
-        if (g.qr < MIN_QR_IN) {
-            warn = ' ⚠ Too small to scan reliably — needs at least ' +
-                   MIN_QR_IN.toFixed(2) + ' in.';
+        var warn = '', bad = false;
+        if (g.qr < HARD_QR_IN) {
+            warn = ' ⚠ Too small to scan — below ' + HARD_MODULE_MM + ' mm per module.';
+            bad = true;
+        } else if (g.qr < GOOD_QR_IN) {
+            warn = ' ⚠ Under the ' + GOOD_MODULE_MM + ' mm comfort guideline. Modern phones ' +
+                   'usually manage this, but print the scan test card and confirm before ' +
+                   'committing a run.';
         }
         // On a round label the QR square must fit INSIDE the circle, not its
-        // bounding box, and the printed code needs room underneath it.
+        // bounding box — and only reserve room for the code if it is being printed.
         if (g.shape === 'round') {
-            var textH = 0.20;
+            var textH = g.text ? 0.20 : 0;
             var halfDiag = Math.sqrt(Math.pow(g.qr / 2, 2) + Math.pow((g.qr + textH) / 2, 2));
             if (halfDiag > Math.min(g.w, g.h) / 2 - 0.04) {
-                warn += ' ⚠ QR plus code text does not fit inside a ' + g.w +
-                        ' in circle — reduce the QR size or use larger labels.';
+                warn += ' ⚠ QR' + (g.text ? ' plus code text' : '') +
+                        ' does not fit inside a ' + g.w + ' in circle — reduce the QR size' +
+                        (g.text ? ', turn off the printed code,' : '') + ' or use larger labels.';
+                bad = true;
             }
         }
         el('lb-qr-note').textContent =
-            'Minimum for a scannable code is ' + MIN_QR_IN.toFixed(2) + ' in (' +
-            MODULES_ACROSS + ' modules at ' + MIN_MODULE_MM + ' mm).' + warn;
-        el('lb-qr-note').style.color = warn ? 'var(--color-danger)' : '';
+            g.qr.toFixed(2) + ' in = ' + moduleMm(g.qr).toFixed(3) + ' mm per module (' +
+            MODULES_ACROSS + ' across, including the quiet zone). Comfortable is ' +
+            GOOD_QR_IN.toFixed(2) + ' in.' + warn;
+        el('lb-qr-note').style.color = bad ? 'var(--color-danger)'
+                                      : (warn ? 'var(--color-logo-text)' : '');
     }
 
     function applyPreset(id) {
@@ -409,10 +467,11 @@ body { padding-top: 0; background: var(--color-bg-page); }
         var base = el('lb-base').value;
         var prior = existingCodes();
 
-        if (g.qr < MIN_QR_IN) {
+        if (g.qr < HARD_QR_IN) {
             el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-error">' +
-                'QR size ' + g.qr + ' in is below the ' + MIN_QR_IN.toFixed(2) +
-                ' in needed for a phone camera to read it. Increase it before printing.</div>';
+                'QR size ' + g.qr + ' in works out to ' + moduleMm(g.qr).toFixed(3) +
+                ' mm per module, below the ' + HARD_MODULE_MM +
+                ' mm a phone camera can resolve. Increase it before printing.</div>';
             return;
         }
 
@@ -475,10 +534,12 @@ body { padding-top: 0; background: var(--color-bg-page); }
             d.style.height = g.h + 'in';
             d.innerHTML =
                 '<div class="lb-qr" style="width:' + g.qr + 'in;height:' + g.qr + 'in;">' + svg + '</div>' +
-                '<div class="lb-text">' +
-                    '<div class="lb-code" style="font-size:' + codeFont.toFixed(1) + 'pt;">' + code + '</div>' +
-                    '<div class="lb-host" style="font-size:' + (codeFont * 0.4).toFixed(1) + 'pt;">skymath.org/c</div>' +
-                '</div>';
+                (g.text
+                    ? '<div class="lb-text">' +
+                        '<div class="lb-code" style="font-size:' + codeFont.toFixed(1) + 'pt;">' + code + '</div>' +
+                        '<div class="lb-host" style="font-size:' + (codeFont * 0.4).toFixed(1) + 'pt;">skymath.org/c</div>' +
+                      '</div>'
+                    : '');
             page.appendChild(d);
         });
     }
@@ -498,6 +559,78 @@ body { padding-top: 0; background: var(--color-bg-page); }
     });
 
     el('lb-print').addEventListener('click', function () { window.print(); });
+
+    // Scan test card. Deliberately uses ONE throwaway code and never touches
+    // `batch`, so nothing here can leak into codes.json and be mistaken for an
+    // issued label.
+    el('lb-testcard').addEventListener('click', function () {
+        var code = model.newCode();
+        var base = el('lb-base').value;
+        var host = el('lb-sheets');
+        host.innerHTML = '';
+
+        var page = document.createElement('div');
+        page.className = 'lb-page';
+        page.style.padding = '0.75in';
+        page.style.boxSizing = 'border-box';
+        page.style.display = 'flex';
+        page.style.flexDirection = 'column';
+        page.style.alignItems = 'center';
+        page.style.fontFamily = 'Lato, sans-serif';
+
+        var head = document.createElement('div');
+        head.style.cssText = 'align-self:stretch;margin-bottom:0.3in;color:#000;';
+        head.innerHTML =
+            '<div style="font-size:14pt;font-weight:700;">Cellar label scan test</div>' +
+            '<div style="font-size:9pt;color:#444;margin-top:0.06in;line-height:1.4;">' +
+            'Print at Actual size / 100%. Scan each code below with the phone you will ' +
+            'actually use, held the way you would hold it at the fridge. Note the smallest ' +
+            'one that reads on the first try every time, then set the QR size to at least ' +
+            'that. All seven encode the same URL, so any of them opening the app is a pass.' +
+            '</div>' +
+            '<div style="font-size:9pt;margin-top:0.08in;">Code: <strong>' + code +
+            '</strong> — a throwaway, not recorded in codes.json.</div>';
+        page.appendChild(head);
+
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;flex-wrap:wrap;gap:0.35in;align-items:flex-end;' +
+                            'justify-content:center;';
+
+        TEST_SIZES.forEach(function (sz) {
+            var qr = qrcode(0, 'Q');
+            qr.addData(base + code);
+            qr.make();
+            var cell = document.createElement('div');
+            cell.className = 'lb-testcell';
+            cell.style.cssText = 'text-align:center;color:#000;';
+            cell.innerHTML =
+                '<div class="lb-qr" style="width:' + sz + 'in;height:' + sz + 'in;margin:0 auto;">' +
+                qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true }) + '</div>' +
+                '<div style="font-size:8pt;margin-top:0.06in;font-weight:700;">' +
+                sz.toFixed(2) + ' in</div>' +
+                '<div style="font-size:7pt;color:#444;">' + moduleMm(sz).toFixed(3) + ' mm/mod</div>';
+            row.appendChild(cell);
+        });
+
+        page.appendChild(row);
+
+        var foot = document.createElement('div');
+        foot.style.cssText = 'align-self:stretch;margin-top:0.35in;font-size:8.5pt;color:#444;line-height:1.5;';
+        foot.innerHTML =
+            'For reference: 0.50 in is the largest QR that fits a 0.75 in round label ' +
+            '(and leaves no room for the printed code). 0.85 in is what the 1.5 in round and ' +
+            '2.625 x 1 in stocks use. If nothing below 0.60 in reads reliably, buy the larger ' +
+            'labels — a code that needs three attempts at the fridge will not get used.';
+        page.appendChild(foot);
+
+        host.appendChild(page);
+
+        el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-info">' +
+            'Test card ready below. Print it on plain paper at Actual size, then scan each ' +
+            'code with your phone.</div>';
+        el('lb-output').className = 'cellar-card';
+        host.scrollIntoView({ behavior: 'smooth' });
+    });
 })();
 </script>
 
