@@ -33,6 +33,8 @@ body { padding-top: 0; background: var(--color-bg-page); }
     background: #fff;                /* always paper-white, both themes */
     color: #000;
     overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
 
 .lb-label {
@@ -94,8 +96,16 @@ body { padding-top: 0; background: var(--color-bg-page); }
     .lb-label { outline: none !important; }
     .lb-code { color: #000 !important; }
     .lb-host { color: #444 !important; }
-    .lb-qr svg path,
-    .lb-qr svg rect { fill: #000 !important; }
+
+    /* DO NOT style the QR SVG's internals — not here, not anywhere.
+       createSvgTag() emits a white background <rect> AND a black module <path>,
+       so any blanket `svg rect { fill: ... }` rule repaints the background and
+       turns every printed code into a solid black square. That exact rule shipped
+       here once and made every sheet unprintable; it only fired under @media
+       print, so every on-screen check passed. The SVG carries its own
+       fill="white"/fill="black" and needs no help. stocks.js now decodes a QR
+       under print media and asserts its dark-pixel fraction, which is what
+       catches this if it ever comes back. */
 }
 </style>
 <script src="../js/theme.js"></script>
@@ -258,6 +268,10 @@ body { padding-top: 0; background: var(--color-bg-page); }
                 most common cause of labels drifting off their backing. Use pure black, no
                 toner-save and no draft mode. Margins are built into the sheet, so set the
                 printer's own margin to <strong>None</strong> if it offers the choice.
+                On a <strong>colour</strong> laser, also set the driver to
+                <strong>Black &amp; White / grayscale</strong>: composite black mixed from
+                cyan, magenta and yellow can land a hair out of registration, and the module
+                edges are exactly where a scanner is least forgiving.
             </div>
 
             <p class="cellar-muted">
