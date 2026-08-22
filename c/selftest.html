@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Cellar Selftest</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link href="../css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/cellar.css" rel="stylesheet" type="text/css" media="all">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+body { padding-top: 0; background: var(--color-bg-page); }
+#st-summary { font-size: 1.2em; font-weight: 600; margin: 0.6em 0 1em; }
+.st-pass { color: var(--color-accent-green); }
+.st-fail { color: var(--color-danger); }
+.st-row {
+    display: flex;
+    gap: 0.7em;
+    padding: 0.45em 0;
+    border-bottom: 1px solid var(--color-border-light);
+    font-size: 0.92em;
+    align-items: baseline;
+}
+.st-name { flex: 1; color: var(--color-text-mid); }
+.st-ms   { color: var(--color-text-light); font-size: 0.82em; }
+.st-err  {
+    color: var(--color-danger);
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 0.82em;
+    white-space: pre-wrap;
+    padding: 0.4em 0 0.6em 1.6em;
+}
+</style>
+<script src="../js/theme.js"></script>
+</head>
+
+<body>
+
+<div class="cellar-app">
+
+    <div class="cellar-bar">
+        <span class="cellar-bar-title"><a href="index.html"><i class="fa fa-flask"></i> Cellar selftest</a></span>
+        <button class="cellar-sync" id="theme-toggle" type="button"
+                aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
+    </div>
+
+    <p class="cellar-muted">
+        Assertions over the pure parts of the app — codes, base64, canonical serialization,
+        the reducers and their replay behaviour, CSV import and the conflict-retry path.
+        Nothing here touches the network or your real data. Run it after every change.
+    </p>
+
+    <div id="st-summary" class="cellar-muted">Running…</div>
+    <div id="st-results"></div>
+
+</div>
+
+<script>
+(function () {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = localStorage.getItem('theme') === 'dark' ? '🌙' : '☀️';
+})();
+</script>
+
+<script src="../js/cellar-model.js"></script>
+<script src="../js/cellar-store.js"></script>
+<script src="../js/cellar-selftest.js"></script>
+<script>
+(function () {
+    'use strict';
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    window.Cellar.selftest.run().then(function (s) {
+        document.getElementById('st-summary').className = s.failed ? 'st-fail' : 'st-pass';
+        document.getElementById('st-summary').textContent =
+            s.passed + ' / ' + s.total + ' passed, ' + s.failed + ' failed';
+
+        document.getElementById('st-results').innerHTML = s.results.map(function (r) {
+            return '<div class="st-row">' +
+                '<span class="' + (r.pass ? 'st-pass' : 'st-fail') + '">' +
+                '<i class="fa ' + (r.pass ? 'fa-check' : 'fa-xmark') + '"></i></span>' +
+                '<span class="st-name">' + esc(r.name) + '</span>' +
+                '<span class="st-ms">' + r.ms + 'ms</span></div>' +
+                (r.pass ? '' : '<div class="st-err">' + esc(r.error) + '</div>');
+        }).join('');
+    });
+})();
+</script>
+
+</body>
+</html>

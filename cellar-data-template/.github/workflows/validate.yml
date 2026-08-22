@@ -1,0 +1,24 @@
+name: Validate cellar data
+
+# Runs on every write the app makes. The browser is the only thing that edits
+# these files, so this is the safety net between a client bug and silently
+# corrupted data. A failure emails within a minute; `git revert` fixes it.
+
+on:
+  push:
+    paths:
+      - 'data/*.json'
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check invariants
+        run: python .github/scripts/validate_cellar.py

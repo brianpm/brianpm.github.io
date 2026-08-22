@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Cellar</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link href="../css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/cellar.css" rel="stylesheet" type="text/css" media="all">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+/* This page holds an access token, so it deliberately does NOT load jQuery and
+   does NOT inject the shared nav/footer — that would pull a third-party script
+   onto the same origin as the credential. Everything it needs is same-origin.
+   Consequence: no site nav here, so it carries its own minimal top bar and its
+   own theme toggle wired to the same theme.js API the rest of the site uses. */
+body { padding-top: 0; background: var(--color-bg-page); }
+.cellar-theme-btn {
+    background: none;
+    border: 1px solid var(--color-border-mid);
+    border-radius: 2em;
+    min-height: 34px;
+    min-width: 38px;
+    cursor: pointer;
+    font-size: 1em;
+    line-height: 1;
+    padding: 0.35em 0.6em;
+}
+</style>
+<script src="../js/theme.js"></script>
+</head>
+
+<body>
+
+<div class="cellar-app">
+
+    <div class="cellar-bar">
+        <span class="cellar-bar-title"><a href="#/"><i class="fa fa-wine-bottle"></i> Cellar</a></span>
+        <button class="cellar-sync" id="cellar-sync" type="button" aria-live="polite">
+            <i class="fa fa-hourglass-half"></i> Starting…
+        </button>
+        <button class="cellar-theme-btn" id="theme-toggle" type="button"
+                aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
+        <a class="cellar-theme-btn" href="#/settings" aria-label="Settings" title="Settings">
+            <i class="fa fa-gear"></i>
+        </a>
+    </div>
+
+    <div id="cellar-main">
+        <div class="cellar-empty"><i class="fa fa-hourglass-half"></i>Loading…</div>
+    </div>
+
+</div>
+
+<script>
+// theme.js delegates the toggle click at document level, so the button above
+// works with no extra wiring — it only needs its initial glyph set.
+(function () {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = localStorage.getItem('theme') === 'dark' ? '🌙' : '☀️';
+})();
+</script>
+<script src="../js/cellar-model.js"></script>
+<script src="../js/cellar-store.js"></script>
+<script src="../js/cellar-app.js"></script>
+
+</body>
+</html>

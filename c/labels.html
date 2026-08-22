@@ -1,0 +1,291 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<title>Cellar Labels</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/x-icon" href="../favicon.ico">
+<link href="../css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="../css/cellar.css" rel="stylesheet" type="text/css" media="all">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<style>
+body { padding-top: 0; background: var(--color-bg-page); }
+
+/* ---- Avery 5160 geometry: US Letter, 2.625in x 1in, 3 across, 10 down ----
+   Exact numbers matter. Print at 100% ("Actual size"), never "Fit to page".
+
+   The sheet is always white with black text in BOTH themes. This is a preview of
+   a piece of paper, so it should look like one — and a dark-mode QR code does not
+   scan. Justified exception to the no-hardcoded-color rule in STYLE_GUIDE.md. */
+.lb-sheet {
+    width: 7.9375in;                 /* 3 x 2.625 */
+    margin: 0 auto;
+    background: #fff;
+    color: #000;
+}
+/* The labels are floated, so without this the sheet collapses to zero height and
+   its white background covers nothing. A ::after clearfix contains the floats
+   without establishing a block formatting context — `overflow:hidden` and
+   `display:flow-root` both do, and a BFC interferes with page breaking in print. */
+.lb-sheet::after { content: ""; display: block; clear: both; }
+
+.lb-label {
+    width: 2.625in;
+    height: 1in;
+    float: left;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 0.12in;
+    padding: 0.07in 0.1in;
+    box-sizing: border-box;
+}
+
+.lb-qr { width: 0.85in; height: 0.85in; flex: 0 0 auto; }
+.lb-qr svg { width: 100%; height: 100%; display: block; }
+
+.lb-text { min-width: 0; }
+.lb-code {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 15pt;
+    font-weight: 700;
+    letter-spacing: 0.5pt;
+    line-height: 1.1;
+    color: #000;
+}
+.lb-host { font-size: 6pt; color: #444; letter-spacing: 0.3pt; }
+
+/* Cut guides on screen only — never printed. */
+.lb-preview .lb-label { outline: 1px dashed #ccc; }
+.lb-clear { clear: both; }
+
+@media print {
+    /* The sheet must be pure black on white regardless of the viewer's theme —
+       a dark-mode QR code does not scan. This is the one place hardcoded colors
+       are correct (STYLE_GUIDE "intentionally hardcoded" exception). */
+    @page { size: letter; margin: 0.5in 0.1875in; }
+    html, body { background: #fff !important; }
+    .no-print { display: none !important; }
+    .lb-sheet { margin: 0; background: #fff !important; }
+    .lb-label { outline: none !important; page-break-inside: avoid; }
+    .lb-code { color: #000 !important; }
+    .lb-host { color: #444 !important; }
+    .lb-qr svg path,
+    .lb-qr svg rect { fill: #000 !important; }
+}
+</style>
+<script src="../js/theme.js"></script>
+</head>
+
+<body>
+
+<div class="cellar-app no-print">
+
+    <div class="cellar-bar">
+        <span class="cellar-bar-title"><a href="index.html"><i class="fa fa-tag"></i> Cellar labels</a></span>
+        <button class="cellar-sync" id="theme-toggle" type="button"
+                aria-label="Toggle dark mode" title="Toggle dark mode">☀️</button>
+    </div>
+
+    <div class="cellar-card">
+        <div class="cellar-card-head"><i class="fa fa-print"></i><h3>Generate a batch</h3></div>
+        <div class="cellar-card-body">
+
+            <p class="cellar-muted">
+                Labels are <strong>generic</strong> — a code and nothing else. Stick any label on
+                any bottle, scan it, and the app asks what it is. That means you never need a
+                printer at the moment you buy wine.
+            </p>
+
+            <div class="cellar-field-row">
+                <div class="cellar-field">
+                    <label>How many labels</label>
+                    <input id="lb-count" inputmode="numeric" value="500">
+                    <div class="cellar-field-hint">Rounded up to a full sheet of 30.</div>
+                </div>
+                <div class="cellar-field">
+                    <label>Label stock</label>
+                    <input id="lb-stock" value="Avery 94503 (WeatherProof polyester)">
+                </div>
+            </div>
+
+            <div class="cellar-field">
+                <label>URL each code points at</label>
+                <input id="lb-base" value="https://skymath.org/c/#">
+                <div class="cellar-field-hint">
+                    This is printed into every QR code and can never be changed for labels
+                    already on bottles. Keep it exactly as-is unless you know why you are changing it.
+                </div>
+            </div>
+
+            <div class="cellar-field">
+                <label>Codes already issued (paste your existing codes.json)</label>
+                <textarea id="lb-existing" placeholder="Paste data/codes.json here so this batch cannot reuse a code."></textarea>
+                <div class="cellar-field-hint">
+                    Leave blank for your very first batch. For any later batch, paste the current
+                    file — reusing a retired code would make old archive entries ambiguous.
+                </div>
+            </div>
+
+            <button class="cellar-btn cellar-btn-primary cellar-btn-block" id="lb-generate">
+                <i class="fa fa-rotate"></i> Generate
+            </button>
+
+            <div id="lb-status"></div>
+        </div>
+    </div>
+
+    <div class="cellar-card cellar-hidden" id="lb-output">
+        <div class="cellar-card-head"><i class="fa fa-check"></i><h3>Next steps</h3></div>
+        <div class="cellar-card-body">
+            <p><strong>1.</strong> Download the codes file and commit it to your private data
+               repo as <code>data/codes.json</code> — <em>before</em> printing. If you print codes
+               the app has never heard of, a scan of an unassigned label looks identical to a typo.</p>
+            <button class="cellar-btn cellar-btn-block" id="lb-download">
+                <i class="fa fa-download"></i> Download codes.json
+            </button>
+
+            <p style="margin-top:1em;"><strong>2.</strong> Print one test sheet on plain paper.
+               Hold it over a blank label sheet against a window to check alignment before
+               committing real stock.</p>
+            <button class="cellar-btn cellar-btn-primary cellar-btn-block" id="lb-print">
+                <i class="fa fa-print"></i> Print
+            </button>
+
+            <div class="cellar-banner cellar-banner-warn" style="margin-top:1em;">
+                Print at <strong>Actual size / 100%</strong> — never "Fit to page", which is the
+                most common cause of labels drifting off their backing. Use pure black, no
+                toner-save and no draft mode.
+            </div>
+
+            <p class="cellar-muted">
+                In a wine fridge the real enemy is condensation when the door opens in a warm
+                room. Use laser-printed polyester (Avery 94503/5520) — an inkjet will not fuse to
+                the film, and plain paper wicks and smears. Put the label on the shoulder or a
+                blank part of the back label: not the foil capsule, which peels, and not the very
+                bottom, which sits in whatever pools on the shelf.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<div class="lb-sheet lb-preview" id="lb-sheet"></div>
+<div class="lb-clear"></div>
+
+<script>
+(function () {
+    var btn = document.getElementById('theme-toggle');
+    if (btn) btn.textContent = localStorage.getItem('theme') === 'dark' ? '🌙' : '☀️';
+})();
+</script>
+
+<!-- Vendored locally on purpose: no third-party origin, no SRI to maintain, and
+     the page still works with no network at all. -->
+<script src="../js/vendor/qrcode-generator-1.4.4.js"></script>
+<script src="../js/cellar-model.js"></script>
+<script>
+(function () {
+    'use strict';
+    var model = window.Cellar.model;
+    var el = function (id) { return document.getElementById(id); };
+    var batch = null;
+
+    function existingCodes() {
+        var raw = el('lb-existing').value.trim();
+        if (!raw) return [];
+        try {
+            var parsed = JSON.parse(raw);
+            var out = [];
+            (parsed.batches || []).forEach(function (b) {
+                (b.codes || []).forEach(function (c) { out.push(c); });
+            });
+            return out;
+        } catch (e) {
+            // Tolerate a bare list of codes pasted in as text.
+            return raw.toUpperCase().match(/[0-9A-HJKMNP-TV-Z]{6}/g) || [];
+        }
+    }
+
+    function existingBatches() {
+        var raw = el('lb-existing').value.trim();
+        if (!raw) return [];
+        try { return (JSON.parse(raw).batches || []); } catch (e) { return []; }
+    }
+
+    el('lb-generate').addEventListener('click', function () {
+        var want = parseInt(el('lb-count').value, 10) || 30;
+        var count = Math.ceil(want / 30) * 30;            // whole sheets only
+        var base = el('lb-base').value;
+        var prior = existingCodes();
+
+        var codes;
+        try {
+            codes = model.newCodes(count, prior);
+        } catch (e) {
+            el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-error">' +
+                'Could not generate codes: ' + e.message + '</div>';
+            return;
+        }
+
+        batch = {
+            id: 'batch-' + (existingBatches().length + 1) + '-' + new Date().toISOString().slice(0, 10),
+            printedAt: new Date().toISOString().slice(0, 10),
+            stock: el('lb-stock').value.trim(),
+            codes: codes
+        };
+
+        var sheet = el('lb-sheet');
+        sheet.innerHTML = '';
+        codes.forEach(function (code) {
+            // Error correction Q (25%): labels in a fridge take condensation and
+            // abrasion, and Q survives a quarter of the symbol being damaged.
+            var qr = qrcode(0, 'Q');
+            qr.addData(base + code);
+            qr.make();
+            // margin 4 modules — an insufficient quiet zone is the single most
+            // common reason a printed QR refuses to scan.
+            var svg = qr.createSvgTag({ cellSize: 4, margin: 16, scalable: true });
+
+            var div = document.createElement('div');
+            div.className = 'lb-label';
+            div.innerHTML = '<div class="lb-qr">' + svg + '</div>' +
+                '<div class="lb-text">' +
+                '<div class="lb-code">' + code + '</div>' +
+                '<div class="lb-host">skymath.org/c</div>' +
+                '</div>';
+            sheet.appendChild(div);
+        });
+
+        el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-info">' +
+            count + ' labels generated (' + (count / 30) + ' sheets)' +
+            (prior.length ? ', deduped against ' + prior.length + ' already issued' : '') +
+            '.</div>';
+        el('lb-output').className = 'cellar-card';
+        el('lb-output').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    el('lb-download').addEventListener('click', function () {
+        if (!batch) return;
+        var doc = model.skeleton('codes');
+        doc.batches = existingBatches().concat([batch]);
+        doc.updatedAt = model.nowIso();
+        var text = model.serialize('codes', doc);
+        var blob = new Blob([text], { type: 'application/json;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = 'codes.json';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    });
+
+    el('lb-print').addEventListener('click', function () { window.print(); });
+})();
+</script>
+
+</body>
+</html>

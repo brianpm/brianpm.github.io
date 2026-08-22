@@ -183,6 +183,41 @@ The two `update_albedo_*` scripts feed the **Earth's Surface Albedo** section of
 - `cdsapi`, `numpy`, `xarray`, `matplotlib`, `cartopy` (albedo C3S)
 - `earthaccess`, `pyhdf`, `numpy`, `matplotlib`, `cartopy` (albedo MODIS)
 
+### Wine Cellar App (`c/`)
+
+A private, personal inventory app — the one part of this repo that is an
+*application* rather than a document. Not linked from `navigation.html`, excluded
+in `robots.txt`, and absent from `sitemap.xml`; reach it by bookmark.
+
+- `c/index.html` — the app. Hash-routed single page; **`https://skymath.org/c/#K7M2QP` is
+  the URL printed on every physical QR label.** A bare 6-char code is a bottle; anything
+  starting `#/` is an app route. That scheme is baked into hundreds of stickers — do not
+  change it, and keep `c/index.html` in place permanently even if the app ever moves.
+- `c/labels.html` — QR label-sheet generator (Avery 5160 geometry). No token, no store.
+- `c/selftest.html` — the test suite. **Run it after every change to the cellar files.**
+  Also runs headless: `node -e "require('./js/cellar-model.js');require('./js/cellar-store.js');require('./js/cellar-selftest.js');Cellar.selftest.run().then(s=>{console.log(s.passed+'/'+s.total);process.exit(s.failed?1:0)})"`
+- `js/cellar-model.js` — pure: codes, reducers, canonical serialization, CSV. No DOM, no network.
+- `js/cellar-store.js` — storage adapters behind one interface. `rev` is opaque and must
+  never leak into app code, so the GitHub backend can be swapped for a local one later.
+- `js/cellar-app.js` — router, screens, offline queue, sync loop.
+- `js/cellar-selftest.js` — shared by the browser page and node.
+- `css/cellar.css` — tokens only, `[data-theme="dark"]` block at the bottom.
+- `js/vendor/qrcode-generator-1.4.4.js` — vendored (MIT). Deliberately **not** from a CDN:
+  the app page holds an access token, so it loads zero third-party scripts.
+- `cellar-data-template/` — template for the **separate private** `cellar-data` repo that
+  holds the actual bottle data. Not part of the website. Its `.github/` needs the explicit
+  `!cellar-data-template/.github/` negation in `.gitignore` to survive the leading `.*` rule.
+
+Develop against `c/index.html?store=memory` — an in-memory store with seeded demo data,
+no token and no network. Test with `python3 -m http.server` **from the repo root** (never
+`file://`: `fetch` and `crypto.randomUUID` both fail there).
+
+Two invariants that are load-bearing and easy to break silently:
+1. **Reducers must be convergent** — "make the state look like this", never "add one to
+   that" — because the sync loop replays the whole queue after a conflict.
+2. **`model.serialize()` must be deterministic** — the flush logic decides what to write by
+   diffing serialized output against freshly fetched state.
+
 ## Directory Structure
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)

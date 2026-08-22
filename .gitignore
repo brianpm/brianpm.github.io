@@ -83,5 +83,9 @@ __pycache__/
 !.gitignore
 !.nvmrc
 !.phpcs.xml.dist
+# the `.*` rule above would otherwise swallow the cellar data-repo template's
+# workflow directory (git cannot re-include a file whose parent dir is excluded,
+# so the directory itself has to be un-ignored)
+!cellar-data-template/.github/
 # ignore local cron/launchd logs
 scripts/logs/

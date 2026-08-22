@@ -1,0 +1,594 @@
+/* cellar.css — wine cellar app.
+ *
+ * Per STYLE_GUIDE.md: no hardcoded hex colors, only the tokens from style.css.
+ * Dark-mode overrides live in the [data-theme="dark"] block at the bottom of
+ * this file (the css/bibbase_custom.css precedent).
+ *
+ * Everything is sized for a phone held in front of a fridge: 48px minimum touch
+ * targets, large type on the bottle page, thumb-reachable primary actions.
+ */
+
+/* ------------------------------------------------------------- shell */
+
+.cellar-app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1em 6em;
+}
+
+.cellar-app h2 {
+    font-size: 1.6em;
+    color: var(--color-accent-blue);
+    font-weight: 600;
+    margin: 0.8em 0 0.6em;
+    text-align: left;
+}
+
+.cellar-app h3 {
+    font-size: 1.05em;
+    color: var(--color-text-dark);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    margin: 1.4em 0 0.6em;
+}
+
+.cellar-muted { color: var(--color-text-light); font-size: 0.9em; }
+.cellar-mono  { font-family: 'SFMono-Regular', Menlo, Consolas, monospace; }
+.cellar-hidden { display: none !important; }
+
+/* --------------------------------------------------------- top bar */
+
+.cellar-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.7em 0;
+    border-bottom: 1px solid var(--color-border-mid);
+    margin-bottom: 0.4em;
+    flex-wrap: wrap;
+}
+
+.cellar-bar-title {
+    font-weight: 700;
+    color: var(--color-text-dark);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    margin-right: auto;
+}
+
+.cellar-bar-title a { color: inherit; text-decoration: none; }
+
+/* Sync pill: the one always-visible piece of state. */
+.cellar-sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45em;
+    border: 1px solid var(--color-border-mid);
+    border-radius: 2em;
+    padding: 0.4em 0.9em;
+    font-size: 0.78em;
+    background: var(--color-bg-card);
+    color: var(--color-text-light);
+    cursor: pointer;
+    min-height: 34px;
+    white-space: nowrap;
+}
+.cellar-sync-synced  { color: var(--color-accent-green); border-color: var(--color-accent-green); }
+.cellar-sync-syncing { color: var(--color-accent-blue);  border-color: var(--color-accent-blue); }
+.cellar-sync-error   { color: var(--color-danger);       border-color: var(--color-danger); }
+
+/* ----------------------------------------------------------- cards */
+
+.cellar-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-mid);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--color-shadow);
+    margin-bottom: 1em;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+a.cellar-card { display: block; color: inherit; text-decoration: none; }
+a.cellar-card:hover,
+a.cellar-card:focus {
+    border-color: var(--color-accent-blue);
+    box-shadow: 0 6px 16px var(--color-shadow-hover);
+    text-decoration: none;
+    color: inherit;
+}
+
+.cellar-card-head {
+    background: var(--color-bg-card-head);
+    border-bottom: 2px solid var(--color-accent-blue);
+    padding: 0.9em 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+}
+.cellar-card-head h3 { margin: 0; flex: 1; font-size: 0.95em; }
+.cellar-card-head i  { color: var(--color-accent-blue); font-size: 1.1em; }
+
+.cellar-card-body { padding: 1em 1.1em; }
+
+.cellar-count {
+    background: var(--color-accent-blue);
+    color: #fff;                    /* always white on the accent, both themes */
+    border-radius: 2em;
+    padding: 0.15em 0.7em;
+    font-size: 0.8em;
+    font-weight: 700;
+    min-width: 2.2em;
+    text-align: center;
+}
+
+/* -------------------------------------------------------- shelves */
+
+.cellar-shelf-row {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    padding: 0.75em 0;
+    border-bottom: 1px solid var(--color-border-light);
+    color: inherit;
+    text-decoration: none;
+    min-height: 48px;
+}
+.cellar-shelf-row:last-child { border-bottom: none; }
+.cellar-shelf-row:hover { text-decoration: none; color: inherit; }
+.cellar-shelf-name { flex: 1; color: var(--color-text-mid); }
+.cellar-shelf-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--color-accent-blue);
+    min-width: 4px;
+    opacity: 0.75;
+}
+.cellar-shelf-empty .cellar-shelf-name { color: var(--color-text-light); }
+/* min-width above would otherwise leave a stub bar on every empty shelf. */
+.cellar-shelf-empty .cellar-shelf-bar { display: none; }
+
+/* ---------------------------------------------------- bottle list */
+
+.cellar-list { list-style: none; padding: 0; margin: 0; }
+
+.cellar-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.8em;
+    padding: 0.85em 1.1em;
+    border-bottom: 1px solid var(--color-border-light);
+    color: inherit;
+    text-decoration: none;
+    min-height: 56px;
+}
+.cellar-list li:last-child a { border-bottom: none; }
+.cellar-list a:hover { background: var(--color-bg-light); text-decoration: none; color: inherit; }
+
+.cellar-list-main { flex: 1; min-width: 0; }
+.cellar-list-title {
+    color: var(--color-text-dark);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cellar-list-sub { color: var(--color-text-light); font-size: 0.85em; }
+
+/* Color chip — the one place per-wine identity beats theme tokens. */
+.cellar-chip {
+    width: 10px;
+    height: 34px;
+    border-radius: 3px;
+    flex: 0 0 auto;
+    background: var(--color-border-input);
+}
+.cellar-chip-red       { background: var(--color-wine-red); }
+.cellar-chip-white     { background: var(--color-wine-white); }
+.cellar-chip-rose      { background: var(--color-wine-rose); }
+.cellar-chip-sparkling { background: var(--color-wine-sparkling); }
+.cellar-chip-fortified { background: var(--color-wine-fortified); }
+.cellar-chip-other     { background: var(--color-border-input); }
+
+.cellar-code {
+    font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+    font-size: 0.78em;
+    letter-spacing: 1px;
+    color: var(--color-text-light);
+    background: var(--color-bg-light);
+    border-radius: 4px;
+    padding: 0.2em 0.5em;
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------- bottle detail */
+
+.cellar-hero { padding: 1.4em 1.2em 1.2em; }
+.cellar-hero-producer {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    line-height: 1.2;
+}
+.cellar-hero-name    { font-size: 1.15em; color: var(--color-text-mid); margin-top: 0.15em; }
+.cellar-hero-vintage {
+    font-size: 2.4em;
+    font-weight: 300;
+    color: var(--color-accent-blue);
+    line-height: 1;
+    margin: 0.25em 0;
+}
+.cellar-hero-meta { color: var(--color-text-light); font-size: 0.92em; margin-top: 0.4em; }
+
+.cellar-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    background: var(--color-bg-light);
+    border-radius: 6px;
+    padding: 0.6em 0.9em;
+    margin-top: 0.9em;
+    color: var(--color-text-dark);
+    font-weight: 600;
+}
+.cellar-location i { color: var(--color-accent-blue); }
+
+/* --------------------------------------------------------- facts */
+
+.cellar-facts { list-style: none; padding: 0; margin: 0; }
+.cellar-facts li {
+    display: flex;
+    gap: 1em;
+    padding: 0.55em 0;
+    border-bottom: 1px solid var(--color-border-light);
+    font-size: 0.93em;
+}
+.cellar-facts li:last-child { border-bottom: none; }
+.cellar-facts dt,
+.cellar-fact-key {
+    color: var(--color-text-light);
+    flex: 0 0 42%;
+    text-transform: uppercase;
+    font-size: 0.82em;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+.cellar-fact-val { color: var(--color-text-mid); flex: 1; word-break: break-word; }
+
+/* ------------------------------------------------------- buttons */
+
+.cellar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+    min-height: 48px;
+    padding: 0.75em 1.2em;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-input);
+    background: var(--color-bg-card);
+    color: var(--color-text-dark);
+    font-size: 1em;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.cellar-btn:hover:not(:disabled) {
+    border-color: var(--color-accent-blue);
+    color: var(--color-text-dark);
+    text-decoration: none;
+}
+.cellar-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cellar-btn-primary {
+    background: var(--color-accent-blue);
+    border-color: var(--color-accent-blue);
+    color: #fff;                    /* CTA label is always white — STYLE_GUIDE exception */
+}
+.cellar-btn-primary:hover:not(:disabled) { background: var(--color-accent-blue-dark); color: #fff; }
+
+.cellar-btn-danger { color: var(--color-danger); border-color: var(--color-danger); }
+.cellar-btn-block  { display: flex; width: 100%; margin-bottom: 0.6em; }
+.cellar-btn-sm     { min-height: 38px; padding: 0.4em 0.8em; font-size: 0.85em; }
+
+.cellar-actions { display: flex; flex-direction: column; gap: 0.6em; padding: 0 1.1em 1.2em; }
+.cellar-actions-row { display: flex; gap: 0.6em; }
+.cellar-actions-row .cellar-btn { flex: 1; }
+
+/* --------------------------------------------------------- forms */
+
+.cellar-field { margin-bottom: 0.9em; }
+.cellar-field label {
+    display: block;
+    color: var(--color-accent-green);
+    text-transform: uppercase;
+    font-size: 0.74em;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 0.3em;
+}
+.cellar-field input,
+.cellar-field select,
+.cellar-field textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.6em 0.75em;
+    border: 1px solid var(--color-border-input);
+    border-radius: 6px;
+    background: var(--color-bg-card);
+    color: var(--color-text-dark);
+    font-size: 16px;            /* below 16px iOS zooms the viewport on focus */
+    font-family: inherit;
+    box-sizing: border-box;
+}
+.cellar-field textarea { min-height: 90px; resize: vertical; }
+.cellar-field input:focus,
+.cellar-field select:focus,
+.cellar-field textarea:focus {
+    outline: none;
+    border-color: var(--color-accent-blue);
+}
+.cellar-field-hint { color: var(--color-text-light); font-size: 0.8em; margin-top: 0.25em; }
+
+.cellar-field-row { display: flex; gap: 0.7em; }
+.cellar-field-row .cellar-field { flex: 1; }
+
+/* Segmented control for fridge / shelf pickers. */
+.cellar-segments { display: flex; flex-wrap: wrap; gap: 0.4em; }
+.cellar-segment {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5em 0.9em;
+    border: 1px solid var(--color-border-input);
+    border-radius: 6px;
+    background: var(--color-bg-card);
+    color: var(--color-text-mid);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9em;
+}
+.cellar-segment-on {
+    background: var(--color-accent-blue);
+    border-color: var(--color-accent-blue);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* --------------------------------------------------------- notes */
+
+.cellar-note {
+    border-left: 3px solid var(--color-accent-green);
+    padding: 0.5em 0 0.5em 0.8em;
+    margin-bottom: 0.7em;
+}
+.cellar-note-meta { color: var(--color-text-light); font-size: 0.78em; margin-bottom: 0.2em; }
+.cellar-note-text { color: var(--color-text-mid); white-space: pre-wrap; }
+
+/* -------------------------------------------------------- badges */
+
+.cellar-badge {
+    display: inline-block;
+    border-radius: 3px;
+    padding: 0.15em 0.55em;
+    font-size: 0.72em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+}
+.cellar-badge-ready { background: var(--color-accent-green); color: #fff; }
+.cellar-badge-young { background: var(--color-bg-light); color: var(--color-text-light); }
+.cellar-badge-past  { background: var(--color-danger); color: #fff; }
+
+.cellar-stars { color: var(--color-logo-text); letter-spacing: 2px; }
+
+/* -------------------------------------------------------- banners */
+
+.cellar-banner {
+    border-radius: 8px;
+    padding: 0.9em 1.1em;
+    margin-bottom: 1em;
+    font-size: 0.93em;
+    border: 1px solid var(--color-border-mid);
+    background: var(--color-bg-light);
+    color: var(--color-text-mid);
+}
+.cellar-banner-warn {
+    border-color: var(--color-logo-text);
+    background: var(--color-warn-bg);
+    color: var(--color-text-dark);
+}
+.cellar-banner-error {
+    border-color: var(--color-danger);
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+.cellar-banner-info { border-color: var(--color-accent-blue); }
+.cellar-banner a { color: var(--color-accent-blue); text-decoration: underline; }
+
+/* Assign-session strip: the "bottle 3 of 12" prompt after adding a case. */
+.cellar-assign-strip {
+    border: 2px solid var(--color-accent-green);
+    border-radius: 8px;
+    padding: 0.9em 1.1em;
+    margin-bottom: 1em;
+    background: var(--color-bg-card);
+}
+.cellar-assign-strip .cellar-muted { margin-bottom: 0.6em; }
+
+/* --------------------------------------------------------- stats */
+
+.cellar-stat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7em;
+    margin-bottom: 1em;
+}
+.cellar-stat {
+    flex: 1 1 130px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border-mid);
+    border-radius: 8px;
+    padding: 0.9em 1em;
+}
+.cellar-stat-num { font-size: 1.7em; font-weight: 300; color: var(--color-accent-blue); line-height: 1.1; }
+.cellar-stat-lbl {
+    color: var(--color-text-light);
+    text-transform: uppercase;
+    font-size: 0.72em;
+    letter-spacing: 1px;
+    margin-top: 0.2em;
+}
+
+.cellar-bars { list-style: none; padding: 0; margin: 0; }
+.cellar-bars li { display: flex; align-items: center; gap: 0.7em; padding: 0.3em 0; font-size: 0.9em; }
+.cellar-bars-label { flex: 0 0 38%; color: var(--color-text-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cellar-bars-track { flex: 1; background: var(--color-bg-light); border-radius: 3px; height: 10px; }
+.cellar-bars-fill  { background: var(--color-accent-blue); height: 10px; border-radius: 3px; }
+.cellar-bars-num   { flex: 0 0 auto; color: var(--color-text-light); font-size: 0.85em; min-width: 2em; text-align: right; }
+
+/* --------------------------------------------------------- modal */
+
+/* Bottom sheet on a phone, centred dialog on a desktop — the picker is used
+   one-handed in front of an open fridge door. */
+.cellar-modal-wrap {
+    position: fixed;
+    inset: 0;
+    background: var(--color-scrim);
+    z-index: 1100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.cellar-modal {
+    background: var(--color-bg-card);
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 560px;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 -4px 24px var(--color-shadow-hover);
+}
+.cellar-modal .cellar-card-head { border-radius: 12px 12px 0 0; }
+
+@media (min-width: 560px) {
+    .cellar-modal-wrap { align-items: center; }
+    .cellar-modal { border-radius: 12px; }
+    .cellar-modal .cellar-card-head { border-radius: 12px 12px 0 0; }
+}
+
+/* --------------------------------------------------------- toast */
+
+.cellar-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 1.2em;
+    transform: translateX(-50%);
+    background: var(--color-toast-bg);
+    color: var(--color-toast-text);
+    border-radius: 8px;
+    padding: 0.8em 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    box-shadow: 0 4px 18px var(--color-shadow-hover);
+    z-index: 1200;
+    max-width: 92vw;
+    font-size: 0.92em;
+}
+.cellar-toast button {
+    background: none;
+    border: 1px solid var(--color-toast-text);
+    color: var(--color-toast-text);
+    border-radius: 5px;
+    padding: 0.35em 0.8em;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    white-space: nowrap;
+    min-height: 36px;
+}
+
+/* --------------------------------------------------------- empty */
+
+.cellar-empty {
+    text-align: center;
+    padding: 2.5em 1.2em;
+    color: var(--color-text-light);
+}
+.cellar-empty i { font-size: 2.4em; color: var(--color-border-input); display: block; margin-bottom: 0.4em; }
+
+/* The stranger's view: deliberately boring, and identical whether or not the
+   scanned code exists. Anything else would leak the cellar's contents. */
+.cellar-locked { text-align: center; padding: 4em 1.5em; }
+.cellar-locked h2 { text-align: center; }
+.cellar-locked .cellar-code { font-size: 1.2em; display: inline-block; margin: 1em 0; }
+
+/* --------------------------------------------------- import table */
+
+.cellar-table-wrap { overflow-x: auto; }
+.cellar-table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
+.cellar-table th,
+.cellar-table td {
+    text-align: left;
+    padding: 0.45em 0.6em;
+    border-bottom: 1px solid var(--color-border-light);
+    white-space: nowrap;
+}
+.cellar-table th { color: var(--color-text-light); text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; }
+.cellar-table select { min-height: 38px; font-size: 0.9em; padding: 0.3em; }
+
+@media (max-width: 480px) {
+    .cellar-app { padding: 0 0.7em 6em; }
+    .cellar-hero-producer { font-size: 1.3em; }
+    .cellar-hero-vintage { font-size: 2em; }
+    .cellar-field-row { flex-direction: column; gap: 0; }
+}
+
+/* ------------------------------------------------------ dark mode */
+
+/* These tokens have no light/dark equivalent in style.css, so they are defined
+   here for both themes rather than hardcoded at each use site. */
+:root {
+    --color-accent-blue-dark: #3aa8d4;
+    --color-danger:      #c0392b;
+    --color-danger-bg:   #fdf0ee;
+    --color-danger-text: #c0392b;
+    --color-warn-bg:     #fdf7e3;
+    --color-toast-bg:    #474e5d;
+    --color-toast-text:  #fff;
+    --color-scrim:       rgba(0, 0, 0, 0.35);
+    --color-wine-red:       #7b2233;
+    --color-wine-white:     #d8c179;
+    --color-wine-rose:      #e7a0a8;
+    --color-wine-sparkling: #cbb26a;
+    --color-wine-fortified: #5a2d3d;
+}
+
+[data-theme="dark"] {
+    --color-accent-blue-dark: #6fcdf2;
+    --color-danger:      #e74c3c;
+    --color-danger-bg:   #2a1a1a;
+    --color-danger-text: #f08080;
+    --color-warn-bg:     #2d2716;
+    --color-toast-bg:    #2d3654;
+    --color-toast-text:  #e8eaf0;
+    --color-scrim:       rgba(0, 0, 0, 0.6);
+    --color-wine-red:       #a8384c;
+    --color-wine-white:     #e0cd8f;
+    --color-wine-rose:      #f0b4bb;
+    --color-wine-sparkling: #ddc27c;
+    --color-wine-fortified: #8a4a60;
+}
+
+/* The elevated dark surface from STYLE_GUIDE §3 — these read as raised panels
+   in light mode via --color-bg-card-head, which is too close to the page
+   background once everything is dark. */
+[data-theme="dark"] .cellar-card-head { background: #2d3654; }
+[data-theme="dark"] .cellar-list a:hover { background: #2d3654; }
+[data-theme="dark"] .cellar-location { background: #2d3654; }
+[data-theme="dark"] .cellar-code { background: #2d3654; }
