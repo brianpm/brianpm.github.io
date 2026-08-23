@@ -225,6 +225,23 @@ Two invariants that are load-bearing and easy to break silently:
 2. **`model.serialize()` must be deterministic** — the flush logic decides what to write by
    diffing serialized output against freshly fetched state.
 
+**Two ways a bottle leaves the cellar, and they are not interchangeable.**
+`DRINK_BOTTLE` is for a bottle that existed: it writes an archive entry with a
+denormalized wine snapshot, and retires the label. `DELETE_BOTTLE` is for a bottle that
+was *entered by mistake*: it leaves no archive entry and no history, and the label goes
+back to `codeStatus() === 'issued'` so the physical sticker can be reused — delete the
+wrong bottle, rescan the same sticker, enter it correctly. Deleting the last bottle of a
+wine also enqueues `DELETE_WINE`, which removes the wine record only if no bottle and no
+archive entry still reference it; that guard is re-evaluated at replay time, so a wine
+another device just re-stocked survives. Both are undoable for 10 seconds, via the same
+drop-from-queue-else-compensate path as the drink undo.
+
+Adding a second bottle of a wine already in the cellar is **not** a new op type — wines
+are normalized, so it is `ADD_BOTTLES` against the existing `wineId` (`#/wine/<id>/add`,
+reachable from the wine page and from any bottle card). The Acquisition/Bottles form is
+shared with "Add wine" through `acquisitionFormHtml` / `bindAcquisitionForm` /
+`readAcquisitionForm`; keep it that way rather than forking a second copy.
+
 ## Directory Structure
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)

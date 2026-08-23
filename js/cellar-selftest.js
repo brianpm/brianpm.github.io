@@ -301,6 +301,119 @@
         eq(twice.bottles.bottles.length, 2, 'replay must not duplicate the bottle');
     });
 
+    /* -- permanent delete (a bottle entered by mistake) --------------- */
+
+    test('DELETE_BOTTLE removes the bottle and is idempotent', function () {
+        var s = seeded();
+        var op = model.makeOp('DELETE_BOTTLE', { bottleId: 'b1' }, 't');
+        var once = model.replay(s, [op]);
+        eq(once.bottles.bottles.map(function (b) { return b.id; }), ['b2']);
+        var twice = model.replay(once, [op]);
+        eq(model.serialize('bottles', twice.bottles), model.serialize('bottles', once.bottles),
+           'replaying a delete must not disturb anything else');
+    });
+
+    test('DELETE_BOTTLE writes no archive entry', function () {
+        var s = seeded();
+        var once = model.replay(s, [model.makeOp('DELETE_BOTTLE', { bottleId: 'b1' }, 't')]);
+        eq(once.archive.entries.length, 0, 'a mistaken entry leaves no history at all');
+    });
+
+    test('DELETE_BOTTLE on an unknown id changes nothing', function () {
+        var s = seeded();
+        var once = model.replay(s, [model.makeOp('DELETE_BOTTLE', { bottleId: 'nope' }, 't')]);
+        eq(model.serialize('bottles', once.bottles), model.serialize('bottles', s.bottles));
+    });
+
+    test('deleting a bottle returns its label to the pool', function () {
+        var s = seeded();
+        eq(model.codeStatus(s, 'K7M2QP'), 'assigned');
+        var once = model.replay(s, [model.makeOp('DELETE_BOTTLE', { bottleId: 'b1' }, 't')]);
+        // Not 'retired' — that is what a drunk bottle does. An issued label can be
+        // stuck on another bottle, which is the whole point of deleting a mistake.
+        eq(model.codeStatus(once, 'K7M2QP'), 'issued');
+    });
+
+    test('delete then re-add restores the bottle byte-for-byte', function () {
+        // This is the undo path: once the delete has synced, the only way back is
+        // a compensating ADD_BOTTLES carrying the record we cloned before deleting.
+        var s = seeded();
+        var copy = model.clone(s.bottles.bottles[0]);
+        var del = model.makeOp('DELETE_BOTTLE', { bottleId: 'b1' }, 't');
+        var back = model.makeOp('ADD_BOTTLES', { bottles: [copy] }, 't');
+        var out = model.replay(s, [del, back]);
+        eq(out.bottles.bottles.length, 2);
+        var b1 = model.index(out.bottles.bottles, 'id').b1;
+        eq(b1.createdAt, copy.createdAt, 'a supplied createdAt must survive the round trip');
+        eq(b1.code, 'K7M2QP');
+        eq(b1.shelf, 4);
+    });
+
+    test('DELETE_WINE refuses while a bottle still references the wine', function () {
+        var s = seeded();
+        var once = model.replay(s, [model.makeOp('DELETE_WINE', { wineId: 'w1' }, 't')]);
+        eq(once.wines.wines.length, 1, 'two bottles still point at this wine');
+    });
+
+    test('DELETE_WINE refuses while an archive entry still references the wine', function () {
+        var s = seeded();
+        var out = model.replay(s, [
+            model.makeOp('DRINK_BOTTLE', { bottleId: 'b1', archiveId: 'a1' }, 't'),
+            model.makeOp('DELETE_BOTTLE', { bottleId: 'b2' }, 't'),
+            model.makeOp('DELETE_WINE', { wineId: 'w1' }, 't')
+        ]);
+        eq(out.bottles.bottles.length, 0);
+        eq(out.wines.wines.length, 1,
+           'the archive snapshot is readable without the wine, but a drunk bottle is real history');
+    });
+
+    test('DELETE_WINE removes an orphaned wine and is idempotent', function () {
+        var s = seeded();
+        var ops = [
+            model.makeOp('DELETE_BOTTLE', { bottleId: 'b1' }, 't'),
+            model.makeOp('DELETE_BOTTLE', { bottleId: 'b2' }, 't'),
+            model.makeOp('DELETE_WINE', { wineId: 'w1' }, 't')
+        ];
+        var once = model.replay(s, ops);
+        eq(once.wines.wines.length, 0);
+        eq(once.bottles.bottles.length, 0);
+        var twice = model.replay(once, ops);
+        eq(model.serialize('wines', twice.wines), model.serialize('wines', once.wines));
+    });
+
+    test('DELETE_WINE keeps the wine when another device re-added a bottle', function () {
+        // The offline case the guard exists for: flush() replays the queue onto
+        // freshly fetched state, so the check has to run against that state, not
+        // against whatever the device saw when the user tapped delete.
+        var s = seeded();
+        var del = model.makeOp('DELETE_BOTTLE', { bottleId: 'b1' }, 'phone-a');
+        var delWine = model.makeOp('DELETE_WINE', { wineId: 'w1' }, 'phone-a');
+        // b2 is still there in the state we replay onto.
+        var out = model.replay(s, [del, delWine]);
+        eq(out.wines.wines.length, 1, 'a wine with a surviving bottle must not be removed');
+    });
+
+    /* -- adding bottles to a wine already in the cellar ---------------- */
+
+    test('ADD_BOTTLES against an existing wineId shares one wine record', function () {
+        // The whole "add another bottle" feature rests on wines being normalized:
+        // a second bottle is an ADD_BOTTLES with the existing wineId, nothing more.
+        var s = seeded();
+        var more = model.makeOp('ADD_BOTTLES', {
+            bottles: [
+                { id: 'b3', wineId: 'w1', code: null, fridgeId: 'F1', shelf: 4, slot: '',
+                  acquiredFrom: 'Boulder Wine Merchant', acquiredAt: '2024-11-03',
+                  costCents: 8999, currency: 'USD', sizeMl: 750, notes: '' }
+            ]
+        }, 't');
+        var out = model.replay(s, [more]);
+        eq(out.wines.wines.length, 1, 'no duplicate wine record');
+        eq(out.bottles.bottles.length, 3);
+        eq(out.bottles.bottles.filter(function (b) { return b.wineId === 'w1'; }).length, 3);
+        var twice = model.replay(out, [more]);
+        eq(twice.bottles.bottles.length, 3, 'replay must not duplicate the bottle');
+    });
+
     test('ISSUE_CODES is idempotent by batch id', function () {
         var s = seeded();
         var op = model.makeOp('ISSUE_CODES', {

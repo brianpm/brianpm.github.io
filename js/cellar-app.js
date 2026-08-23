@@ -154,6 +154,15 @@
                     return 'cellar: add ' + p.bottles.length + ' bottle(s)' + who;
                 case 'ADD_WINE':
                     return 'cellar: add wine ' + (p.wine.producer || p.wine.name) + who;
+                // These read `label`/`code` off the payload rather than looking the
+                // record up: commitMessage runs after the op has been applied, and
+                // by then the thing it is describing is gone. Informational only —
+                // the reducers ignore both fields.
+                case 'DELETE_BOTTLE':
+                    return 'cellar: delete bottle ' + (p.code || p.bottleId) +
+                           (p.label ? ' (' + p.label + ')' : '') + who;
+                case 'DELETE_WINE':
+                    return 'cellar: delete wine ' + (p.label || p.wineId) + who;
                 case 'MOVE_BOTTLE':  return 'cellar: move bottle' + who;
                 case 'ASSIGN_CODE':  return 'cellar: assign label ' + p.code + who;
                 case 'ADD_ARCHIVE_NOTE': return 'cellar: add tasting note' + who;
@@ -304,6 +313,21 @@
 
     /* ---------------------------------------------------------- router */
 
+    // "a=1&b=2" -> { a: '1', b: '2' }. Only ever called on the part of the hash
+    // after "?", which the route parser strips before splitting on "/".
+    function parseQuery(q) {
+        var out = {};
+        (q || '').split('&').forEach(function (pair) {
+            if (!pair) return;
+            var i = pair.indexOf('=');
+            var k = i === -1 ? pair : pair.slice(0, i);
+            var v = i === -1 ? '' : pair.slice(i + 1);
+            try { out[decodeURIComponent(k)] = decodeURIComponent(v); }
+            catch (e) { out[k] = v; }
+        });
+        return out;
+    }
+
     function currentRoute() {
         var h = (location.hash || '').replace(/^#/, '');
         if (!h) return { name: 'home' };
@@ -317,13 +341,21 @@
             return { name: 'badcode', raw: h };
         }
 
+        // Strip the query BEFORE splitting on "/", or "#/add?code=X" parses as the
+        // single path segment "add?code=X" and falls through to home.
+        var q = {};
+        var qi = h.indexOf('?');
+        if (qi !== -1) { q = parseQuery(h.slice(qi + 1)); h = h.slice(0, qi); }
+
         var parts = h.slice(1).split('/').map(decodeURIComponent);
         switch (parts[0]) {
             case '':         return { name: 'home' };
-            case 'add':      return { name: 'add' };
+            case 'add':      return { name: 'add', query: q };
             case 'archive':  return parts[1] ? { name: 'archiveDetail', id: parts[1] }
                                              : { name: 'archive' };
-            case 'wine':     return { name: 'wine', id: parts[1] };
+            case 'wine':     return parts[2] === 'add'
+                                 ? { name: 'addBottles', id: parts[1], query: q }
+                                 : { name: 'wine', id: parts[1] };
             case 'fridge':   return { name: 'shelf', fridgeId: parts[1], shelf: parts[2] };
             case 'search':   return { name: 'search' };
             case 'stats':    return { name: 'stats' };
@@ -366,8 +398,9 @@
             case 'bottleById':    renderBottleById(main, route.id); break;
             case 'badcode':       renderBadCode(main, route.raw); break;
             case 'shelf':         renderShelf(main, route.fridgeId, route.shelf); break;
-            case 'add':           renderAdd(main); break;
+            case 'add':           renderAdd(main, route.query); break;
             case 'wine':          renderWine(main, route.id); break;
+            case 'addBottles':    renderAddBottles(main, route.id, route.query); break;
             case 'archive':       renderArchive(main); break;
             case 'archiveDetail': renderArchiveDetail(main, route.id); break;
             case 'search':        renderSearch(main); break;
@@ -588,6 +621,9 @@
             '<button class="cellar-btn" id="cellar-move"><i class="fa fa-arrows-up-down-left-right"></i> Move</button>' +
             '<button class="cellar-btn" id="cellar-edit"><i class="fa fa-pen"></i> Edit</button>' +
             '</div>' +
+            '<a class="cellar-btn cellar-btn-block" href="#/wine/' + encodeURIComponent(b.wineId) +
+            '/add?from=' + encodeURIComponent(b.id) + '">' +
+            '<i class="fa fa-plus"></i> Add another like this</a>' +
             '<button class="cellar-btn cellar-btn-sm" id="cellar-other">Other outcome…</button>' +
             '</div></div>';
 
@@ -607,6 +643,14 @@
                     '">Wine details <i class="fa fa-chevron-right"></i></a></p>';
         }
         html += '</div></div>';
+
+        // Kept down here, small and away from "Drink this" at the top of the card.
+        // Mis-tapping while holding two bottles is the thing this screen guards against.
+        html += '<div class="cellar-danger-zone">' +
+                '<button class="cellar-btn cellar-btn-sm cellar-btn-danger" id="cellar-delete">' +
+                '<i class="fa fa-trash"></i> Delete this bottle…</button>' +
+                '<p class="cellar-field-hint">For a bottle entered by mistake. Leaves no archive entry.</p>' +
+                '</div>';
         html += backLink('#/', 'All fridges');
 
         main.innerHTML = html;
@@ -615,6 +659,7 @@
         el('cellar-move').addEventListener('click', function () { openMove(b); });
         el('cellar-edit').addEventListener('click', function () { openEditBottle(b); });
         el('cellar-other').addEventListener('click', function () { openDisposition(b); });
+        el('cellar-delete').addEventListener('click', function () { openDelete(b); });
     }
 
     function shelfLabel(f, shelf) {
@@ -659,22 +704,109 @@
         go('#/archive/' + encodeURIComponent(archiveId));
     }
 
-    // Undo removes the op from the queue if it has not synced yet; once it has,
-    // it becomes a real RESTORE_BOTTLE op.
-    function undoOp(opId, archiveId) {
-        var idx = -1;
-        for (var i = 0; i < app.queue.length; i++) {
-            if (app.queue[i].opId === opId) { idx = i; break; }
-        }
-        if (idx !== -1) {
-            app.queue.splice(idx, 1);
+    // Undo drops the ops from the queue if they have not synced yet; anything
+    // already synced can only be walked back with a compensating op. If even one
+    // op of a set got away we compensate for the whole set: the compensating ops
+    // are idempotent by id, so re-adding something that is still there is a no-op.
+    function undoOps(opIds, compensate) {
+        var dropped = 0;
+        opIds.forEach(function (opId) {
+            for (var i = 0; i < app.queue.length; i++) {
+                if (app.queue[i].opId !== opId) continue;
+                app.queue.splice(i, 1);
+                dropped++;
+                return;
+            }
+        });
+        if (dropped) {
             recompute();
             persistLocal();
             renderSyncPill();
-        } else {
-            enqueue(model.makeOp('RESTORE_BOTTLE', { archiveId: archiveId }, app.device));
         }
+        if (dropped < opIds.length) compensate();
         go('#/');
+    }
+
+    function undoOp(opId, archiveId) {
+        undoOps([opId], function () {
+            enqueue(model.makeOp('RESTORE_BOTTLE', { archiveId: archiveId }, app.device));
+        });
+    }
+
+    /* -- delete a bottle entered by mistake ---------------------------- */
+
+    // Deliberately not DRINK_BOTTLE with a disposition: this leaves no archive
+    // entry at all, because the bottle never existed. Anything that did exist and
+    // is now gone belongs in the archive instead.
+    function doDelete(b) {
+        var w = model.wineById(app.state, b.wineId);
+        var bottleCopy = model.clone(b);
+        var wineCopy = orphansWine(b) && w ? model.clone(w) : null;
+
+        // code/label are carried purely so the commit message can name what went;
+        // the reducers never read them.
+        var label = model.wineLabel(w);
+        var ops = [model.makeOp('DELETE_BOTTLE', {
+            bottleId: b.id, code: b.code || null, label: label
+        }, app.device)];
+        // Ordering within the device is guaranteed by the monotonic op clock and
+        // seq, the same mechanism that keeps a tasting note after its drink op.
+        if (wineCopy) {
+            ops.push(model.makeOp('DELETE_WINE', {
+                wineId: b.wineId, label: label
+            }, app.device));
+        }
+        ops.forEach(function (o) { enqueue(o); });
+
+        var opIds = ops.map(function (o) { return o.opId; });
+        toast('Deleted: ' + label, 'Undo', function () {
+            undoOps(opIds, function () {
+                if (wineCopy) enqueue(model.makeOp('ADD_WINE', { wine: wineCopy }, app.device));
+                // ADD_BOTTLES honours a supplied createdAt, so the restored bottle
+                // keeps its original position in the canonical ordering.
+                enqueue(model.makeOp('ADD_BOTTLES', { bottles: [bottleCopy] }, app.device));
+            });
+        });
+        go('#/');
+    }
+
+    // True when deleting this bottle would leave its wine with nothing at all
+    // pointing at it — no other bottle, no archive entry.
+    function orphansWine(b) {
+        var bottles = app.state.bottles.bottles || [];
+        for (var i = 0; i < bottles.length; i++) {
+            if (bottles[i].wineId === b.wineId && bottles[i].id !== b.id) return false;
+        }
+        var entries = app.state.archive.entries || [];
+        for (var j = 0; j < entries.length; j++) {
+            if (entries[j].wineId === b.wineId) return false;
+        }
+        return true;
+    }
+
+    function openDelete(b) {
+        var w = model.wineById(app.state, b.wineId);
+        var html = '<p>Delete <strong>' + esc(model.wineLabel(w)) + '</strong> entirely?</p>' +
+            '<p class="cellar-muted">Use this only for a bottle entered by mistake. It leaves ' +
+            'no archive entry and no history. If you drank it, close this and use ' +
+            '\u201CDrink this\u201D instead.</p>';
+        if (b.code) {
+            html += '<p class="cellar-muted">Label <span class="cellar-code">' + esc(b.code) +
+                '</span> goes back to the unassigned pool and can be stuck on another bottle.</p>';
+        }
+        if (orphansWine(b)) {
+            html += '<p class="cellar-muted">This is the only bottle of this wine, so the wine ' +
+                'record will be removed too.</p>';
+        }
+        html += '<button class="cellar-btn cellar-btn-danger cellar-btn-block" id="cd-go">' +
+                '<i class="fa fa-trash"></i> Delete permanently</button>';
+
+        modal('Delete this bottle?', html, function (root) {
+            root.querySelector('#cd-go').addEventListener('click', function () {
+                closeModal();
+                doDelete(b);
+            });
+        });
     }
 
     function openDisposition(b) {
@@ -976,14 +1108,122 @@
         };
     }
 
-    function renderAdd(main) {
-        var fridges = (app.state.config.fridges || []).filter(function (f) { return f.active !== false; });
-        var pendingCode = (location.hash.split('?code=')[1] || '');
+    /* -- acquisition form (shared by both add screens) ----------------- */
+
+    // The Acquisition and Bottles cards, their wiring and their read-back. Both
+    // "Add wine" and "Add more bottles" render the same ca-* fields; only the
+    // wine half above them differs. Keeping one copy means the two screens
+    // cannot drift apart.
+
+    function activeFridges() {
+        return (app.state.config.fridges || []).filter(function (f) { return f.active !== false; });
+    }
+
+    function acquisitionFormHtml(d, pendingCode) {
+        d = d || {};
+        var fridgeOpts = activeFridges().map(function (f) {
+            return '<option value="' + esc(f.id) + '"' +
+                (f.id === d.fridgeId ? ' selected' : '') + '>' + esc(f.name) + '</option>';
+        }).join('');
+
+        return '<div class="cellar-card"><div class="cellar-card-head">' +
+            '<i class="fa fa-cart-shopping"></i><h3>Acquisition</h3></div>' +
+            '<div class="cellar-card-body">' +
+            '<div class="cellar-field"><label>Bought from</label>' +
+            '<input id="ca-vendor" value="' + esc(d.acquiredFrom || '') + '"></div>' +
+            '<div class="cellar-field-row">' +
+              '<div class="cellar-field"><label>Purchase date</label>' +
+              '<input id="ca-date" type="date" value="' + esc(d.acquiredAt || '') + '"></div>' +
+              '<div class="cellar-field"><label>Price per bottle</label>' +
+              '<input id="ca-price" inputmode="decimal" placeholder="89.99" value="' +
+              (d.costCents == null ? '' : (d.costCents / 100).toFixed(2)) + '"></div></div>' +
+            '</div></div>' +
+
+            '<div class="cellar-card"><div class="cellar-card-head">' +
+            '<i class="fa fa-boxes-stacked"></i><h3>Bottles</h3></div>' +
+            '<div class="cellar-card-body">' +
+            '<div class="cellar-field-row">' +
+              '<div class="cellar-field"><label>How many bottles</label>' +
+              '<input id="ca-qty" inputmode="numeric" value="' + (d.qty || 1) + '"></div>' +
+              '<div class="cellar-field"><label>Size (mL)</label>' +
+              '<input id="ca-size" inputmode="numeric" value="' + (d.sizeMl || 750) + '"></div></div>' +
+            '<div class="cellar-field-row">' +
+              '<div class="cellar-field"><label>Fridge</label>' +
+              '<select id="ca-fridge">' + fridgeOpts + '</select></div>' +
+              '<div class="cellar-field"><label>Shelf</label>' +
+              '<select id="ca-shelf"></select></div></div>' +
+            (pendingCode ? '<p class="cellar-muted">Label <span class="cellar-code">' +
+                esc(pendingCode) + '</span> will be assigned to the first bottle.</p>' : '') +
+            '<button class="cellar-btn cellar-btn-primary cellar-btn-block" id="ca-save">' +
+            '<i class="fa fa-check"></i> Add</button>' +
+            '<p class="cellar-field-hint">After saving, scan a label on each bottle to link it up.</p>' +
+            '</div></div>';
+    }
+
+    function bindAcquisitionForm(d) {
+        d = d || {};
+        var fridgeSel = el('ca-fridge');
+        if (!fridgeSel || !fridgeSel.options.length) return;
+
+        function syncShelves() {
+            var f = model.fridgeById(app.state, el('ca-fridge').value);
+            var sel = el('ca-shelf');
+            sel.innerHTML = '';
+            for (var s = 1; s <= ((f && f.shelfCount) || 1); s++) {
+                sel.innerHTML += '<option value="' + s + '">' + esc(shelfLabel(f, s)) + '</option>';
+            }
+        }
+
+        syncShelves();
+        // Only meaningful once the options exist, so it has to follow syncShelves.
+        if (d.shelf != null) el('ca-shelf').value = String(d.shelf);
+        fridgeSel.addEventListener('change', syncShelves);
+    }
+
+    function readAcquisitionForm() {
+        var sizeMl = parseInt(el('ca-size').value, 10) || 750;
+        return {
+            qty: Math.max(1, parseInt(el('ca-qty').value, 10) || 1),
+            sizeMl: sizeMl,
+            common: {
+                fridgeId: el('ca-fridge').value || null,
+                shelf: parseInt(el('ca-shelf').value, 10) || null,
+                acquiredFrom: el('ca-vendor').value.trim(),
+                acquiredAt: el('ca-date').value || null,
+                costCents: model.parseMoneyCents(el('ca-price').value),
+                sizeMl: sizeMl
+            }
+        };
+    }
+
+    // Enqueue the bottles and arm the labelling session, so the next N scans are
+    // one tap each rather than N trips through the typeahead.
+    function saveBottles(wineId, qty, common, pendingCode) {
+        var bottles = [];
+        for (var i = 0; i < qty; i++) bottles.push(newBottleRecord(wineId, common));
+        if (pendingCode) bottles[0].code = pendingCode;
+
+        enqueue(model.makeOp('ADD_BOTTLES', { bottles: bottles }, app.device));
+
+        var needLabels = bottles.filter(function (b) { return !b.code; }).length;
+        if (needLabels) {
+            lsSet(K.assign, { wineId: wineId, total: qty, startedAt: model.nowIso() });
+            toast('Added ' + qty + ' bottle(s). Scan a label on each one.');
+        } else {
+            toast('Added.');
+        }
+        go('#/wine/' + encodeURIComponent(wineId));
+    }
+
+    /* -- add wine ----------------------------------------------------- */
+
+    function renderAdd(main, query) {
+        // Normally arrives from the unassigned-label screen, but it is a URL and
+        // anyone can type one — never write an unvalidated string onto a bottle.
+        var pendingCode = model.normalizeCode((query && query.code) || '');
+        if (!model.isCode(pendingCode)) pendingCode = '';
         var colorOpts = model.COLORS.map(function (c) {
             return '<option value="' + c + '">' + c + '</option>';
-        }).join('');
-        var fridgeOpts = fridges.map(function (f) {
-            return '<option value="' + esc(f.id) + '">' + esc(f.name) + '</option>';
         }).join('');
 
         main.innerHTML = backLink('#/', 'All fridges') + '<h2>Add wine</h2>' +
@@ -1007,47 +1247,9 @@
               '<input id="ca-to" inputmode="numeric"></div></div>' +
             '<div class="cellar-field"><label>Notes</label><textarea id="ca-notes"></textarea></div>' +
             '</div></div>' +
+            acquisitionFormHtml({}, pendingCode);
 
-            '<div class="cellar-card"><div class="cellar-card-head">' +
-            '<i class="fa fa-cart-shopping"></i><h3>Acquisition</h3></div>' +
-            '<div class="cellar-card-body">' +
-            '<div class="cellar-field"><label>Bought from</label><input id="ca-vendor"></div>' +
-            '<div class="cellar-field-row">' +
-              '<div class="cellar-field"><label>Purchase date</label>' +
-              '<input id="ca-date" type="date"></div>' +
-              '<div class="cellar-field"><label>Price per bottle</label>' +
-              '<input id="ca-price" inputmode="decimal" placeholder="89.99"></div></div>' +
-            '</div></div>' +
-
-            '<div class="cellar-card"><div class="cellar-card-head">' +
-            '<i class="fa fa-boxes-stacked"></i><h3>Bottles</h3></div>' +
-            '<div class="cellar-card-body">' +
-            '<div class="cellar-field-row">' +
-              '<div class="cellar-field"><label>How many bottles</label>' +
-              '<input id="ca-qty" inputmode="numeric" value="1"></div>' +
-              '<div class="cellar-field"><label>Size (mL)</label>' +
-              '<input id="ca-size" inputmode="numeric" value="750"></div></div>' +
-            '<div class="cellar-field-row">' +
-              '<div class="cellar-field"><label>Fridge</label>' +
-              '<select id="ca-fridge">' + fridgeOpts + '</select></div>' +
-              '<div class="cellar-field"><label>Shelf</label>' +
-              '<select id="ca-shelf"></select></div></div>' +
-            (pendingCode ? '<p class="cellar-muted">Label <span class="cellar-code">' +
-                esc(pendingCode) + '</span> will be assigned to the first bottle.</p>' : '') +
-            '<button class="cellar-btn cellar-btn-primary cellar-btn-block" id="ca-save">' +
-            '<i class="fa fa-check"></i> Add</button>' +
-            '<p class="cellar-field-hint">After saving, scan a label on each bottle to link it up.</p>' +
-            '</div></div>';
-
-        function syncShelves() {
-            var f = model.fridgeById(app.state, el('ca-fridge').value);
-            var sel = el('ca-shelf');
-            sel.innerHTML = '';
-            for (var s = 1; s <= ((f && f.shelfCount) || 1); s++) {
-                sel.innerHTML += '<option value="' + s + '">' + esc(shelfLabel(f, s)) + '</option>';
-            }
-        }
-        if (fridges.length) { syncShelves(); el('ca-fridge').addEventListener('change', syncShelves); }
+        bindAcquisitionForm({});
 
         el('ca-save').addEventListener('click', function () {
             var producer = el('ca-producer').value.trim();
@@ -1055,55 +1257,104 @@
             if (!producer && !name) { alert('Enter at least a producer or a wine name.'); return; }
 
             var vintageRaw = el('ca-vintage').value.trim();
-            var qty = Math.max(1, parseInt(el('ca-qty').value, 10) || 1);
-            var sizeMl = parseInt(el('ca-size').value, 10) || 750;
+            var form = readAcquisitionForm();
             var wineId = model.newId();
 
-            var wine = {
-                id: wineId,
-                producer: producer,
-                name: name,
-                vintage: /^\d{4}$/.test(vintageRaw) ? parseInt(vintageRaw, 10) : null,
-                nv: !vintageRaw || /^nv$/i.test(vintageRaw),
-                color: el('ca-color').value,
-                varietals: el('ca-varietals').value.split(/[,;/]+/)
-                    .map(function (s) { return s.trim(); }).filter(Boolean),
-                region: el('ca-region').value.trim(),
-                appellation: '',
-                country: el('ca-country').value.trim(),
-                abv: null,
-                sizeMl: sizeMl,
-                drinkFrom: parseInt(el('ca-from').value, 10) || null,
-                drinkTo: parseInt(el('ca-to').value, 10) || null,
-                notes: el('ca-notes').value.trim(),
-                externalUrl: ''
-            };
+            enqueue(model.makeOp('ADD_WINE', {
+                wine: {
+                    id: wineId,
+                    producer: producer,
+                    name: name,
+                    vintage: /^\d{4}$/.test(vintageRaw) ? parseInt(vintageRaw, 10) : null,
+                    nv: !vintageRaw || /^nv$/i.test(vintageRaw),
+                    color: el('ca-color').value,
+                    varietals: el('ca-varietals').value.split(/[,;/]+/)
+                        .map(function (s) { return s.trim(); }).filter(Boolean),
+                    region: el('ca-region').value.trim(),
+                    appellation: '',
+                    country: el('ca-country').value.trim(),
+                    abv: null,
+                    sizeMl: form.sizeMl,
+                    drinkFrom: parseInt(el('ca-from').value, 10) || null,
+                    drinkTo: parseInt(el('ca-to').value, 10) || null,
+                    notes: el('ca-notes').value.trim(),
+                    externalUrl: ''
+                }
+            }, app.device));
 
-            var common = {
-                fridgeId: el('ca-fridge').value || null,
-                shelf: parseInt(el('ca-shelf').value, 10) || null,
-                acquiredFrom: el('ca-vendor').value.trim(),
-                acquiredAt: el('ca-date').value || null,
-                costCents: model.parseMoneyCents(el('ca-price').value),
-                sizeMl: sizeMl
-            };
+            saveBottles(wineId, form.qty, form.common, pendingCode);
+        });
+    }
 
-            var bottles = [];
-            for (var i = 0; i < qty; i++) bottles.push(newBottleRecord(wineId, common));
-            if (pendingCode) bottles[0].code = pendingCode;
+    /* -- add more bottles of a wine already in the cellar -------------- */
 
-            enqueue(model.makeOp('ADD_WINE', { wine: wine }, app.device));
-            enqueue(model.makeOp('ADD_BOTTLES', { bottles: bottles }, app.device));
+    // Reached from the wine page and from a bottle card. The whole point is that
+    // the wine half of the form is not here: the wine already exists, so this is
+    // an ADD_BOTTLES against its wineId and nothing else.
+    function renderAddBottles(main, id, query) {
+        var w = model.wineById(app.state, id);
+        if (!w) {
+            main.innerHTML = backLink('#/', 'All fridges') +
+                '<div class="cellar-empty">Wine not found.</div>';
+            return;
+        }
 
-            // Arm the labelling session so the next N scans are one tap each.
-            var needLabels = bottles.filter(function (b) { return !b.code; }).length;
-            if (needLabels) {
-                lsSet(K.assign, { wineId: wineId, total: qty, startedAt: model.nowIso() });
-                toast('Added ' + qty + ' bottle(s). Scan a label on each one.');
-            } else {
-                toast('Added.');
+        var mine = (app.state.bottles.bottles || []).filter(function (b) {
+            return b.wineId === id;
+        });
+
+        // Prefill from the bottle we came from; failing that the most recently
+        // added bottle of this wine. The second bottle of a case almost always
+        // shares the first one's vendor, price, size and shelf.
+        var src = null;
+        var i;
+        if (query && query.from) {
+            for (i = 0; i < mine.length; i++) if (mine[i].id === query.from) src = mine[i];
+        }
+        if (!src) {
+            for (i = 0; i < mine.length; i++) {
+                if (!src || String(mine[i].createdAt || '') >= String(src.createdAt || '')) {
+                    src = mine[i];
+                }
             }
-            go('#/wine/' + encodeURIComponent(wineId));
+        }
+
+        var defaults = src ? {
+            fridgeId: src.fridgeId,
+            shelf: src.shelf,
+            acquiredFrom: src.acquiredFrom,
+            acquiredAt: src.acquiredAt,
+            costCents: src.costCents,
+            sizeMl: src.sizeMl,
+            qty: 1
+        } : {
+            fridgeId: (app.state.config.defaults || {}).fridgeId || null,
+            sizeMl: (app.state.config.defaults || {}).bottleSizeMl || 750,
+            qty: 1
+        };
+
+        var meta = [];
+        if (w.varietals && w.varietals.length) meta.push(w.varietals.join(', '));
+        if (w.appellation || w.region) meta.push(w.appellation || w.region);
+        if (w.country) meta.push(w.country);
+
+        main.innerHTML =
+            backLink('#/wine/' + encodeURIComponent(id), 'Back to this wine') +
+            '<h2>Add bottles</h2>' +
+            '<div class="cellar-card"><div class="cellar-card-body">' +
+            '<strong>' + esc(model.wineLabel(w)) + '</strong>' +
+            (meta.length ? '<div class="cellar-muted">' + esc(meta.join(' · ')) + '</div>' : '') +
+            '<p class="cellar-field-hint">This wine is already in the cellar, so only the ' +
+            'purchase and storage details are needed.' +
+            (src ? ' Prefilled from the bottle you already have.' : '') + '</p>' +
+            '</div></div>' +
+            acquisitionFormHtml(defaults, '');
+
+        bindAcquisitionForm(defaults);
+
+        el('ca-save').addEventListener('click', function () {
+            var form = readAcquisitionForm();
+            saveBottles(id, form.qty, form.common, '');
         });
     }
 
@@ -1144,6 +1395,9 @@
             html += '<button class="cellar-btn cellar-btn-block" id="cw-moveall">' +
                     '<i class="fa fa-arrows-up-down-left-right"></i> Move all ' + live.length + ' bottles</button>';
         }
+        html += '<a class="cellar-btn cellar-btn-primary cellar-btn-block" href="#/wine/' +
+                encodeURIComponent(id) + '/add">' +
+                '<i class="fa fa-plus"></i> Add more bottles of this wine</a>';
         if (gone.length) {
             html += '<h3>Archive</h3><div class="cellar-card"><ul class="cellar-list">' +
                 gone.map(function (e) {

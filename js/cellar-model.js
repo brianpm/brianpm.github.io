@@ -524,6 +524,49 @@
             return state;
         },
 
+        // Permanent removal, with no archive entry and no history — the fix for a
+        // bottle entered by mistake, not for one that was consumed (that is
+        // DRINK_BOTTLE). Convergent: it asserts "this id is absent", so replaying
+        // it against state where the bottle is already gone is a no-op.
+        DELETE_BOTTLE: function (state, op) {
+            var p = op.payload;
+            var bottles = state.bottles.bottles;
+            for (var i = 0; i < bottles.length; i++) {
+                if (bottles[i].id !== p.bottleId) continue;
+                bottles.splice(i, 1);
+                touch(state.bottles, op.ts);
+                break;
+            }
+            // The bottle's code is not retired: codeStatus() will report it as
+            // 'issued' again, so the physical label goes back in the pool.
+            return state;
+        },
+
+        // Removes a wine that nothing references any more — the leftover of
+        // deleting the last bottle of a mis-entered wine. The guard is evaluated
+        // at replay time against whatever state we are replaying onto, so if
+        // another device added a bottle of this wine while we were offline the
+        // record is correctly kept.
+        DELETE_WINE: function (state, op) {
+            var p = op.payload;
+            var bottles = state.bottles.bottles || [];
+            for (var i = 0; i < bottles.length; i++) {
+                if (bottles[i].wineId === p.wineId) return state;
+            }
+            var entries = state.archive.entries || [];
+            for (var j = 0; j < entries.length; j++) {
+                if (entries[j].wineId === p.wineId) return state;
+            }
+            var wines = state.wines.wines;
+            for (var k = 0; k < wines.length; k++) {
+                if (wines[k].id !== p.wineId) continue;
+                wines.splice(k, 1);
+                touch(state.wines, op.ts);
+                break;
+            }
+            return state;
+        },
+
         ADD_ARCHIVE_NOTE: function (state, op) {
             var p = op.payload;
             var e = index(state.archive.entries, 'id')[p.archiveId];

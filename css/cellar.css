@@ -295,6 +295,16 @@ a.cellar-card:focus {
 .cellar-btn-block  { display: flex; width: 100%; margin-bottom: 0.6em; }
 .cellar-btn-sm     { min-height: 38px; padding: 0.4em 0.8em; font-size: 0.85em; }
 
+/* Deliberately set apart from the card stack and given its own breathing room:
+   the delete control should never be reachable by a thumb aiming at "Drink this". */
+.cellar-danger-zone {
+    margin: 2em 0 1.2em;
+    padding-top: 1.2em;
+    border-top: 1px solid var(--color-border-mid);
+    text-align: center;
+}
+.cellar-danger-zone .cellar-btn { display: inline-flex; width: auto; }
+
 .cellar-actions { display: flex; flex-direction: column; gap: 0.6em; padding: 0 1.1em 1.2em; }
 .cellar-actions-row { display: flex; gap: 0.6em; }
 .cellar-actions-row .cellar-btn { flex: 1; }
