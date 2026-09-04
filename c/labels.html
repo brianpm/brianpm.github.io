@@ -263,7 +263,11 @@ body { padding-top: 0; background: var(--color-bg-page); }
         <div class="cellar-card-body">
             <p><strong>1.</strong> Download the codes file and commit it to your private data
                repo as <code>data/codes.json</code> — <em>before</em> printing. If you print codes
-               the app has never heard of, a scan of an unassigned label looks identical to a typo.</p>
+               the app has never heard of, a scan of an unassigned label looks identical to a typo.
+               The file contains every batch that was pasted in above <em>plus</em> this one, so it
+               normally replaces <code>data/codes.json</code> whole. If you did not paste, run
+               <code>python3 scripts/merge_codes.py ~/Downloads/codes.json</code> in the data repo
+               instead — it is safe either way and does nothing to a file that is already complete.</p>
             <button class="cellar-btn cellar-btn-block" id="lb-download">
                 <i class="fa fa-download"></i> Download codes.json
             </button>
@@ -548,10 +552,21 @@ body { padding-top: 0; background: var(--color-bg-page); }
 
         render(codes, g, base);
 
-        el('lb-status').innerHTML = '<div class="cellar-banner cellar-banner-info">' +
-            count + ' labels on ' + (count / n) + ' sheet(s)' +
-            (prior.length ? ', deduped against ' + prior.length + ' already issued' : '') +
-            '.</div>';
+        // Say something in BOTH cases. Silence when the box is empty is what lets
+        // a second batch get downloaded as a file holding only itself, which then
+        // replaces the full history in data/codes.json and orphans batch one.
+        el('lb-status').innerHTML = prior.length
+            ? '<div class="cellar-banner cellar-banner-info">' + count + ' labels on ' +
+              (count / n) + ' sheet(s), deduped against ' + prior.length +
+              ' already issued. The download holds all ' + (prior.length + count) +
+              ' codes, so it replaces data/codes.json outright.</div>'
+            : '<div class="cellar-banner cellar-banner-warn">' + count + ' labels on ' +
+              (count / n) + ' sheet(s), but nothing was pasted into "codes already ' +
+              'issued". If this is not your first batch, the download will hold only ' +
+              'these ' + count + ' codes: merge it with ' +
+              '<code>scripts/merge_codes.py</code> rather than replacing the file, or ' +
+              'discard this sheet, paste the current codes.json above and generate ' +
+              'again.</div>';
         el('lb-output').className = 'cellar-card';
         el('lb-output').scrollIntoView({ behavior: 'smooth' });
     });

@@ -104,3 +104,19 @@ silently corrupted data.
 `data/codes.json` into the "codes already issued" box** before generating a new
 batch, then commit the downloaded file *before* you print. Codes are never
 reused — a retired code still identifies its archive entry forever.
+
+That paste box *is* the collection mechanism: the download is everything you
+pasted plus the new batch, so it replaces `data/codes.json` whole and there is
+nothing to merge.
+
+If you forget, the download holds only the newest batch and replacing the file
+would orphan every earlier one. Recover with:
+
+```bash
+python3 scripts/merge_codes.py ~/Downloads/codes.json
+```
+
+It unions the batches, writes the same bytes the app would, and stops without
+writing if a code would end up in two batches. It is safe to run on a download
+that was already complete, and safe to run twice — so when you cannot remember
+whether you pasted, just run it.
