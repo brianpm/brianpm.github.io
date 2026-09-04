@@ -201,6 +201,13 @@ in `robots.txt`, and absent from `sitemap.xml`; reach it by bookmark.
   warns against is a generic guideline, not a measurement. Don't re-litigate label
   sizing from rules of thumb; reprint the test card if the printer or phones change.
   Round labels must fit content inside the *inscribed circle*, not the bounding box.
+  **The 0.75 in round grid is MEASURED from Avery's own Word template**, not derived:
+  8x10, labels 0.75 in, `ml` 0.375, `mt` 0.625, `px` 1.0, `py` 1.0 — all 80 shape
+  anchors were recovered from the template's compound-file streams and the margins
+  come out symmetric to within a twip. `scratchpad/stocks.js` asserts these against
+  the rendered DOM, so the preset cannot drift back to a guess. An earlier derived
+  grid had three of the four numbers wrong. Do not re-derive label grids by
+  arithmetic; get the manufacturer's template.
 - `c/selftest.html` — the test suite. **Run it after every change to the cellar files.**
   Also runs headless: `node -e "require('./js/cellar-model.js');require('./js/cellar-store.js');require('./js/cellar-selftest.js');Cellar.selftest.run().then(s=>{console.log(s.passed+'/'+s.total);process.exit(s.failed?1:0)})"`
 - `js/cellar-model.js` — pure: codes, reducers, canonical serialization, CSV. No DOM, no network.

@@ -364,9 +364,12 @@ body { padding-top: 0; background: var(--color-bg-page); }
                   'not this one. Shrinking the QR to 0.45 in leaves room for a 5pt printed ' +
                   'code, which is worth more than scan margin already in hand; the QR still ' +
                   'clears the die cut by about 0.6 mm at its corners. ' +
-                  'The 8 x 10 grid is derived, not measured — verify it against your sheet.',
+                  'The 8 x 10 grid is MEASURED from Avery\'s official Word template for ' +
+                  'this product (all 80 label anchors recovered from it, margins symmetric ' +
+                  'to within a twip) — do not re-derive it. Any residual offset after this ' +
+                  'is your printer\'s page positioning, not the sheet.',
             shape: 'round', cols: 8, rows: 10,
-            w: 0.75, h: 0.75, ml: 0.59375, mt: 0.5, px: 0.9375, py: 1.0, qr: 0.45,
+            w: 0.75, h: 0.75, ml: 0.375, mt: 0.625, px: 1.0, py: 1.0, qr: 0.45,
             text: true, codePt: 5, host: false
         },
         {
