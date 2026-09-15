@@ -285,9 +285,6 @@
       target="_blank">NOAA/NCEI Global Ocean Heat Content Climate Data Record</a>
       (Levitus et al. 2012; Reagan et al., ongoing). Values are expressed relative to a
       1955&ndash;2006 climatology. Shaded bands show the standard error of the estimate.
-      Data are served live from the
-      <a href="https://www.ncei.noaa.gov/thredds-ocean/catalog/ncei/archive/data/0164586/derived/catalog.html"
-      target="_blank">NOAA THREDDS server</a> via OPeNDAP.
     </p>
 
     <!-- Dataset toggles -->
@@ -300,7 +297,7 @@
 
     <!-- Loading / error -->
     <div id="ohc-loading">
-      <div class="spinner"></div><br>Fetching OHC data from NOAA&hellip;
+      <div class="spinner"></div><br>Loading OHC data&hellip;
       <div id="ohc-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
     </div>
 
@@ -583,67 +580,50 @@ function applyThemeToAllCharts() {
 document.addEventListener('themechange', applyThemeToAllCharts);
 
 // ============================================================
-//  OHC dataset definitions
+//  OHC — Ocean Heat Content (NOAA/NCEI Global OHC CDR)
+//  Data source: local CSV pre-computed by scripts/update_ohc_data.py
+//  (NOAA's thredds-ocean OPeNDAP service was found to be unreliable —
+//  503s and hangs on every request — so the netCDF files are downloaded
+//  directly over plain HTTPS ahead of time instead of fetched live.)
 // ============================================================
 const OHC_DATASETS = [
   {
     key: 'ohc700',
     label: '0–700 m',
-    color: '#0077b6',
-    url: 'https://www.ncei.noaa.gov/thredds-ocean/dodsC/ncei/archive/data/0164586/derived/heat_content_anomaly_0-700_pentad.nc.ascii?time,pent_h22_WO,pent_h22_se_WO'
+    color: '#0077b6'
   },
   {
     key: 'ohc2000',
     label: '0–2000 m',
-    color: '#e07b00',
-    url: 'https://www.ncei.noaa.gov/thredds-ocean/dodsC/ncei/archive/data/0164586/derived/heat_content_anomaly_0-2000_pentad.nc.ascii?time,pent_h22_WO,pent_h22_se_WO'
+    color: '#e07b00'
   }
 ];
 
 // ============================================================
-//  Parse OPeNDAP ASCII response
-//
-//  Format after the '---...' separator:
-//
-//  varname[N]
-//  val1, val2, val3, ...
-//
-//  varname2[N]
-//  val1, val2, ...
+//  Parse the OHC CSV: year_frac,ohc700,ohc700_se,ohc2000,ohc2000_se
 // ============================================================
-function parseOPeNDAPAscii(text) {
-  // Split header from data on the long dashed separator line
-  const sepMatch = text.match(/\n-{10,}\n/);
-  if (!sepMatch) throw new Error('Could not find OPeNDAP data separator');
-  const dataSection = text.slice(sepMatch.index + sepMatch[0].length);
-
+function parseOhcCsv(text) {
+  const lines = text.trim().split('\n');
   const result = {};
+  for (const ds of OHC_DATASETS) {
+    result[ds.key] = { years: [], values: [], errors: [] };
+  }
 
-  // Each variable block starts with "name[N]" on its own line,
-  // followed by one or more lines of comma-separated values,
-  // and ends at the next blank line (or end of string).
-  const blocks = dataSection.trim().split(/\n\s*\n/);
-  for (const block of blocks) {
-    if (!block.trim()) continue;
-    const lines = block.trim().split('\n');
-    const headerMatch = lines[0].trim().match(/^(\w+)\[\d+\]$/);
-    if (!headerMatch) continue;
-    const varName = headerMatch[1];
-    const valueStr = lines.slice(1).join(' ');
-    const values = valueStr.trim().split(/[\s,]+/)
-      .filter(s => s.length > 0)
-      .map(Number)
-      .filter(n => !isNaN(n));
-    result[varName] = values;
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    if (parts.length < 1 + OHC_DATASETS.length * 2) continue;
+    const yr = parseFloat(parts[0]);
+    if (isNaN(yr)) continue;
+
+    OHC_DATASETS.forEach((ds, j) => {
+      const val = parseFloat(parts[1 + j * 2]);
+      const err = parseFloat(parts[2 + j * 2]);
+      result[ds.key].years.push(yr);
+      result[ds.key].values.push(isNaN(val) ? null : val);
+      result[ds.key].errors.push(isNaN(err) ? null : err);
+    });
   }
   return result;
-}
-
-// ============================================================
-//  Convert OPeNDAP time (months since 1955-01-01) → decimal year
-// ============================================================
-function monthsToDecimalYear(months) {
-  return 1955 + months / 12;
 }
 
 // ============================================================
@@ -886,48 +866,20 @@ function buildOhcControls() {
 }
 
 // ============================================================
-//  Fetch one OHC dataset from OPeNDAP, parse, cache
-// ============================================================
-async function fetchOhcDataset(ds) {
-  const res = await fetch(ds.url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  const text = await res.text();
-  const raw  = parseOPeNDAPAscii(text);
-
-  if (!raw.time || !raw.pent_h22_WO)
-    throw new Error('Expected variables not found in OPeNDAP response');
-
-  const years  = raw.time.map(monthsToDecimalYear);
-  const values = raw.pent_h22_WO;
-  const errors = raw.pent_h22_se_WO || values.map(() => null);
-
-  // Convert from native 10²² J to ZJ (1 ZJ = 10²¹ J → multiply by 10)
-  ohcCache[ds.key] = {
-    years,
-    values: values.map(v => v * 10),
-    errors: errors.map(e => e * 10)
-  };
-}
-
-// ============================================================
-//  Initialise: build controls, fetch all datasets in parallel
+//  Fetch and initialise
 // ============================================================
 async function initOhc() {
   buildOhcControls();
 
-  const results = await Promise.allSettled(
-    OHC_DATASETS.map(ds => fetchOhcDataset(ds))
-  );
-
-  const errors = results
-    .map((r, i) => r.status === 'rejected'
-      ? `${OHC_DATASETS[i].label}: ${r.reason.message}` : null)
-    .filter(Boolean);
-
-  if (errors.length) {
+  try {
+    const res = await fetch('data/ohc.csv');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    Object.assign(ohcCache, parseOhcCsv(text));
+  } catch (err) {
     const errDiv = document.getElementById('ohc-error-message');
     errDiv.style.display = 'block';
-    errDiv.textContent   = 'Could not load: ' + errors.join('; ');
+    errDiv.textContent   = `Could not load OHC data: ${err.message}`;
   }
 
   document.getElementById('ohc-loading').style.display       = 'none';

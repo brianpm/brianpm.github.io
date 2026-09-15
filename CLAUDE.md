@@ -164,6 +164,7 @@ Climate data scripts live in `scripts/` at the repo root. All write their output
 ```bash
 conda activate py12
 python scripts/update_gmst_data.py        # 5 GMST CSVs from Met Office
+python scripts/update_ohc_data.py         # Ocean Heat Content from NOAA/NCEI (downloads .nc directly; thredds-ocean OPeNDAP is unreliable, avoid it)
 python scripts/update_eei_data.py         # EEI from CERES EBAF (also runs via GitHub Actions monthly)
 python scripts/update_tsi_data.py         # TSI from NOAA NCEI (also runs via GitHub Actions quarterly)
 python scripts/update_aod_data.py         # AOD from Sentinel-3A via Copernicus CDS
