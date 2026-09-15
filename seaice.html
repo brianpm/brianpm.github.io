@@ -1,0 +1,654 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Sea Ice - SkyMath.org</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="keywords" content="sea ice, sea ice extent, sea ice volume, Arctic, Antarctic, NSIDC, PIOMAS, climate change" />
+<link href='https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900' rel='stylesheet' type='text/css'>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/v4-shims.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<style>
+.page-container {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 1em;
+}
+
+.page-intro {
+    color: #575859;
+    font-size: 1.05em;
+    line-height: 1.7;
+    margin-bottom: 1.5em;
+    max-width: 820px;
+}
+
+.page-intro a {
+    color: #55bfea;
+}
+
+/* ---- Dataset toggle controls ---- */
+.dataset-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5em 1.4em;
+    margin-bottom: 1.5em;
+    padding: 0.9em 1.2em;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e8e8e8;
+    align-items: center;
+}
+
+.controls-label {
+    font-size: 0.78em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #aaa;
+    width: 100%;
+    margin-bottom: 0.1em;
+}
+
+.dataset-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    cursor: pointer;
+    user-select: none;
+    padding: 0.3em 0.7em 0.3em 0.5em;
+    border-radius: 20px;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.dataset-toggle.active {
+    border-color: var(--ds-color);
+    background: color-mix(in srgb, var(--ds-color) 10%, white);
+}
+
+.dataset-toggle:hover {
+    background: color-mix(in srgb, var(--ds-color) 15%, white);
+}
+
+.color-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.dataset-name {
+    font-size: 0.88em;
+    font-weight: 600;
+    color: var(--color-text-dark);
+}
+
+/* ---- Stats grid ---- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.8em;
+    margin-bottom: 1.5em;
+}
+
+.stat-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-left: 4px solid var(--ds-color);
+    border-radius: 8px;
+    padding: 0.75em 1em;
+    text-align: center;
+    transition: opacity 0.3s;
+}
+
+.stat-card.inactive {
+    opacity: 0.25;
+}
+
+.stat-ds-name {
+    font-size: 0.72em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 0.25em;
+}
+
+.stat-value {
+    font-size: 1.45em;
+    font-weight: 700;
+    color: var(--ds-color);
+    line-height: 1.1;
+}
+
+.stat-units {
+    font-size: 0.62em;
+    font-weight: 400;
+    color: #bbb;
+}
+
+.stat-year {
+    font-size: 0.7em;
+    color: #bbb;
+    margin-top: 0.2em;
+}
+
+/* ---- Chart ---- */
+.chart-container {
+    position: relative;
+    height: 500px;
+    margin-bottom: 1em;
+}
+
+/* ---- Loading spinner ---- */
+#nh-sh-loading, #vol-loading {
+    text-align: center;
+    padding: 4em 0;
+    color: #888;
+    font-size: 0.95em;
+}
+
+.spinner {
+    display: inline-block;
+    width: 34px;
+    height: 34px;
+    border: 3px solid #e8e8e8;
+    border-top-color: #55bfea;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 0.6em;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-message {
+    color: #c0392b;
+    font-size: 0.88em;
+    margin-top: 0.5em;
+    display: none;
+}
+
+/* ---- Credits & notes ---- */
+.page-notes {
+    font-size: 0.83em;
+    color: #888;
+    line-height: 1.8;
+    border-top: 1px solid #eee;
+    padding-top: 1em;
+    margin-top: 0.5em;
+}
+
+.page-notes a {
+    color: #55bfea;
+}
+
+.page-notes strong {
+    color: #666;
+}
+
+[data-theme="dark"] .controls-label,
+[data-theme="dark"] .stat-ds-name,
+[data-theme="dark"] .stat-units,
+[data-theme="dark"] .stat-year,
+[data-theme="dark"] #nh-sh-loading,
+[data-theme="dark"] #vol-loading,
+[data-theme="dark"] .page-notes { color: var(--color-text-light); }
+[data-theme="dark"] .page-notes strong { color: var(--color-text-mid); }
+[data-theme="dark"] .dataset-toggle.active {
+    background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
+}
+[data-theme="dark"] .dataset-toggle:hover {
+    background: color-mix(in srgb, var(--ds-color) 18%, var(--color-bg-card));
+}
+[data-theme="dark"] .page-intro       { color: var(--color-text-mid); }
+[data-theme="dark"] .dataset-controls { background: var(--color-bg-card-head); border-color: var(--color-border-mid); }
+[data-theme="dark"] .stat-card        { background: var(--color-bg-card); border-color: var(--color-border-mid); border-left-color: var(--ds-color); }
+[data-theme="dark"] .spinner          { border-color: var(--color-border-mid); }
+[data-theme="dark"] .page-notes       { border-top-color: var(--color-border-mid); }
+[data-theme="dark"] .error-message    { color: #e74c3c; }
+</style>
+<script src="js/theme.js"></script>
+</head>
+<body>
+
+<!-- nav -->
+<div id="nav-placeholder">
+  <script>
+    $.get("navigation.html", function(data){
+      $("#nav-placeholder").replaceWith(data);
+    });
+  </script>
+</div>
+
+<div class="about-section">
+  <div class="page-container">
+    <h2>Sea Ice</h2>
+
+    <!-- ===================== SEA ICE EXTENT ===================== -->
+    <h3 style="color:var(--color-text-dark); margin-top:0.5em; margin-bottom:0.4em;">Sea Ice Extent</h3>
+    <p class="page-intro">
+      Daily sea ice extent for both hemispheres from satellite passive-microwave observations
+      (1978&ndash;present), from the
+      <a href="https://nsidc.org/data/g02135" target="_blank">NSIDC Sea Ice Index</a>.
+    </p>
+
+    <!-- Dataset toggles -->
+    <div class="dataset-controls" id="nh-sh-dataset-controls">
+      <div class="controls-label">Hemisphere</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="nh-sh-stats-grid"></div>
+
+    <!-- Loading / error -->
+    <div id="nh-sh-loading">
+      <div class="spinner"></div><br>Loading sea ice extent data&hellip;
+      <div id="nh-sh-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" id="nh-sh-chart-container" style="display:none;">
+      <canvas id="nhShChart"></canvas>
+    </div>
+
+    <!-- Notes & credits -->
+    <div class="page-notes">
+      <strong>Units:</strong> Millions of square kilometers (10<sup>6</sup>&thinsp;km&sup2;).<br>
+      <strong>Data:</strong>
+      <a href="https://noaadata.apps.nsidc.org/NOAA/G02135/north/daily/data/N_seaice_extent_daily_v4.0.csv" target="_blank">Northern Hemisphere</a> and
+      <a href="https://noaadata.apps.nsidc.org/NOAA/G02135/south/daily/data/S_seaice_extent_daily_v4.0.csv" target="_blank">Southern Hemisphere</a>
+      daily extent, NSIDC Sea Ice Index v4 &mdash; updated automatically every Monday.
+    </div>
+
+    <!-- ===================== ARCTIC SEA ICE VOLUME ===================== -->
+    <hr style="border:none; border-top:1px solid #e8e8e8; margin:2.5em 0 2em;">
+
+    <h3 style="color:var(--color-text-dark); margin-top:0; margin-bottom:0.4em;">Arctic Sea Ice Volume</h3>
+    <p class="page-intro">
+      Monthly modeled Arctic sea ice volume from
+      <a href="https://psc.apl.uw.edu/research/projects/arctic-sea-ice-volume-anomaly/data/" target="_blank">PIOMAS</a>
+      (Pan-Arctic Ice-Ocean Modeling and Assimilation System, UW Polar Science Center). Unlike the
+      extent series above, this is a model reanalysis rather than a direct satellite measurement &mdash;
+      see the note below on its current update status.
+      There is no Southern Hemisphere counterpart on this page: Antarctic sea ice thickness is much
+      harder to estimate from satellites because of deep, flooding snow cover, so no agency publishes
+      a routine Antarctic volume time series. The same modeling group's
+      <a href="http://psc.apl.washington.edu/zhang/Global_seaice/data.html" target="_blank">GIOMAS</a>
+      project does cover the Antarctic, but only as raw gridded model output &mdash; see that page directly
+      if you want to work with it.
+    </p>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="vol-stats-grid">
+      <div class="stat-card" id="vol-stat-arctic" style="--ds-color:#0077b6;">
+        <div class="stat-ds-name">Arctic (PIOMAS)</div>
+        <div class="stat-value">&mdash;<span class="stat-units"> &times;10&sup3; km&sup3;</span></div>
+        <div class="stat-year">latest month</div>
+      </div>
+    </div>
+
+    <!-- Loading / error -->
+    <div id="vol-loading">
+      <div class="spinner"></div><br>Loading sea ice volume data&hellip;
+      <div id="vol-error-message" class="error-message" style="font-size:0.88em;margin-top:0.5em;display:none;"></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="chart-container" id="vol-chart-container" style="display:none;">
+      <canvas id="volChart"></canvas>
+    </div>
+
+    <!-- Notes & credits -->
+    <div class="page-notes">
+      <strong>Units:</strong> Thousands of cubic kilometers (10<sup>3</sup>&thinsp;km&sup3;).<br>
+      <strong>Update status:</strong> PIOMAS's atmospheric forcing input (NOAA's NCEP/NCAR reanalysis)
+      was discontinued in March 2026, and the Polar Science Center has not announced a timeline to
+      resume &mdash; the series below may lag behind the present by several months until it does.<br>
+      <strong>Data:</strong>
+      <a href="https://psc.apl.uw.edu/research/projects/arctic-sea-ice-volume-anomaly/data/" target="_blank">PIOMAS Arctic Sea Ice Volume Reanalysis</a>, UW Polar Science Center.
+      Schweiger, A., et al. (2011), <em>J. Geophys. Res.</em>, 116, C00D06, doi:10.1029/2011JC007084;
+      Zhang, J. and D. Rothrock (2003), <em>Mon. Weather Rev.</em>, 131, 845&ndash;861.
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  <div id="footer-placeholder">
+    <script>
+      $.get("footer.html", function(data){
+        $("#footer-placeholder").replaceWith(data);
+      });
+    </script>
+  </div>
+</div>
+
+<script>
+// ---- Theme-aware chart color helper ----
+function chartColors() {
+  return ThemeManager.getChartColors();
+}
+function applyThemeToAllCharts() {
+  [nhShChart, volChart].forEach(function(ch) {
+    if (!ch) return;
+    var c = chartColors();
+    if (ch.options.plugins && ch.options.plugins.legend && ch.options.plugins.legend.labels) {
+      ch.options.plugins.legend.labels.color = c.legendColor;
+    }
+    Object.values(ch.options.scales || {}).forEach(function(scale) {
+      if (scale.title) scale.title.color = c.textColor;
+      if (scale.grid)  scale.grid.color  = c.gridColor;
+      if (scale.ticks) scale.ticks.color = c.tickColor;
+    });
+    ch.update('none');
+  });
+}
+document.addEventListener('themechange', applyThemeToAllCharts);
+
+// ============================================================
+//  SEA ICE EXTENT — NH & SH (NSIDC Sea Ice Index v4)
+//  Data source: local CSVs refreshed weekly by .github/workflows/update_seaice.yml
+// ============================================================
+const NH_SH_DATASETS = [
+  { key: 'nh', label: 'Northern Hemisphere', color: '#0077b6', file: 'data/N_seaice_extent_daily_v4.0.csv' },
+  { key: 'sh', label: 'Southern Hemisphere', color: '#e07b00', file: 'data/S_seaice_extent_daily_v4.0.csv' }
+];
+
+const nhShActive = new Set(NH_SH_DATASETS.map(d => d.key));
+const nhShCache  = {};
+let nhShChart    = null;
+
+// ---- Parse one NSIDC daily-extent CSV into {dates[], values[]} ----
+function parseSeaiceCsv(text) {
+  const parsed = Papa.parse(text, {
+    header: true,
+    skipEmptyLines: true,
+    dynamicTyping: true,
+    delimitersToGuess: [',', '\t', '|', ';'],
+    transformHeader: h => h.trim()
+  });
+
+  const points = [];
+  parsed.data.forEach(row => {
+    const year   = row.Year || row.year || row.YYYY;
+    const month  = row.Month || row.month || row.MM;
+    const day    = row.Day || row.day || row.DD;
+    const extent = row.Extent || row.extent;
+
+    if (year && month && day && extent !== undefined && extent !== null) {
+      const extentValue = parseFloat(extent);
+      if (!isNaN(extentValue) && extentValue > 0) {
+        points.push({ date: new Date(year, month - 1, day), value: extentValue });
+      }
+    }
+  });
+  points.sort((a, b) => a.date - b.date);
+  return { dates: points.map(p => p.date), values: points.map(p => p.value) };
+}
+
+// ---- Build UI controls (toggles + stat cards) ----
+function buildNhShControls() {
+  const controlsDiv = document.getElementById('nh-sh-dataset-controls');
+  const statsDiv    = document.getElementById('nh-sh-stats-grid');
+
+  for (const ds of NH_SH_DATASETS) {
+    const pill = document.createElement('div');
+    pill.className = 'dataset-toggle active';
+    pill.style.setProperty('--ds-color', ds.color);
+    pill.dataset.key = ds.key;
+    pill.innerHTML = `
+      <span class="color-swatch" style="background:${ds.color};"></span>
+      <span class="dataset-name">${ds.label}</span>
+    `;
+    pill.addEventListener('click', () => {
+      if (nhShActive.has(ds.key)) {
+        nhShActive.delete(ds.key);
+        pill.classList.remove('active');
+      } else {
+        nhShActive.add(ds.key);
+        pill.classList.add('active');
+      }
+      renderNhShChart();
+      updateNhShStats();
+    });
+    controlsDiv.appendChild(pill);
+
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.id = `nh-sh-stat-${ds.key}`;
+    card.style.setProperty('--ds-color', ds.color);
+    card.innerHTML = `
+      <div class="stat-ds-name">${ds.label}</div>
+      <div class="stat-value">—<span class="stat-units"> &times;10<sup>6</sup> km&sup2;</span></div>
+      <div class="stat-year">latest</div>
+    `;
+    statsDiv.appendChild(card);
+  }
+}
+
+function updateNhShStats() {
+  for (const ds of NH_SH_DATASETS) {
+    const card = document.getElementById(`nh-sh-stat-${ds.key}`);
+    if (!card) continue;
+    const data   = nhShCache[ds.key];
+    const active = nhShActive.has(ds.key);
+    card.classList.toggle('inactive', !active || !data);
+    if (data && active && data.values.length) {
+      const last = data.values.length - 1;
+      card.querySelector('.stat-value').innerHTML = data.values[last].toFixed(2) + '<span class="stat-units"> &times;10<sup>6</sup> km&sup2;</span>';
+      card.querySelector('.stat-year').textContent = data.dates[last].toISOString().slice(0, 10);
+    }
+  }
+}
+
+function buildNhShDatasets() {
+  const datasets = [];
+  for (const ds of NH_SH_DATASETS) {
+    if (!nhShActive.has(ds.key)) continue;
+    const data = nhShCache[ds.key];
+    if (!data) continue;
+    datasets.push({
+      label: ds.label,
+      data: data.dates.map((d, i) => ({ x: d, y: data.values[i] })),
+      borderColor: ds.color,
+      backgroundColor: ds.color,
+      borderWidth: 1.5,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      tension: 0,
+      fill: false
+    });
+  }
+  return datasets;
+}
+
+function renderNhShChart() {
+  const datasets = buildNhShDatasets();
+
+  if (nhShChart) {
+    nhShChart.data.datasets = datasets;
+    nhShChart.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('nhShChart').getContext('2d');
+  nhShChart = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: chartColors().legendColor,
+            font: { size: 12, weight: '600' },
+            padding: 16,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (item) => ` ${item.dataset.label}: ${item.raw.y.toFixed(2)} ×10⁶ km²`
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'year', displayFormats: { year: 'yyyy' } },
+          title: { display: true, text: 'Year', color: chartColors().textColor, font: { size: 13, weight: '600' } },
+          grid: { color: chartColors().gridColor }
+        },
+        y: {
+          title: { display: true, text: 'Extent (10⁶ km²)', color: chartColors().textColor, font: { size: 13, weight: '600' } },
+          grid: { color: chartColors().gridColor }
+        }
+      }
+    }
+  });
+}
+
+async function initNhSh() {
+  buildNhShControls();
+
+  const results = await Promise.allSettled(
+    NH_SH_DATASETS.map(async ds => {
+      const res = await fetch(ds.file);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      nhShCache[ds.key] = parseSeaiceCsv(await res.text());
+    })
+  );
+
+  const errors = results
+    .map((r, i) => r.status === 'rejected' ? `${NH_SH_DATASETS[i].label}: ${r.reason.message}` : null)
+    .filter(Boolean);
+  if (errors.length) {
+    const errDiv = document.getElementById('nh-sh-error-message');
+    errDiv.style.display = 'block';
+    errDiv.textContent   = 'Could not load: ' + errors.join('; ');
+  }
+
+  document.getElementById('nh-sh-loading').style.display        = 'none';
+  document.getElementById('nh-sh-chart-container').style.display = 'block';
+
+  renderNhShChart();
+  updateNhShStats();
+}
+
+initNhSh();
+
+// ============================================================
+//  ARCTIC SEA ICE VOLUME — PIOMAS
+//  Data source: local CSV pre-computed by scripts/update_piomas_data.py
+// ============================================================
+let volChart = null;
+let volData  = null; // { years[], values[] }
+
+function parseVolumeCsv(text) {
+  const lines = text.trim().split('\n');
+  const years = [], values = [];
+  for (let i = 1; i < lines.length; i++) {
+    const parts = lines[i].split(',');
+    if (parts.length < 2) continue;
+    const yr  = parseFloat(parts[0]);
+    const val = parseFloat(parts[1]);
+    if (isNaN(yr) || isNaN(val)) continue;
+    years.push(yr);
+    values.push(val);
+  }
+  return { years, values };
+}
+
+function renderVolChart() {
+  const ctx = document.getElementById('volChart').getContext('2d');
+  volChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [{
+        label: 'Arctic sea ice volume',
+        data: volData.years.map((y, i) => ({ x: y, y: volData.values[i] })),
+        borderColor: '#0077b6',
+        backgroundColor: '#0077b6',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        pointHoverRadius: 4,
+        tension: 0.15,
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => ` ${item.raw.y.toFixed(2)} ×10³ km³`
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          title: { display: true, text: 'Year', color: chartColors().textColor, font: { size: 13, weight: '600' } },
+          ticks: { stepSize: 5 },
+          grid: { color: chartColors().gridColor }
+        },
+        y: {
+          title: { display: true, text: 'Volume (10³ km³)', color: chartColors().textColor, font: { size: 13, weight: '600' } },
+          grid: { color: chartColors().gridColor }
+        }
+      }
+    }
+  });
+}
+
+function updateVolStats() {
+  const card = document.getElementById('vol-stat-arctic');
+  if (!card || !volData || !volData.values.length) return;
+  const last = volData.values.length - 1;
+  card.querySelector('.stat-value').innerHTML = volData.values[last].toFixed(2) + '<span class="stat-units"> &times;10&sup3; km&sup3;</span>';
+  card.querySelector('.stat-year').textContent = `month ~${volData.years[last].toFixed(2)}`;
+}
+
+async function initVol() {
+  try {
+    const res = await fetch('data/piomas_volume.csv');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    volData = parseVolumeCsv(await res.text());
+  } catch (err) {
+    const errDiv = document.getElementById('vol-error-message');
+    errDiv.style.display = 'block';
+    errDiv.textContent   = `Could not load Arctic sea ice volume data: ${err.message}`;
+  }
+
+  document.getElementById('vol-loading').style.display        = 'none';
+  document.getElementById('vol-chart-container').style.display = 'block';
+
+  if (volData) {
+    renderVolChart();
+    updateVolStats();
+  }
+}
+
+initVol();
+</script>
+
+</body>
+</html>

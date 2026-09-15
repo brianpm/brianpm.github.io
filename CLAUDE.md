@@ -136,7 +136,7 @@ The site hosts several interactive browser pages that fetch data directly from e
 | Page | Data source | Chart library | Notes |
 |---|---|---|---|
 | `co2_noaa.html` | NOAA GML AFTP servers (direct `.txt` files per station) | Chart.js | Multi-site selector |
-| `nh_seaice.html` | Local CSV `data/N_seaice_extent_daily_v4.0.csv` | Chart.js + date-fns | Single dataset |
+| `seaice.html` | Local CSVs: `data/N_seaice_extent_daily_v4.0.csv`, `data/S_seaice_extent_daily_v4.0.csv`, `data/piomas_volume.csv` | Chart.js + date-fns | NH/SH extent toggle + Arctic (PIOMAS) volume; no Antarctic volume equivalent exists (see script docstring) |
 | `gmst.html` | Met Office Climate Dashboard formatted CSVs | Chart.js | 5 datasets, toggle per dataset, uncertainty bands |
 
 **gmst.html data sources** — all fetched from `https://climate.metoffice.cloud/formatted_data/gmt_{name}.csv`:
@@ -165,6 +165,7 @@ Climate data scripts live in `scripts/` at the repo root. All write their output
 conda activate py12
 python scripts/update_gmst_data.py        # 5 GMST CSVs from Met Office
 python scripts/update_ohc_data.py         # Ocean Heat Content from NOAA/NCEI (downloads .nc directly; thredds-ocean OPeNDAP is unreliable, avoid it)
+python scripts/update_piomas_data.py      # Arctic sea ice volume from PIOMAS (UW Polar Science Center; also runs via GitHub Actions weekly, alongside seaice extent)
 python scripts/update_eei_data.py         # EEI from CERES EBAF (also runs via GitHub Actions monthly)
 python scripts/update_tsi_data.py         # TSI from NOAA NCEI (also runs via GitHub Actions quarterly)
 python scripts/update_aod_data.py         # AOD from Sentinel-3A via Copernicus CDS
@@ -254,7 +255,8 @@ shared with "Add wine" through `acquisitionFormHtml` / `bindAcquisitionForm` /
 
 - **Root HTML files** - Individual site pages (index.html, aboutus.html, contact.html, etc.)
   - `resources.html` - Curated hub page linking to data browsers (CO2, sea ice, temperature), publications, and GitHub
-  - `co2_noaa.html`, `nh_seaice.html`, `gmst.html` - Interactive data visualization pages (linked from resources.html)
+  - `co2_noaa.html`, `seaice.html`, `gmst.html` - Interactive data visualization pages (linked from resources.html)
+  - `nh_seaice.html` - `<meta refresh>` redirect stub to `seaice.html` (old bookmarked URL)
   - `{slug}.html` at root — instant `<meta refresh>` redirect stubs for QR-code-distributed presentation URLs
 - `presentations/` - Presentation detail pages (site-styled with nav/footer)
   - `presentations/index.json` - Manifest file; `ourwork.html` loads this to auto-discover and render presentation cards
