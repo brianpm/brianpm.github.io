@@ -2,15 +2,19 @@
 """
 update_eei_data.py
 ------------------
-Fetch the CERES EBAF-TOA Edition 4.2.1 global mean TOA net flux time series
-directly from the NASA LaRC OPeNDAP server (no login required; CORS: *).
+Fetch the CERES EBAF Edition 4.2.1 global mean TOA net flux time series from
+NASA LaRC ASDC (Earthdata Cloud). The old opendap.larc.nasa.gov server was
+retired in 2026; the data now requires an Earthdata Login.
 
 Steps:
-  1. Scrape the OPeNDAP directory listing to find the latest cumulative file.
-  2. Fetch the 1-D global-mean time series (time, gtoa_net_all_mon) via the
-     OPeNDAP ASCII (.ascii) endpoint — a tiny text payload (~15 KB).
+  1. Query NASA CMR (public) for the latest cumulative EBAF granule.
+  2. Download it with earthaccess and read gtoa_net_all_mon + time.
   3. Compute a trailing 12-month running mean of the EEI.
   4. Write  data/eei_ceres.csv  relative to the repo root.
+
+Credentials: ~/.netrc (earthaccess prompts on first run), or in CI the
+EARTHDATA_TOKEN env var (a token from urs.earthdata.nasa.gov, from the
+GitHub secret EARTHDATA_TOKEN).
 
 Output CSV columns:
   year_frac    – decimal year of the month mid-point
@@ -18,157 +22,57 @@ Output CSV columns:
   eei_12mo     – trailing 12-month running mean (W m⁻²; blank for first 11 rows)
 
 Run manually:
-  conda activate p12
-  cd bibtoweb
-  python update_eei_data.py
+  conda activate py12
+  python scripts/update_eei_data.py
 
 Or triggered automatically by .github/workflows/update_ceres.yml.
 """
 
-import re
 import csv
-import datetime
-import socket
-import urllib.request
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import tempfile
 from pathlib import Path
 
-# ── Configuration ──────────────────────────────────────────────────────────────
-CATALOG_URL = (
-    "https://opendap.larc.nasa.gov/opendap/CERES/EBAF/TOA_Edition4.2.1/contents.html"
-)
-OPENDAP_BASE = (
-    "https://opendap.larc.nasa.gov/opendap/CERES/EBAF/TOA_Edition4.2.1/{filename}.ascii"
-)
-# OPeNDAP "days since" base date for CERES EBAF time axis
-TIME_ORIGIN = datetime.date(2000, 3, 1)
+import earthaccess
+import xarray as xr
 
-# Path to output CSV (relative to this script's location → go up one level)
+# ── Configuration ──────────────────────────────────────────────────────────────
+# TOA+Surface EBAF Ed4.2.1 (LARC_CLOUD). The cumulative file name encodes its
+# end month, so the newest granule is the one with the latest start..end range.
+COLLECTION = "C3880496704-LARC_CLOUD"
+
 SCRIPT_DIR = Path(__file__).parent
 OUTPUT_CSV = SCRIPT_DIR.parent / "data" / "eei_ceres.csv"
 
-# ── Network timeouts ──────────────────────────────────────────────────────────
-# READ_TIMEOUT bounds each socket operation; REQUEST_DEADLINE is a hard
-# wall-clock cap on a whole request, enforced in a worker thread so a stalled
-# server can never hang the runner. REQUEST_RETRIES absorbs brief transient
-# failures (e.g. a fluky 500) without failing the whole scheduled run.
-READ_TIMEOUT = 30          # seconds, per socket operation
-REQUEST_DEADLINE = 60      # seconds, hard cap per request
-REQUEST_RETRIES = 1        # extra attempts after the first
 
-socket.setdefaulttimeout(READ_TIMEOUT)
+# ── Steps 1-2: find, download, and read the latest cumulative file ────────────
+def fetch_series() -> tuple[list[float], list[float]]:
+    """Returns (year_fracs at month mid-point, global mean TOA net flux W m⁻²)."""
+    # "environment" uses EARTHDATA_TOKEN / EARTHDATA_USERNAME+PASSWORD (CI);
+    # falls back to ~/.netrc / interactive prompt locally.
+    if not earthaccess.login(strategy="environment").authenticated:
+        earthaccess.login()
 
+    granules = earthaccess.search_data(
+        concept_id=COLLECTION, temporal=("2000-03-01", None), count=50
+    )
+    if not granules:
+        raise RuntimeError("CMR returned no CERES EBAF granules.")
+    # cumulative files: pick the one reaching the latest end date
+    latest = max(granules, key=lambda g: g["umm"]["TemporalExtent"]
+                 ["RangeDateTime"]["EndingDateTime"])
+    print(f"Latest granule: {latest['meta']['native-id']}")
 
-def fetch_text(url: str) -> str:
-    """GET *url* and return decoded text, with a hard per-request deadline.
-
-    Runs the blocking urlopen in a worker thread and abandons it if it exceeds
-    REQUEST_DEADLINE, so a slow/stalled server can never hang the run. Retries
-    transient failures REQUEST_RETRIES times; raises the last error if all fail.
-    """
-    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-
-    def _do() -> str:
-        with urllib.request.urlopen(req, timeout=READ_TIMEOUT) as r:
-            return r.read().decode("utf-8", errors="replace")
-
-    last_err: Exception = RuntimeError("no attempt made")
-    for attempt in range(1, REQUEST_RETRIES + 2):
-        ex = ThreadPoolExecutor(max_workers=1)
-        future = ex.submit(_do)
-        try:
-            result = future.result(timeout=REQUEST_DEADLINE)
-            ex.shutdown(wait=False)
-            return result
-        except FutureTimeoutError:
-            last_err = TimeoutError(f"request exceeded {REQUEST_DEADLINE}s")
-        except (urllib.error.URLError, OSError) as e:
-            last_err = e
-        ex.shutdown(wait=False)  # don't block on a hung socket
-        if attempt <= REQUEST_RETRIES:
-            print(f"    Warning: attempt {attempt} failed ({last_err}); retrying…")
-    raise last_err
+    with tempfile.TemporaryDirectory() as tmp:
+        (path,) = earthaccess.download([latest], tmp)
+        with xr.open_dataset(path) as ds:
+            eei = ds["gtoa_net_all_mon"].values.astype(float).tolist()
+            t = ds["time"].to_index()
+    # Mid-month convention: year + (month - 0.5) / 12
+    year_fracs = [d.year + (d.month - 0.5) / 12.0 for d in t]
+    return year_fracs, eei
 
 
-# ── Step 1: find the latest cumulative file in the OPeNDAP catalog ─────────────
-def find_latest_filename() -> str:
-    print(f"Fetching catalog: {CATALOG_URL}")
-    html = fetch_text(CATALOG_URL)
-
-    pattern = r"CERES_EBAF-TOA_Edition4\.2\.1_200003-(\d{6})\.nc"
-    end_dates = sorted(set(re.findall(pattern, html)))
-    if not end_dates:
-        raise RuntimeError("No matching CERES EBAF files found in directory listing.")
-
-    latest = end_dates[-1]
-    filename = f"CERES_EBAF-TOA_Edition4.2.1_200003-{latest}.nc"
-    print(f"Latest file: {filename}")
-    return filename
-
-
-# ── Step 2: fetch time + global mean EEI via OPeNDAP ASCII ─────────────────────
-def fetch_opendap(filename: str) -> tuple[list[float], list[float]]:
-    """
-    Returns (times_days, eei_monthly) where:
-      times_days  – days since 2000-03-01
-      eei_monthly – global mean TOA net flux in W m⁻²
-
-    The OPeNDAP ASCII response for a Grid variable uses the form:
-      varname.mapname, val1, val2, ...
-      varname.varname, val1, val2, ...
-    """
-    url = OPENDAP_BASE.format(filename=filename)
-    url += "?time,gtoa_net_all_mon.gtoa_net_all_mon"
-    print(f"Fetching: {url}")
-
-    text = fetch_text(url)
-
-    # Parse "name, v1, v2, v3, ..." lines (values may wrap across lines)
-    data: dict[str, list[float]] = {}
-    current_key = None
-    current_vals: list[float] = []
-
-    for raw_line in text.splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("Dataset:"):
-            if current_key is not None:
-                data[current_key] = current_vals
-            current_key = None
-            current_vals = []
-            continue
-
-        # A new variable line starts with a non-numeric identifier
-        parts = line.split(", ", 1)
-        first = parts[0]
-        if len(parts) == 2 and first and not first[0].lstrip("-").isdigit():
-            # flush previous
-            if current_key is not None:
-                data[current_key] = current_vals
-            current_key = first
-            current_vals = [float(v) for v in parts[1].split(", ") if v.strip()]
-        elif current_key is not None:
-            # continuation line
-            current_vals.extend(float(v) for v in line.split(", ") if v.strip())
-
-    if current_key is not None:
-        data[current_key] = current_vals
-
-    if "time" not in data:
-        raise RuntimeError("'time' variable not found in OPeNDAP response.")
-    if "gtoa_net_all_mon.gtoa_net_all_mon" not in data:
-        raise RuntimeError("'gtoa_net_all_mon' not found in OPeNDAP response.")
-
-    return data["time"], data["gtoa_net_all_mon.gtoa_net_all_mon"]
-
-
-# ── Step 3: derive decimal years and trailing 12-month running mean ─────────────
-def days_to_decimal_year(days: float) -> float:
-    """Convert 'days since 2000-03-01' to a decimal year at the month mid-point."""
-    d = TIME_ORIGIN + datetime.timedelta(days=float(days))
-    # Use mid-month convention: year + (month - 0.5) / 12
-    return d.year + (d.month - 0.5) / 12.0
-
-
+# ── Step 3: trailing 12-month running mean ─────────────
 def trailing_12mo_mean(values: list[float]) -> list[float | None]:
     """Trailing 12-month running mean. Returns None for the first 11 positions."""
     result: list[float | None] = [None] * len(values)
@@ -199,10 +103,7 @@ def write_csv(
 
 # ── Main ────────────────────────────────────────────────────────────────────────
 def main() -> None:
-    filename = find_latest_filename()
-    times_days, eei_monthly = fetch_opendap(filename)
-
-    year_fracs = [days_to_decimal_year(t) for t in times_days]
+    year_fracs, eei_monthly = fetch_series()
     eei_12mo   = trailing_12mo_mean(eei_monthly)
 
     # Sanity check

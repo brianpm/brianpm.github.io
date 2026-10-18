@@ -27,7 +27,12 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install dependencies
+        run: pip install earthaccess xarray netCDF4
+
       - name: Run EEI update script
+        env:
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
         run: python scripts/update_eei_data.py
 
       - name: Commit and push if CSV changed
