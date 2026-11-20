@@ -724,6 +724,44 @@
         return COLORS.indexOf(s) !== -1 ? s : 'other';
     }
 
+    // Reads the JSON reply from the "Wine label" Claude Project (see c/guide.html)
+    // and returns form-ready strings, or null if there is nothing usable. The text
+    // comes off the clipboard, so it is untrusted: known keys only, scalars only,
+    // length-capped, and anything around the outermost {...} (```json fences,
+    // chatty preamble) is ignored.
+    function parseLabelPaste(text) {
+        var s = String(text || '');
+        var a = s.indexOf('{'), b = s.lastIndexOf('}');
+        if (a === -1 || b <= a) return null;
+        var o;
+        try { o = JSON.parse(s.slice(a, b + 1)); } catch (e) { return null; }
+        if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
+
+        function str(v) {
+            if (Array.isArray(v)) {
+                v = v.filter(function (x) { return typeof x === 'string'; }).join(', ');
+            }
+            return (typeof v === 'string' || typeof v === 'number')
+                ? String(v).trim().slice(0, 200) : '';
+        }
+        function year(v) { v = str(v); return /^\d{4}$/.test(v) ? v : ''; }
+
+        var vintage = str(o.vintage);
+        var out = {
+            producer: str(o.producer),
+            name: str(o.name),
+            vintage: /^nv$/i.test(vintage) ? 'NV' : year(vintage),
+            color: str(o.color) ? normalizeColor(o.color) : '',
+            varietals: str(o.varietals),
+            region: str(o.region),
+            country: str(o.country),
+            drinkFrom: year(o.drinkFrom),
+            drinkTo: year(o.drinkTo)
+        };
+        for (var k in out) if (out[k]) return out;
+        return null;
+    }
+
     function normalizeSizeMl(raw) {
         if (raw == null || raw === '') return 750;
         var s = String(raw).toLowerCase();
@@ -945,6 +983,7 @@
         DOCS: DOCS,
         WRITE_ORDER: WRITE_ORDER,
         COLORS: COLORS,
+        parseLabelPaste: parseLabelPaste,
         DISPOSITIONS: DISPOSITIONS,
         IMPORT_FIELDS: IMPORT_FIELDS,
 

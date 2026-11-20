@@ -1227,6 +1227,8 @@
         }).join('');
 
         main.innerHTML = backLink('#/', 'All fridges') + '<h2>Add wine</h2>' +
+            '<p><button type="button" id="ca-paste" class="cellar-btn cellar-btn-block">' +
+            '<i class="fa fa-paste"></i> Paste from Claude</button></p>' +
             '<div class="cellar-card"><div class="cellar-card-body">' +
             '<div class="cellar-field"><label>Producer</label><input id="ca-producer" autofocus></div>' +
             '<div class="cellar-field"><label>Wine name</label><input id="ca-name"></div>' +
@@ -1250,6 +1252,30 @@
             acquisitionFormHtml({}, pendingCode);
 
         bindAcquisitionForm({});
+
+        el('ca-paste').addEventListener('click', function () {
+            var fields = { producer: 'ca-producer', name: 'ca-name', vintage: 'ca-vintage',
+                color: 'ca-color', varietals: 'ca-varietals', region: 'ca-region',
+                country: 'ca-country', drinkFrom: 'ca-from', drinkTo: 'ca-to' };
+            function fill(text) {
+                var r = model.parseLabelPaste(text);
+                if (!r) { alert('No wine details found in that text. Copy Claude\'s whole reply and try again.'); return; }
+                var n = 0;
+                for (var k in fields) if (r[k]) { el(fields[k]).value = r[k]; n++; }
+                toast('Filled ' + n + ' field(s). Check them before saving.');
+            }
+            function ask() {
+                var t = window.prompt('Paste Claude\'s reply here:');
+                if (t) fill(t);
+            }
+            // readText needs a secure context and, on iOS, the user tapping the
+            // system "Paste" bubble; anything else falls back to a paste box.
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(fill, ask);
+            } else {
+                ask();
+            }
+        });
 
         el('ca-save').addEventListener('click', function () {
             var producer = el('ca-producer').value.trim();

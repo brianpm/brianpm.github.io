@@ -580,6 +580,21 @@
         eq(model.drinkWindowState({}, 2030), 'unknown');
     });
 
+    test('parseLabelPaste reads a fenced Claude reply and rejects junk', function () {
+        var r = model.parseLabelPaste('Here you go:\n```json\n{"producer":"Ridge","name":"Monte Bello",' +
+            '"vintage":2019,"color":"Red","varietals":["Cabernet Sauvignon","Merlot"],' +
+            '"region":"Santa Cruz Mountains","country":"USA","drinkFrom":"2027","evil":"<x>"}\n```');
+        eq(r, { producer: 'Ridge', name: 'Monte Bello', vintage: '2019', color: 'red',
+                varietals: 'Cabernet Sauvignon, Merlot', region: 'Santa Cruz Mountains',
+                country: 'USA', drinkFrom: '2027', drinkTo: '' });
+        eq(model.parseLabelPaste('{"vintage":"nv","producer":"Krug"}').vintage, 'NV');
+        eq(model.parseLabelPaste('{"vintage":"circa 2019","producer":"X"}').vintage, '');
+        eq(model.parseLabelPaste('{"producer":{"a":1}}'), null);
+        eq(model.parseLabelPaste('just some text'), null);
+        eq(model.parseLabelPaste('{not json}'), null);
+        eq(model.parseLabelPaste(''), null);
+    });
+
     /* ------------------------------------------------- MemoryStore */
 
     test('MemoryStore round-trips a document', function () {

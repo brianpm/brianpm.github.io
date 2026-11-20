@@ -230,6 +230,17 @@ b, strong { color: var(--color-text-dark); }
                 Stickers are blank until scanned, so any sticker fits any bottle. Keep a sheet near
                 the fridges &mdash; an unlabelled bottle still counts, it just can&rsquo;t be scanned yet.
             </p>
+            <p class="gd-note">
+                <b>Faster: let Claude read the label.</b> In the Claude app, open the
+                <em>Wine label</em> project, photograph the front (and back) label, copy the reply,
+                then tap <span class="gd-key">Paste from Claude</span> on the Add wine page. Check
+                the filled-in fields before saving.
+                Project instructions: <em>&ldquo;From the wine label photo(s), reply with only one
+                line of JSON with keys producer, name, vintage (a 4-digit year or &quot;NV&quot;),
+                color (red, white, rose, sparkling, fortified), varietals (array), region, country,
+                drinkFrom, drinkTo (4-digit years). Omit any key you can&rsquo;t read from the
+                label. No other text.&rdquo;</em>
+            </p>
         </div>
 
         <div class="gd-sec">
