@@ -195,6 +195,9 @@ in `robots.txt`, and absent from `sitemap.xml`; reach it by bookmark.
   the URL printed on every physical QR label.** A bare 6-char code is a bottle; anything
   starting `#/` is an app route. That scheme is baked into hundreds of stickers — do not
   change it, and keep `c/index.html` in place permanently even if the app ever moves.
+  **Bump the `?v=YYYY-MM-DD` on its cellar CSS/JS tags with every change to those files.**
+  skymath.org (Cloudflare) serves `.js`/`.css` with `max-age=14400` but HTML with
+  `max-age=600`, so without a bump phones keep running the old script for up to 4 hours.
 - `c/labels.html` — QR label-sheet generator: presets for 2.625x1 in rectangular and
   0.75 / 1.5 / 2 in round, every dimension editable. No token, no store.
   **Measured 2026-08-22 on a Brother MFC-L3770CDW:** two phones read every size on
